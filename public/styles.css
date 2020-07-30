@@ -270,32 +270,9 @@ select {
 
 #twitterLinks {
     position: absolute;
-    left: 95px;
+    left: 30px;
     bottom: 48px;
     transform: translateY(50%);
-}
-
-#fluxrLogo {
-    position: absolute;
-    left: 20px;
-    bottom: 20px;
-    width: 60px;
-    height: 60px;
-
-    background: url(/img/menu/fluxr-logo.svg);
-    background-repeat: no-repeat;
-    background-size: contain;
-}
-
-#logoTwitterSeparator {
-    position: absolute;
-    width: 1px;
-    height: 40px;
-    left: 90px;
-    bottom: calc(48px);
-    transform: translateY(50%);
-
-    background: white;
 }
 
 .separator {
@@ -1128,7 +1105,7 @@ select {
         display: none;
     }
 
-    #fluxrLogo, #logoTwitterSeparator, #twitterLinks {
+    #logoTwitterSeparator, #twitterLinks {
         display: none;
     }
 
