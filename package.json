@@ -4,12 +4,12 @@
     "description": "",
     "main": "src/server/server.js",
     "scripts": {
+        "setup": "node ./scripts/setup.js",
         "start": "node ./src/server/server.js",
         "nodemon": "nodemon ./src/server/server.js",
         "build": "webpack --config webpack-dev.config.js",
         "build-watch": "webpack --watch --config webpack-dev.config.js",
-        "build-prod": "webpack --config webpack-prod.config.js",
-        "generate-sounds": "audiosprite resources/sounds/*/*.ogg resources/sounds/*/*.wav resources/sounds/*/*.flac resources/sounds/*/*.m4a resources/sounds/*/*.aiff --format howler --export \"ogg,m4a,mp3\" --output public/audio/output --path \"/audio\"; mv public/audio/output.json src/config/audio-sprites.json"
+        "build-prod": "webpack --config webpack-prod.config.js"
     },
     "author": "Nathan Flurry",
     "license": "GPL-3.0-only",
