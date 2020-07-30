@@ -1,5 +1,6 @@
 const path = require("path");
 const cp = require("child_process");
+const fs = require("fs");
 
 const projectRoot = path.join(__dirname, "..");
 const soundsRoot = path.join(projectRoot, "resources", "sounds");
@@ -10,4 +11,7 @@ console.log("Make sure you have FFMPEG setup correctly (https://github.com/tonis
 console.log();
 
 console.log("Running audiosprite...");
-cp.execSync(`npx audiosprite ${soundsRoot}/*/*.ogg ${soundsRoot}/*/*.wav ${soundsRoot}/*/*.flac ${soundsRoot}/*/*.m4a ${soundsRoot}/*/*.aiff --format howler --export \"ogg,m4a,mp3\" --output ${soundsOutput} --path \"/audio\"; mv ${soundsOutput}.json ${audioSpritesOutput}`, { stdio: "inherit" });
+cp.execSync(`npx audiosprite ${soundsRoot}/*/*.ogg ${soundsRoot}/*/*.wav ${soundsRoot}/*/*.flac ${soundsRoot}/*/*.m4a ${soundsRoot}/*/*.aiff --format howler --export "ogg,m4a,mp3" --output ${soundsOutput} --path "/audio"`, { stdio: "inherit" });
+
+console.log("Moving output JSON file...");
+fs.renameSync(`${soundsOutput}.json`, audioSpritesOutput);

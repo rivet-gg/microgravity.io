@@ -8,7 +8,10 @@ console.log("=== PRE-CHECKS ===");
 console.log("Make sure your Node version is up to date:");
 cp.execSync("node --version", { stdio: "inherit" });
 console.log();
-console.log("Make sure FFMPEG is installed (see https://github.com/tonistiigi/audiosprite#hints-for-windows-users):");
+console.log("Make sure FFMPEG is installed:");
+console.log("  If you are on macOS or Linux, install Homebrew (https://brew.sh/) and run 'brew install ffmpg'.");
+console.log("  If you are on Windows, install Chocolatey (https://chocolatey.org/install#individual) and run 'choco install ffmpg' in PowerShell as administrator.")
+console.log("  See notes from Audiosprite (https://chocolatey.org/install#individual)")
 cp.execSync("ffmpeg -version", { stdio: "inherit" });
 console.log();
 
