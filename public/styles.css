@@ -207,6 +207,10 @@ select {
     background: rgba(0, 0, 0, 0.1);
 }
 
+#infoPanel h3 {
+    text-align: center;
+}
+
 #infoPanel h3:not(:first-child) {
     margin-top: 15px;
 }

@@ -431,16 +431,17 @@ class GameClient extends Game {
                     // Get the social URL
                     let socialUrl;
                     switch (social) {
-                        case "youtube":
-                            socialUrl = "https://www.youtube.com/channel/UCqRnW0ZrjyZ3mBDB7dqzszg";
+                        case "twitter":
+                            socialUrl = "https://twitter.com/RivetOfficial";
                             break;
                         case "twitch":
-                            socialUrl = "https://www.twitch.tv/starcadeio";
+                            socialUrl = "https://www.twitch.tv/RivetOfficial";
                             break;
                         case "instagram":
-                            throw new Error("No Instagram yet.");
+                            socialUrl = "https://www.instagram.com/RivetOfficial/";
+                            break;
                         case "discord":
-                            socialUrl = "https://discord.gg/Sabyrzx";
+                            socialUrl = "https://discord.gg/p4m7RuW";
                             break;
                         default:
                             throw new Error(`Unknown social ${social}.`);
@@ -526,14 +527,21 @@ class GameClient extends Game {
         new ClipboardJS("#shareLink", {
             text: () => location.href
         });
+
+        // Update ad reward panel HTML
+        let adBlockerReward = document.getElementById("pleaseDisableAdBlocker");
+        if (adBlockerReward) {
+            adBlockerReward.innerHTML = adBlockerReward.innerHTML.replace("\n", "<br/>").replace("{0}", utils.generateResourcesHTML([config.adBlockReward, config.adBlockReward, config.adBlockReward]));
+        }
+
         // Update ad blocker
         let intervalId = setInterval(() => {
-            // NOTE: This can be used to add/remove rewards for using adblock
-            let isUsingAdBlock = false;
-            if (isUsingAdBlock) {
+            if (document.getElementById("pleaseDisableAdBlocker")) {
                 this.removeReward("adblock");
+                document.getElementById("moneyMakerSquare").style.border = "6px solid rgb(200, 0, 0)";
             } else {
                 this.addReward("adblock");
+                document.getElementById("moneyMakerSquare").style.border = "none";
                 clearInterval(intervalId);
             }
         }, 250);

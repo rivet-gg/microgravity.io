@@ -1,0 +1,116 @@
+<svg id="ninja" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="32" height="32" viewBox="0 0 32 32">
+  <metadata><?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?>
+<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Adobe XMP Core 5.6-c138 79.159824, 2016/09/14-01:09:01        ">
+   <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+      <rdf:Description rdf:about=""/>
+   </rdf:RDF>
+</x:xmpmeta>
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                           
+<?xpacket end="w"?></metadata>
+<defs>
+    <style>
+      .cls-1 {
+        fill: #606060;
+        opacity: 0.25;
+      }
+
+      .cls-1, .cls-10, .cls-11, .cls-12, .cls-2, .cls-4, .cls-5, .cls-6, .cls-7, .cls-8, .cls-9 {
+        fill-rule: evenodd;
+      }
+
+      .cls-2, .cls-5 {
+        fill: #fff;
+      }
+
+      .cls-2 {
+        opacity: 0.5;
+      }
+
+      .cls-3 {
+        fill: #8e4a4a;
+        filter: url(#filter);
+      }
+
+      .cls-4 {
+        fill: #c7c7c7;
+        opacity: 0.85;
+      }
+
+      .cls-5 {
+        opacity: 0.35;
+      }
+
+      .cls-6 {
+        fill: #8d8d8d;
+        opacity: 0.65;
+      }
+
+      .cls-7 {
+        fill: #e6e6e6;
+      }
+
+      .cls-8 {
+        fill: #c86300;
+      }
+
+      .cls-9 {
+        fill: #8d2b08;
+      }
+
+      .cls-10 {
+        fill: #324b5f;
+      }
+
+      .cls-11 {
+        fill: #526b7e;
+      }
+
+      .cls-12 {
+        fill: #8da3b4;
+      }
+    </style>
+    <filter id="filter" x="15" y="20" width="2" height="7" filterUnits="userSpaceOnUse">
+      <feImage preserveAspectRatio="none" x="15" y="20" width="2" height="7" result="image" xlink:href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMiIgaGVpZ2h0PSI3IiB2aWV3Qm94PSIwIDAgMiA3Ij4KICA8ZGVmcz4KICAgIDxzdHlsZT4KICAgICAgLmNscy0xIHsKICAgICAgICBmaWxsOiB1cmwoI2xpbmVhci1ncmFkaWVudCk7CiAgICAgIH0KICAgIDwvc3R5bGU+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImxpbmVhci1ncmFkaWVudCIgeDE9IjEiIHkxPSI3IiB4Mj0iMSIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAuMTA4IiBzdG9wLWNvbG9yPSIjNDY0NjQ2Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMC4xMjgiIHN0b3AtY29sb3I9IiM0NjQ2NDYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIwLjgwNiIgc3RvcC1jb2xvcj0iIzIyMiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjAuOTE2IiBzdG9wLWNvbG9yPSIjMjIyIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCBjbGFzcz0iY2xzLTEiIHdpZHRoPSIyIiBoZWlnaHQ9IjciLz4KPC9zdmc+Cg=="/>
+      <feComposite result="composite" operator="in" in2="SourceGraphic"/>
+      <feBlend result="blend" in2="SourceGraphic"/>
+    </filter>
+  </defs>
+  <g id="overlay">
+    <g>
+      <path class="cls-1" d="M17,23V13l5,4a4.2,4.2,0,0,0,3,1,1.909,1.909,0,0,0,2-2V9l3,11a18.13,18.13,0,0,1-2,2S17.219,21.875,17,23Zm-2,0V13l-5,4a4.2,4.2,0,0,1-3,1,1.909,1.909,0,0,1-2-2V9L2,20a18.13,18.13,0,0,0,2,2S14.781,21.875,15,23Z"/>
+      <path class="cls-2" d="M18,8l5,4,1-1V9h2v7l-2,1-6-5V8ZM14,8L9,12,8,11V9H6v7l2,1,6-5V8Z"/>
+      <rect class="cls-3" x="15" y="20" width="2" height="7"/>
+      <path id="Shape_818_copy" data-name="Shape 818 copy" class="cls-4" d="M27.2,8.941L28,18l-2,2-8-5.412V9.824L23,14l2.157-1.294V9.941L24,8.941A0.941,0.941,0,0,1,25,8S27.014,7.816,27.2,8.941Zm-22.4,0L4,18l2,2,8-5.412V9.824L9,14,6.843,12.706V9.941L8,8.941A0.941,0.941,0,0,0,7,8S4.986,7.816,4.8,8.941Z"/>
+      <path class="cls-5" d="M26,20l2,2,2-2-2-2ZM6,20L4,22,2,20l2-2Z"/>
+      <path class="cls-6" d="M17,14l7,8-3,2-4-2H15l-4,2L8,22l7-8,0.833,4h0.333Z"/>
+      <path class="cls-7" d="M16,24s-3-9.25-3-12.857c0,0-.125-8.143,3-8.143s3,8.143,3,8.143C19,14.875,16,24,16,24Z"/>
+    </g>
+    <g>
+      <path id="Shape_812_copy_4" data-name="Shape 812 copy 4" class="cls-8" d="M16,12a3.076,3.076,0,0,1-2-2s0.438-5,2-5,2,5,2,5A3.076,3.076,0,0,1,16,12Z"/>
+      <path id="Shape_812_copy_3" data-name="Shape 812 copy 3" class="cls-9" d="M16,12a3.076,3.076,0,0,1-2-2,2.06,2.06,0,0,1,2-1,2.06,2.06,0,0,1,2,1A3.076,3.076,0,0,1,16,12Z"/>
+      <path class="cls-10" d="M17,24v4h1V24H17Zm3,0v4h1V24H20Zm-5,0v4H14V24h1Zm-3,0v4H11V24h1Z"/>
+      <path class="cls-11" d="M18,25v3a1.068,1.068,0,0,0,1,1,0.954,0.954,0,0,0,1-1V25H18Zm-4,0v3a1.068,1.068,0,0,1-1,1,0.954,0.954,0,0,1-1-1V25h2Z"/>
+      <path class="cls-12" d="M17,25a7.137,7.137,0,0,0,4,1l2-3s-2.875-2.437-6-2v4Zm-2,.012A7.2,7.2,0,0,1,11,26L9,23.037s2.875-2.407,6-1.975v3.951Z"/>
+    </g>
+  </g>
+</svg>

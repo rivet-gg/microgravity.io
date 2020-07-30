@@ -9,6 +9,9 @@
     <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="description" content="Microgravity.io is a free multiplayer IO game for building your civilization in space.">
     <meta name="keywords" content="game,games,space,asteroids,fun,moomoo,zombs,starve,online,io,multiplayer,free">
+
+    <!-- Github button -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
 </head>
 <body>
 <canvas id="gameCanvas"></canvas>
@@ -62,31 +65,35 @@
 
             <h3 class="translate" v-t="'social-title'"></h3>
             <div id="socialContent" style="margin: 10px 0">
-                <div class="socialContentItem" @click="clickedSocial('youtube', false)">
-                    <div class="socialIcon full youtube" style="animation-duration: 1.1s"></div>
-                    <div>34K</div>
-                    <div class="socialRewardTip">Subscribe to<br/>Unlock Ship</div>
+                <div class="socialContentItem" @click="clickedSocial('twitter', false)">
+                    <div class="socialIcon full twitter" style="animation-duration: 1.1s"></div>
+                    <div class="socialRewardTip">Follow to<br/>Unlock Ship</div>
                 </div>
 
                 <div class="socialContentItem" @click="clickedSocial('twitch', false)">
                     <div class="socialIcon full twitch" style="animation-duration: 1.23s"></div>
-                    <div>24</div>
+                    <div class="socialRewardTip">Follow to<br/>Unlock Ship</div>
                 </div>
 
                 <div class="socialContentItem" @click="clickedSocial('instagram', false)">
                     <div class="socialIcon full instagram"></div>
-                    <div>34K</div>
-                    <div class="socialRewardTip">resources/color?</div>
+                    <div class="socialRewardTip">Follow to<br/>Unlock Ship</div>
                 </div>
 
                 <div class="socialContentItem" :class="{hasReward:hasReward('discord')}" @click="clickedSocial('discord')">
                     <div class="socialIcon full discord" style="animation-duration: 1.47s"></div>
-                    <div>3.9k</div>
                     <div class="socialRewardTip">Join for<br/><div class="resourceIcon oil"></div><span>1000</span><div class="resourceIcon aluminium"></div><span>1000</span><div class="resourceIcon uranium"></div><span>1000</span></div>
                 </div>
             </div>
             <div style="font-style: italic; text-align: center; font-size: 18px;">
                 Follow and subscribe for exclusive awards.
+            </div>
+
+            <h3 class="transalte" v-t="'oss-title'"></h3>
+            <div class="translate" style="display: flex; justify-content: center; padding-top: 10px;">
+                <a class="github-button" href="https://github.com/NathanFlurry/microgravity.io"
+                    data-color-scheme="no-preference: light; light: light; dark: light;" data-icon="octicon-star" data-size="large"
+                    data-show-count="true" aria-label="Star NathanFlurry/microgravity.io on GitHub">Star on Github</a>
             </div>
 
             <h3 class="translate" v-t="'htp-title'"></h3>
@@ -147,7 +154,7 @@
                 <a class="link" href="/privacy.html" target="_blank" v-t="'privacy'"></a> | <a class="link" href="/terms.html" target="_blank" v-t="'terms-of-service'"></a> | <a class="link" href="/credits.html" target="_blank" v-t="'credits'"></a>
             </div>
 
-            <div style="margin-top: 10px">&copy; 2018 Fluxr LLC</div>
+            <div style="margin-top: 10px">&copy; 2020 Fluxr LLC</div>
         </div>
 
         <!-- Twitter -->
@@ -168,12 +175,12 @@
         </div>
 
         <!-- YouTubers -->
-        <div id="youTubers">
+        <!-- <div id="youTubers">
             <h3>Featured YouTubers</h3>
             <a class="link" href="https://www.youtube.com/watch?v=iec-kJg4fGc" target="_blank"><div class="socialIcon youtube"></div>Corrupt X</a><br/>
             <a class="link" href="https://www.youtube.com/watch?v=lMf_M0-aAaY" target="_blank"><div class="socialIcon youtube"></div>Baxtrix</a><br/>
             <a class="link" href="https://www.youtube.com/playlist?list=PLn3PfSOYoscovPLLpVssNlYduwcMiX-nI" target="_blank"><div class="socialIcon youtube"></div>More Videos</a>
-        </div>
+        </div> -->
     </div>
 
 

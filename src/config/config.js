@@ -107,9 +107,9 @@ config.ships = [
     { id: "ship-0" },
     { id: "ship-1" },
     { id: "ship-2" },
-    { id: "ship-3" },
-    { id: "ship-twitch", fireDistance: 1.2, reward: "twitch" },
-    { id: "ship-yt", fireDistance: 1.2, reward: "youtube" },
+    { id: "ship-instagram", fireDistance: 1.2, reward: "instagram" },
+    { id: "ship-twitch", reward: "twitch" },
+    { id: "ship-twitter", fireDistance: 1.2, reward: "twitter" },
     { id: "alien", reward: "adblock" }
 ];
 config.shipFills = [
