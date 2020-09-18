@@ -22,7 +22,8 @@ let structures = {};
 structures.actions = {
     TOGGLE_SHARING: 0,
     DEPOSIT: 1,
-    COLLECT: 2
+    COLLECT: 2,
+    DEMOLISH: 3
 };
 
 // Structure groups

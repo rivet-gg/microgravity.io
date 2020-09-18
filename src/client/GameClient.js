@@ -152,6 +152,8 @@ class GameClient extends Game {
         /* @type {?number} */ this.deathPosX = null;
         /* @type {?number} */ this.deathPosY = null;
 
+        /* @type {boolean} */ this.demolishConfirm = false;
+
         this.recognition = null;
 
         // Init UI
@@ -2471,6 +2473,15 @@ class GameClient extends Game {
                     addAction(`structureSharingToggle`, `[${utils.translate(structure.allianceSharing ? "on-label" : "off-label").toUpperCase()}] ${utils.translate("toggle-sharing")}`, () => {
                         this.sendStructureAction(structures.actions.TOGGLE_SHARING, !structure.allianceSharing);
                     });
+
+                    // Demolish + Confirm messages
+                    if (!this.demolishConfirm) {
+                        addAction("demolish", `${utils.translate("demolish")}`, () => {this.demolishConfirm=true}, true);
+                    } else if (this.demolishConfirm) {
+                        addAction("demolish", `${utils.translate("confirmation-question")}`, () => {
+                            this.sendStructureAction(structures.actions.DEMOLISH, true);
+                        });
+                    }
                 }
             }
 
@@ -2487,6 +2498,7 @@ class GameClient extends Game {
             }
         } else {
             structurePanel.style.display = "none";
+            this.demolishConfirm = false; // Make the demolish promt reset if go off structure
         }
     }
 
