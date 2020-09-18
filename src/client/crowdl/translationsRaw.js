@@ -24,5 +24,10 @@ module.exports =
     "language_id": "es-419", "data": require("./langs/es-419.json"),
     "count": 53,
     "percentage": 35.5705
+  },
+  {
+    "language_id": "zh", "data": require("./langs/zh.json"),
+    "count": 149,
+    "percentage": 100
   }
 ]
