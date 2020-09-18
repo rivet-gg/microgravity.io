@@ -1058,7 +1058,7 @@ class ClientHandle {
                 structure.count -= count;
 
                 break;
-            case structure.actions.DEMOLISH:
+            case structures.actions.DEMOLISH:
                 if (!structure.isOwner(this.id)) return;
                 structure.destroy()
                 break;
