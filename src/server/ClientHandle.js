@@ -1061,8 +1061,8 @@ class ClientHandle {
             case structures.actions.DEMOLISH:
                 if (!structure.isOwner(this.id)) return;
                 structure.destroy()
+
                 break;
-                
             default:
                 console.warn(`Unknown structure action ${action}`);
                 break;
