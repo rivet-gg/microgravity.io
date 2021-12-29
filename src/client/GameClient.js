@@ -175,9 +175,15 @@ class GameClient extends Game {
         this.render();
     }
 
-    connectSocket(address, port, gameIndex) {
-        let wsProtocol = config.useTLS ? "wss:" : "ws:";
-        this.ws = new WebSocket(`${wsProtocol}//${address}:${port}/?gameIndex=${gameIndex}`);
+    connectSocket(address, port, useTls, gameIndex, token = null) {
+        let wsProtocol = useTls ? "wss:" : "ws:";
+        let url = `${wsProtocol}//${address}:${port}/?gameIndex=${gameIndex}`;
+        if (token != null) {
+            url += `&token=${token}`;
+        }
+        console.log("Connecting", { url, address, port, useTls, gameIndex, token });
+
+        this.ws = new WebSocket(url);
         this.ws.binaryType = "arraybuffer";
         this.socketOpen = false;  // True if the socket is open
         this.socketClosed = false;  // True if the socket has been closed since created
@@ -540,10 +546,10 @@ class GameClient extends Game {
         let intervalId = setInterval(() => {
             if (document.getElementById("pleaseDisableAdBlocker")) {
                 this.removeReward("adblock");
-                document.getElementById("moneyMakerSquare").style.border = "6px solid rgb(200, 0, 0)";
+                // document.getElementById("moneyMakerSquare").style.border = "6px solid rgb(200, 0, 0)";
             } else {
                 this.addReward("adblock");
-                document.getElementById("moneyMakerSquare").style.border = "none";
+                // document.getElementById("moneyMakerSquare").style.border = "none";
                 clearInterval(intervalId);
             }
         }, 250);

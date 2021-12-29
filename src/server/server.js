@@ -12,6 +12,16 @@ var cors = require("cors");
 
 const nocache = require("nocache");
 
+let rivetServer = null;
+if (config.isProd) {
+    const rivet = require("@rivet-gg/game");
+    rivetServer = new rivet.ServerApi({
+            basePath: process.env.RIVET_GAME_API_URL,
+            accessToken: process.env.RIVET_LOBBY_TOKEN,
+    });
+    rivetServer.lobbyReady({});
+}
+
 // Setup stats
 stats.start("local", process.env.REDIS_URI || null);
 
@@ -103,37 +113,24 @@ app.get("/game-stats", nocache(), async (req, res) => {
     res.send(resultsMap);
 });
 
-if (config.isProd) {
-    // HTTP server
-    require("http").createServer(app).listen(80, () => console.log("Listening on port 80."));
-
-    // HTTPS server
-    throw new Error("HTTPS not supported yet");
-    // require("https").createServer(/* NOTE: Certs go here */, app).listen(443, () => console.log("Listening on port 443."));
-} else {
-    // Dev server
+// Dev server
+if (!config.isProd) {
     let port = 8080;
     app.listen(port, () => console.log(`Listening on port ${port}.`));
 }
 
 // Handle WebSocket CORS
-const corsRegex = /^(.+\.|)microgravity\.io$/;
+const corsRegex = /^((.+\.|)microgravity\.io|microgravity.rivet.game)$/;
 function isValidOrigin(origin) {
     if (!config.isProd) return true;  // Allow from anywhere if dev
     return corsRegex.test(origin);
 }
 
 // Create WebSocket server
-let wsPort = 8008;
-let wsServer;
-if (config.useTLS) {
-    throw new Error("TLS not supported yet");
-    // wsServer = require("https").createServer(/* NOTE: Certs go here */);
-} else {
-    wsServer = require("http").createServer();
-}
+let wsPort = process.env.PORT ? parseInt(process.env.PORT) : 8008;
+let wsServer = require("http").createServer();
 const wss = new WebSocket.Server({ server: wsServer, path: "/" });
-wss.on("connection", (ws, req) => {
+wss.on("connection", async (ws, req) => {
     // Don't allow connection if full
     if (game.playerCount >= config.maxPlayersHard) {
         ws.close();
@@ -153,6 +150,29 @@ wss.on("connection", (ws, req) => {
         return;
     }
 
+    if (!req.url) {
+        console.warn("Missing URL");
+        ws.close();
+        return;
+    }
+    let wsUrl = new url.URL(req.url, "https://microgravity.io");
+    let playerToken = wsUrl.searchParams.get("token");
+    if (rivetServer) {
+        if (playerToken) {
+            try {
+                await rivetServer.playerConnected({ playerToken })
+            } catch (err) {
+                console.warn("Failed to connect player", err);
+                ws.close();
+                return;
+            }
+        } else {
+            console.warn("Missing token");
+            ws.close();
+            return;
+        }
+    }
+
     // Send to game
     let client = game.socketConnected(ws);
 
@@ -160,6 +180,16 @@ wss.on("connection", (ws, req) => {
     broadcastPlayerCount(game.playerCount);
 
     // Add event on close
-    client.onClosed = () => broadcastPlayerCount(game.playerCount);
+    client.onClosed = async () => {
+        broadcastPlayerCount(game.playerCount);
+
+        if (rivetServer) {
+            try {
+                await rivetServer.playerDisconnected({ playerToken });
+            } catch (err) {
+                console.warn("Failed to disconnect player", err);
+            }
+        }
+    };
 });
 wsServer.listen(wsPort, () => console.log(`WebSocket server listening on port ${wsPort}.`));

@@ -17,6 +17,7 @@ This open-source copy of Microgravity is not built to be distributed, since the 
 * Make sure that the above software is installed correctly.
 * Open a shell in the root directory of the project and run `npm run setup`.
     * This will install necessary dependencies, compile required assets, and build the client.
+* If you have [Nix](https://nixos.org/) installed, simply run `nix-shell` to install all of the above.
 
 ## Development
 ### Server

@@ -12,9 +12,6 @@ Object.defineProperty(config, "isProd", {
         }
     }
 });
-Object.defineProperty(config, "useTLS", {
-    get: () => config.isProd
-});
 
 config.pingInterval = 2.5;
 config.pingTimeout = 10;
