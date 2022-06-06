@@ -281,6 +281,7 @@ class GameClient extends Game {
         // Find default locale by searching the available languages until one is found that's in the list
         let languageOptions = navigator.languages ? navigator.languages : [navigator.language];  // Fallback to default language
         let defaultLocale = "en";
+        console.log("langaugeOptions", languageOptions, "translations", translations);
         for (let lang of languageOptions) {
             let splitLang = lang.split("-")[0];  // For languages like "ru-RU", this will split to "ru"
             if (translations[lang]) {
