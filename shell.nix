@@ -9,6 +9,7 @@ pkgs.mkShell {
 		pkgconfig
 		openssl
 		ffmpeg-full
+		yarn
 
 		docker-compose 
 	];
