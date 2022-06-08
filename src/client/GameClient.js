@@ -2050,7 +2050,7 @@ class GameClient extends Game {
 		// Save the data
 		[this.leaderboardData, this.playerRank, this.playerLeaderboardItem] = data;
 
-		// Conver thte leaderboard in to client data
+		// Convert the leaderboard in to client data
 		let itemCount =
 			this.leaderboardData.length + (this.playerRank >= this.leaderboardData.length ? 1 : 0);
 		let leaderboardItems = [];

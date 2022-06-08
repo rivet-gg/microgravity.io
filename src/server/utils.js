@@ -1,4 +1,4 @@
-const regeneratorRuntime = require('regenerator-runtime');
+const fetch = require('node-fetch');
 
 module.exports = {
 	requestHandlerMiddleware(
@@ -10,7 +10,7 @@ module.exports = {
 		return {
 			handle: async (req, opts) => {
 				req.headers = {};
-				if (token) req.headers.Authorization = `Bearer ${token.token}`;
+				if (token) req.headers.Authorization = `Bearer ${token}`;
 
 				// Default body
 				if (!req.body) {
@@ -36,7 +36,7 @@ module.exports = {
 				return {
 					response: {
 						statusCode: res.status,
-						body: await res.clone().blob(),
+						body: res.body,
 						headers: Array.from(res.headers.entries()).reduce((s, [k, v]) => {
 							s[k] = v;
 							return s;

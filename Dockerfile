@@ -5,6 +5,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm install --production
 
+COPY dist/api-matchmaker/ node_modules/@rivet-gg/matchmaker
 COPY src/ src/
 
 CMD ["node", "src/server/server.js"]

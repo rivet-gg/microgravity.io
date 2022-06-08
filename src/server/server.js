@@ -1,7 +1,10 @@
+// Since we can't inherit the cert from mkcert
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
+
 const config = require('../config/config');
 config.isServer = true;
 
-const api = require('../api');
+const utils = require('./utils');
 const GameServer = require('./GameServer');
 const stats = require('./stats');
 const url = require('url');
@@ -19,9 +22,15 @@ if (config.isProd) {
 	rivetServer = new rivet.MatchmakerService({
 		endpoint: process.env.RIVET_MATCHMAKER_API_URL,
 		tls: true,
-		requestHandler: api.requestHandlerMiddleware(process.env.RIVET_LOBBY_TOKEN)
+		requestHandler: utils.requestHandlerMiddleware(process.env.RIVET_LOBBY_TOKEN)
 	});
-	rivetServer.lobbyReady({});
+
+	rivetServer
+		.lobbyReady({})
+		.then(() => console.log('Lobby ready'))
+		.catch(err => {
+			throw err;
+		});
 }
 
 // Setup stats
@@ -124,7 +133,7 @@ if (!config.isProd) {
 }
 
 // Handle WebSocket CORS
-const corsRegex = /^((.+\.|)microgravity\.io|microgravity.rivet.game)$/;
+const corsRegex = /^((.+\.|)microgravity\.io|microgravity\.rivet\.game|microgravity\.rivet-game\.test)$/;
 function isValidOrigin(origin) {
 	if (!config.isProd) return true; // Allow from anywhere if dev
 	return corsRegex.test(origin);
