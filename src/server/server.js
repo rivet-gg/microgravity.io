@@ -1,6 +1,7 @@
 const config = require('../config/config');
 config.isServer = true;
 
+const api = require('../api');
 const GameServer = require('./GameServer');
 const stats = require('./stats');
 const url = require('url');
@@ -15,9 +16,10 @@ const nocache = require('nocache');
 let rivetServer = null;
 if (config.isProd) {
 	const rivet = require('@rivet-gg/matchmaker');
-	rivetServer = new rivet.ServerApi({
-		basePath: process.env.RIVET_GAME_API_URL,
-		accessToken: process.env.RIVET_LOBBY_TOKEN
+	rivetServer = new rivet.MatchmakerService({
+		endpoint: process.env.RIVET_MATCHMAKER_API_URL,
+		tls: true,
+		requestHandler: api.requestHandlerMiddleware(process.env.RIVET_LOBBY_TOKEN)
 	});
 	rivetServer.lobbyReady({});
 }

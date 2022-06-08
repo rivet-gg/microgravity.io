@@ -18,6 +18,7 @@
 		"@rivet-gg/matchmaker": "file:dist/api-matchmaker",
 		"clipboard": "^2.0.1",
 		"cors": "^2.8.4",
+		"dotenv": "^16.0.1",
 		"express": "^4.16.3",
 		"file-loader": "^2.0.0",
 		"howler": "^2.0.15",
@@ -28,6 +29,7 @@
 		"nocache": "^2.0.0",
 		"quad-node": "^1.0.5",
 		"redis": "^2.8.0",
+		"regenerator-runtime": "^0.13.9",
 		"vue": "^2.5.17",
 		"vue-i18n": "^8.1.0",
 		"ws": "^6.1.2"
