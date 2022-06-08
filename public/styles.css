@@ -1,1242 +1,1265 @@
 @font-face {
-    font-family: "Pixelar Regular";
-    src: url('Pixelar Regular.otf');
+	font-family: 'Pixelar Regular';
+	src: url('Pixelar Regular.otf');
 }
 
 :root {
-    --transition-length: 0.2s;
+	--transition-length: 0.2s;
 }
 
-html, body {
-    margin: 0;
-    padding: 0;
+html,
+body {
+	margin: 0;
+	padding: 0;
 
-    /* Font style */
-    font-family: "Pixelar Regular", "Anonymous Pro", sans-serif;
-    color: white;
-    font-size: 25px;
+	/* Font style */
+	font-family: 'Pixelar Regular', 'Anonymous Pro', sans-serif;
+	color: white;
+	font-size: 25px;
 
-    /* Prevent selection */
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
+	/* Prevent selection */
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 
-    /* Default Background */
-    background: #110b2e;
+	/* Default Background */
+	background: #110b2e;
 
-    /* Remove Touch Highlight */
-    -webkit-tap-highlight-color: transparent;
+	/* Remove Touch Highlight */
+	-webkit-tap-highlight-color: transparent;
 }
 
-h1, h2, h3, h4, h5, h6 {
-    margin: 0;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	margin: 0;
 }
 
 a {
-    color: white;
-    /*text-decoration: underline;*/
-    text-decoration: none;
+	color: white;
+	/*text-decoration: underline;*/
+	text-decoration: none;
 }
 
 a:hover {
-    /*font-weight: bold;*/
+	/*font-weight: bold;*/
 }
 
 .link {
-    opacity: 0.8;
-    cursor: pointer;
+	opacity: 0.8;
+	cursor: pointer;
 }
 
 .link:hover {
-    opacity: 1.0;
+	opacity: 1;
 }
 
-input[type=text] {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    -ms-appearance: none;
-    -o-appearance: none;
-    appearance: none;
-    outline: none;
-    border: none;
+input[type='text'] {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	-ms-appearance: none;
+	-o-appearance: none;
+	appearance: none;
+	outline: none;
+	border: none;
 }
 
-input[type=text] {
-    box-sizing: border-box;
-    display: block;
-    margin: 8px 0;
-    padding: 8px 16px;
+input[type='text'] {
+	box-sizing: border-box;
+	display: block;
+	margin: 8px 0;
+	padding: 8px 16px;
 
-    font-family: "Pixelar Regular", sans-serif;
-    font-size: 1.0em;
+	font-family: 'Pixelar Regular', sans-serif;
+	font-size: 1em;
 
-    color: white;
-    background: rgba(0, 0, 0, 0.5);
+	color: white;
+	background: rgba(0, 0, 0, 0.5);
 }
 
-input[type=text]::placeholder {
-    color: rgba(255, 255, 255, 0.5);
+input[type='text']::placeholder {
+	color: rgba(255, 255, 255, 0.5);
 }
 
-input[type=checkbox] {
-    margin-right: 10px;
+input[type='checkbox'] {
+	margin-right: 10px;
 }
 
 select {
-    display: block;
-    width: 50%;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 10px;
+	display: block;
+	width: 50%;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 10px;
 }
 
 #ui {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    top: 0;
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	top: 0;
 
-    pointer-events: none;
+	pointer-events: none;
 }
 
 /* Ads */
 #moneyMakerSquare {
-    position: absolute;
-    left: calc((50% - 180px) / 2);
-    top: 50%;
-    padding: 10px;
-    transform: translate(-50%, -50%);
+	position: absolute;
+	left: calc((50% - 180px) / 2);
+	top: 50%;
+	padding: 10px;
+	transform: translate(-50%, -50%);
 
-    background: rgba(0, 0, 0, 0.1);
+	background: rgba(0, 0, 0, 0.1);
 }
 
 #moneyMakerSquare .adIndicator {
-    margin-bottom: 3px;
-    font-size: 15px;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 0.2em;
-    text-align: center;
-    opacity: 0.4;
+	margin-bottom: 3px;
+	font-size: 15px;
+	font-weight: bold;
+	text-transform: uppercase;
+	letter-spacing: 0.2em;
+	text-align: center;
+	opacity: 0.4;
 }
 
 #microgravity-io_300x250 {
-    width: 300px;
-    height: 250px;
+	width: 300px;
+	height: 250px;
 
-    display: flex;
-    justify-content: center;
-    align-items: center;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 
-    font-size: 25px;
-    text-align: center;
+	font-size: 25px;
+	text-align: center;
 }
 
 /* Game canvas */
 #gameCanvas {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
 
-    cursor: none;
+	cursor: none;
 }
 
 #gameCanvas.showPointer {
-    cursor: pointer;
+	cursor: pointer;
 }
 
 /* Menu */
 #mainMenu {
-
 }
 
 #menuContent {
-    position: absolute;
-    width: 500px;
-    left: 50%;
-    top: calc(50% - 60px);
+	position: absolute;
+	width: 500px;
+	left: 50%;
+	top: calc(50% - 60px);
 
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
 
-    transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);
 }
 
 #consentPanel {
-    position: absolute;
-    left: 50%;
-    bottom: 80px;
-    width: 350px;
-    transform: translateX(-50%);
+	position: absolute;
+	left: 50%;
+	bottom: 80px;
+	width: 350px;
+	transform: translateX(-50%);
 
-    opacity: 0.5;
-    text-align: center;
+	opacity: 0.5;
+	text-align: center;
 }
 
 #kickWarning {
-    position: absolute;
-    left: 50%;
-    bottom: 160px;
-    width: 250px;
-    padding: 10px;
-    transform: translateX(-50%);
+	position: absolute;
+	left: 50%;
+	bottom: 160px;
+	width: 250px;
+	padding: 10px;
+	transform: translateX(-50%);
 
-    color: yellow;
-    font-weight: bolder;
-    text-align: center;
+	color: yellow;
+	font-weight: bolder;
+	text-align: center;
 }
 
 #infoPanel {
-    position: absolute;
-    width: 300px;
-    height: 350px;
-    right: calc((50% - 180px) / 2);
-    top: 50%;
-    padding: 10px;
-    transform: translate(50%, -50%);
+	position: absolute;
+	width: 300px;
+	height: 350px;
+	right: calc((50% - 180px) / 2);
+	top: 50%;
+	padding: 10px;
+	transform: translate(50%, -50%);
 
-    overflow-y: scroll;
-    -webkit-overflow-scrolling: touch;
+	overflow-y: scroll;
+	-webkit-overflow-scrolling: touch;
 
-    background: rgba(0, 0, 0, 0.1);
+	background: rgba(0, 0, 0, 0.1);
 }
 
 #infoPanel h3 {
-    text-align: center;
+	text-align: center;
 }
 
 #infoPanel h3:not(:first-child) {
-    margin-top: 15px;
+	margin-top: 15px;
 }
 
 #gameLogo {
-    margin-bottom: -200px;
-    pointer-events: none;
+	margin-bottom: -200px;
+	pointer-events: none;
 }
 
 #joinInfo {
-    position: relative;
-    width: 250px;
-    height: 46px;
-    margin-bottom: 15px;
+	position: relative;
+	width: 250px;
+	height: 46px;
+	margin-bottom: 15px;
 }
 
 #usernameField {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 100%; /* This is to make the textbox size correctly */
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	width: 100%; /* This is to make the textbox size correctly */
 
-    margin: 0;
-    padding-right: calc(60px + 16px);
+	margin: 0;
+	padding-right: calc(60px + 16px);
 
-    color: #fff9ec;
-    background: #0e161a;
-    border-radius: 23px;
+	color: #fff9ec;
+	background: #0e161a;
+	border-radius: 23px;
 
-    box-shadow: #283b52 0 0 50px 5px;
+	box-shadow: #283b52 0 0 50px 5px;
 }
 
 #joinButton {
-    position: absolute;
-    width: 60px;
-    bottom: 0;
-    top: 0;
-    right: 0;
+	position: absolute;
+	width: 60px;
+	bottom: 0;
+	top: 0;
+	right: 0;
 
-    font-size: 20px;
-    line-height: 37px;
+	font-size: 20px;
+	line-height: 37px;
 
-    background: #3FC7D3;
-    color: white;
-    border-radius: 23px;
+	background: #3fc7d3;
+	color: white;
+	border-radius: 23px;
 }
 
 #respawnTip {
-    width: 250px;
-    margin-top: 30px;
-    font-weight: bold;
-    font-size: 27px;
-    text-align: center;
+	width: 250px;
+	margin-top: 30px;
+	font-weight: bold;
+	font-size: 27px;
+	text-align: center;
 }
 
 #twitterLinks {
-    position: absolute;
-    left: 30px;
-    bottom: 48px;
-    transform: translateY(50%);
+	position: absolute;
+	left: 30px;
+	bottom: 48px;
+	transform: translateY(50%);
 }
 
 .separator {
-    display: inline-block;;
-    width: 1px;
-    height: 0.5em;
-    vertical-align: middle;
+	display: inline-block;
+	width: 1px;
+	height: 0.5em;
+	vertical-align: middle;
 
-    background: white;
+	background: white;
 }
 
 #extraLinks {
-    position: absolute;
-    bottom: 28px;
-    right: 30px;
+	position: absolute;
+	bottom: 28px;
+	right: 30px;
 
-    font-size: 30px;
+	font-size: 30px;
 }
 
 #extraLinks .separator {
-    margin: 0 5px;
+	margin: 0 5px;
 }
 
 #youTubers {
-    position: absolute;
-    top: 20px;
-    left: 20px;
+	position: absolute;
+	top: 20px;
+	left: 20px;
 
-    font-size: 25px;
+	font-size: 25px;
 }
 
 /*#youTubers a:hover {*/
-    /**/
+/**/
 /*}*/
 
 #youTubers .socialIcon {
-    margin-left: 0;
+	margin-left: 0;
 }
 
 /* Loading Screen */
 #loadingScreen {
-
 }
 
 /* Disconnect Screen */
 #disconnectScreen {
-
 }
 
 #disconnectScreen .button {
-    margin-top: 20px;
+	margin-top: 20px;
 }
 
 /* Game Overlay */
 #gameOverlay {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
 
-    cursor: none;
-    pointer-events: none;
+	cursor: none;
+	pointer-events: none;
 }
 
 .controlTip {
-    width: 425px;
-    height: 175px;
+	width: 425px;
+	height: 175px;
 
-    background-image: url(/img/controls.svg);
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-position: center;
+	background-image: url(/img/controls.svg);
+	background-repeat: no-repeat;
+	background-size: contain;
+	background-position: center;
 
-    flex-grow: 0;
-    flex-shrink: 0;
+	flex-grow: 0;
+	flex-shrink: 0;
 }
 
 #gameControlTip {
-    position: absolute;
-    bottom: 80px;
-    left: 50%;
-    transform: translateX(-50%);
+	position: absolute;
+	bottom: 80px;
+	left: 50%;
+	transform: translateX(-50%);
 
-    background-color: rgba(0, 0, 0, 0.5);
+	background-color: rgba(0, 0, 0, 0.5);
 }
 
 #buttonHolder {
-    margin-top: 10px;
-    font-size: 20px;
-    pointer-events: all;
+	margin-top: 10px;
+	font-size: 20px;
+	pointer-events: all;
 }
 
 #buttonHolder > *:not(:first-child) {
-    margin-top: 5px;
+	margin-top: 5px;
 }
 
 .horizontalButtons {
-    display: flex;
-    flex-direction: row;
+	display: flex;
+	flex-direction: row;
 }
 
 .horizontalButtons > * {
-    flex-basis: 50%;
+	flex-basis: 50%;
 }
 
 .horizontalButtons > *:not(:first-child) {
-    margin-left: 5px;
+	margin-left: 5px;
 }
 
 #joinRequestHolder {
-    padding-top: 10px;
-    text-align: center;
+	padding-top: 10px;
+	text-align: center;
 }
 
 /* Weapon List */
 #weaponDisplay {
-    --item-width: 80px;
-    --item-width-shrunk: 40px;
+	--item-width: 80px;
+	--item-width-shrunk: 40px;
 
-    position: absolute;
-    left: 50%;
-    top: 20px;
-    transform: translateX(calc(var(--item-width) / 2 * -1)) translateX(calc(var(--weapon-index) * var(--item-width-shrunk) * -1));
+	position: absolute;
+	left: 50%;
+	top: 20px;
+	transform: translateX(calc(var(--item-width) / 2 * -1))
+		translateX(calc(var(--weapon-index) * var(--item-width-shrunk) * -1));
 
-    display: flex;
-    flex-direction: row;
+	display: flex;
+	flex-direction: row;
 
-    transition: transform var(--transition-length);
+	transition: transform var(--transition-length);
 }
 
 .weaponItem {
-    width: var(--item-width);
-    height: 60px;
+	width: var(--item-width);
+	height: 60px;
 
-    transition: width var(--transition-length);
+	transition: width var(--transition-length);
 }
 
 .weaponIcon {
-    width: 100%;
-    height: 50px;
+	width: 100%;
+	height: 50px;
 
-    background-repeat: no-repeat;
-    background-size: 35px;
-    background-position: center;
+	background-repeat: no-repeat;
+	background-size: 35px;
+	background-position: center;
 
-    transition: background-size var(--transition-length);
+	transition: background-size var(--transition-length);
 }
 
 .weaponItem .ammoCount {
-    width: 100%;
-    text-align: center;
-    font-size: 18px;
+	width: 100%;
+	text-align: center;
+	font-size: 18px;
 
-    transition: opacity var(--transition-length);
+	transition: opacity var(--transition-length);
 }
 
 .weaponItem:not(.selected) {
-    width: var(--item-width-shrunk);
-    opacity: 0.5;
+	width: var(--item-width-shrunk);
+	opacity: 0.5;
 }
 
 .weaponItem:not(.selected) .weaponIcon {
-    background-size: 25px;
+	background-size: 25px;
 }
 
 .weaponItem:not(.selected) .ammoCount {
-    opacity: 0;
+	opacity: 0;
 }
 
 /* Sidebar */
 #rightSidebar {
-    position: absolute;
-    right: 20px;
-    top: 20px;
-    width: 220px;
+	position: absolute;
+	right: 20px;
+	top: 20px;
+	width: 220px;
 }
 
 /* Weapon Switcher */
 #weaponSwitcher {
-    position: absolute;
-    right: 20px;
-    bottom: 175px;
+	position: absolute;
+	right: 20px;
+	bottom: 175px;
 
-    display: flex;
-    flex-direction: row;
+	display: flex;
+	flex-direction: row;
 }
 
 #weaponSwitcher > .button {
-    width: 40px;
-    height: 40px;
-    padding-top: 7px;
+	width: 40px;
+	height: 40px;
+	padding-top: 7px;
 }
 
 #weaponSwitcher > .button:first-child {
-    margin-right: 10px;
+	margin-right: 10px;
 }
 
 /* Speech Recording */
 #speechRecordingIndicator {
-    position: absolute;
-    left: calc(140px - 12px);
-    top: calc(140px - 12px);
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
+	position: absolute;
+	left: calc(140px - 12px);
+	top: calc(140px - 12px);
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
 
-    background: red;
-    animation: flash 2s infinite;
+	background: red;
+	animation: flash 2s infinite;
 }
 
 /* Leaderboard */
 #leaderboard {
-    box-sizing: border-box;
-    width: 100%;
-    padding: 5px 10px;
+	box-sizing: border-box;
+	width: 100%;
+	padding: 5px 10px;
 
-    background: rgba(0, 0, 0, 0.5);
+	background: rgba(0, 0, 0, 0.5);
 }
 
 .leaderboardItem {
-    height: 25px;
+	height: 25px;
 
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
 
-    opacity: 0.6;
-    font-size: 16px;
+	opacity: 0.6;
+	font-size: 16px;
 }
 
 .leaderboardItem.isMine {
-    opacity: 1.0;
+	opacity: 1;
 }
 
 .leaderboardItem .leaderboardRank {
-    width: 20px;
+	width: 20px;
 }
 
 .leaderboardItem .leaderboardUsername {
-    flex-grow: 1;
+	flex-grow: 1;
 }
 
 .leaderboardItem .leaderboardAlliance {
-    margin-right: 5px;
-    font-weight: bold;
+	margin-right: 5px;
+	font-weight: bold;
 }
 
 .leaderboardItem .leaderboardScore {
-    flex-grow: 1;
-    text-align: right;
+	flex-grow: 1;
+	text-align: right;
 }
 
 /* Command Pallet */
 #commandPanel {
-    box-sizing: border-box;
-    position: absolute;
-    left: 20px;
-    bottom: 20px;
-    width: 200px;
-    padding: 10px;
+	box-sizing: border-box;
+	position: absolute;
+	left: 20px;
+	bottom: 20px;
+	width: 200px;
+	padding: 10px;
 
-    text-align: center;
-    background: rgba(0, 0, 0, 0.5);
+	text-align: center;
+	background: rgba(0, 0, 0, 0.5);
 
-    cursor: default;
+	cursor: default;
 }
 
 .panelDetails {
-    margin-bottom: 10px;
+	margin-bottom: 10px;
 
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
 
-    font-size: 20px;
+	font-size: 20px;
 }
 
 .panelDetails > *:not(:first-child) {
-    margin-top: 5px;
+	margin-top: 5px;
 }
 
 .warning {
-    color: #ff5354;
+	color: #ff5354;
 }
 
 .flash {
-    animation: flash linear 2s infinite;
+	animation: flash linear 2s infinite;
 }
 
 @keyframes flash {
-    0% {
-        opacity: 1.0;
-    }
+	0% {
+		opacity: 1;
+	}
 
-    50% {
-        opacity: 0.2;
-    }
+	50% {
+		opacity: 0.2;
+	}
 
-    100% {
-        opacity: 1.0;
-    }
+	100% {
+		opacity: 1;
+	}
 }
 
 /* Build Pallet */
 #buildPallet {
-    box-sizing: border-box;
-    position: absolute;
-    left: 240px;
-    right: 240px;
-    bottom: 20px;
+	box-sizing: border-box;
+	position: absolute;
+	left: 240px;
+	right: 240px;
+	bottom: 20px;
 }
 
 .itemList {
-    width: 100%;
+	width: 100%;
 
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap-reverse;  /* Wrap by filling the bottom first */
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	flex-wrap: wrap-reverse; /* Wrap by filling the bottom first */
 }
 
 .buildPalletItem {
-    width: 40px;
-    height: 40px;
-    padding: 10px;
-    margin: 5px;
+	width: 40px;
+	height: 40px;
+	padding: 10px;
+	margin: 5px;
 
-    display: flex;
-    justify-content: center;
-    align-items: center;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 
-    background: rgba(0, 0, 0, 0.5);
+	background: rgba(0, 0, 0, 0.5);
 
-    pointer-events: all;
-    cursor: pointer;
+	pointer-events: all;
+	cursor: pointer;
 }
 
 .buildPalletItem.planetItem {
-    width: 80px;
+	width: 80px;
 }
 
 .buildPalletItem .buildPalletItemIcon {
-    width: 100%;
-    height: 100%;
-    opacity: 0.5;
+	width: 100%;
+	height: 100%;
+	opacity: 0.5;
 
-    background-repeat: no-repeat;
-    background-size: contain;
+	background-repeat: no-repeat;
+	background-size: contain;
 }
 
 .buildPalletItem:hover .buildPalletItemIcon {
-    opacity: 1.0;
+	opacity: 1;
 }
 
 .buildPalletItem.planetItem .buildPalletItemIcon {
-    /* Show only the top half since the bottom half is in the ground */
-    background-size: auto 200%;
-    background-position: top;
+	/* Show only the top half since the bottom half is in the ground */
+	background-size: auto 200%;
+	background-position: top;
 }
 
 /* Tooltip */
 .tooltip {
-    max-width: 300px;
-    margin: 10px auto;
-    padding: 10px;
+	max-width: 300px;
+	margin: 10px auto;
+	padding: 10px;
 
-    font-size: 20px;
-    text-align: center;
-    background: rgba(0, 0, 0, 0.5);
+	font-size: 20px;
+	text-align: center;
+	background: rgba(0, 0, 0, 0.5);
 }
 
 .tooltipTitle {
-    font-weight: bold;
+	font-weight: bold;
 }
 
 .tooltipSubtitle {
-
 }
 
 .tooltipDetails {
-    font-style: italic;
+	font-style: italic;
 }
 
 /* Upgrade Items */
 #upgradeItems {
-    text-align: center;
+	text-align: center;
 }
 
 #upgradeItemsTitle {
-    font-weight: bold;
+	font-weight: bold;
 }
 
 /* Rank */
 #rankInfo {
-    width: 300px;
-    margin: 10px auto;
+	width: 300px;
+	margin: 10px auto;
 
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
 }
 
 #rankBar {
-    height: 10px;
-    padding: 5px;
-    margin: 0 10px;
+	height: 10px;
+	padding: 5px;
+	margin: 0 10px;
 
-    flex-grow: 1;
-    background: rgba(0, 0, 0, 0.5);
+	flex-grow: 1;
+	background: rgba(0, 0, 0, 0.5);
 }
 
 #rankBarInner {
-    width: 0;
-    min-width: 5px;
-    height: 100%;
-    background: white;
+	width: 0;
+	min-width: 5px;
+	height: 100%;
+	background: white;
 
-    transition: width var(--transition-length);
+	transition: width var(--transition-length);
 }
 
 .rankNumber {
-    flex-grow: 0;
-    width: 30px;
+	flex-grow: 0;
+	width: 30px;
 }
 
 /* Alliances */
 .modal {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
 
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
 
-    background: rgba(0, 0, 0, 0.5);
+	background: rgba(0, 0, 0, 0.5);
 
-    overflow-y: scroll;
-    -webkit-overflow-scrolling: touch;
-    pointer-events: all;
+	overflow-y: scroll;
+	-webkit-overflow-scrolling: touch;
+	pointer-events: all;
 }
 
 #alliances {
-
 }
 
 #allianceList {
-    width: 500px;
+	width: 500px;
 
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: center;
 }
 
 .allianceItem {
-    width: 180px;
-    margin: 5px;
+	width: 180px;
+	margin: 5px;
 
-    display: flex;
-    flex-direction: row;
+	display: flex;
+	flex-direction: row;
 
-    font-size: 20px;
+	font-size: 20px;
 }
 
 .allianceItem .allianceName {
-    flex-grow: 1;
+	flex-grow: 1;
 
-    display: flex;
-    align-items: center;
+	display: flex;
+	align-items: center;
 }
 
 .allianceItem .allianceJoin {
-    width: 80px;
+	width: 80px;
 }
 
 #createAllianceContainer {
-    display: flex;
-    flex-direction: row;
+	display: flex;
+	flex-direction: row;
 }
 
 #allianceNameInput {
-    width: 100px;
-    margin: 0;
-    margin-right: 10px;
+	width: 100px;
+	margin: 0;
+	margin-right: 10px;
 
-    text-transform: uppercase;
+	text-transform: uppercase;
 }
 
 #leaveAllianceButton {
-    margin-top: 20px;
+	margin-top: 20px;
 }
 
 .dismissButton {
-    font-size: 20px;
-    margin-top: 20px;
+	font-size: 20px;
+	margin-top: 20px;
 }
 
 /* Help */
 #helpOverlay {
-    display: block;  /* Override, since we want content to scroll */
+	display: block; /* Override, since we want content to scroll */
 }
 
 #helpOverlayBox {
-    /* Box that allows the flex box to scroll */
-    min-height: min-content;
-    margin: 50px 0;
+	/* Box that allows the flex box to scroll */
+	min-height: min-content;
+	margin: 50px 0;
 
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
 }
 
 #helpOverlayBox > div:not(.dismissButton) {
-    width: 400px;
+	width: 400px;
 }
 
 /* Tile Hoder */
 .tileHolder {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
+	display: flex;
+	justify-content: center;
+	flex-wrap: wrap;
 }
 
 /* Tile */
 .tile {
-    display: block;
-    width: 120px;
-    margin: 8px;
-    opacity: 0.75;
-    cursor: pointer;
+	display: block;
+	width: 120px;
+	margin: 8px;
+	opacity: 0.75;
+	cursor: pointer;
 
-    text-align: center;
+	text-align: center;
 }
 
 .tile:hover {
-    opacity: 1.0;
+	opacity: 1;
 }
 
 .tile .tileIcon {
-    width: 100%;
-    height: 32px;
+	width: 100%;
+	height: 32px;
 
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-position: center;
+	background-repeat: no-repeat;
+	background-size: contain;
+	background-position: center;
 }
 
 .tile .tileTitle {
-    margin-top: 8px;
-    font-size: 20px;
-    font-weight: bold;
+	margin-top: 8px;
+	font-size: 20px;
+	font-weight: bold;
 }
 
 .tile .tileSubtitle {
-    font-size: 15px;
+	font-size: 15px;
 }
 
 /* Chat Box */
 #chatBox {
-    position: absolute;
-    left: 50%;
-    bottom: 25%;
-    width: 200px;
-    transform: translate(-50%, -50%);
-    margin: 0;
+	position: absolute;
+	left: 50%;
+	bottom: 25%;
+	width: 200px;
+	transform: translate(-50%, -50%);
+	margin: 0;
 
-    font-size: 20px;
-    pointer-events: all;
+	font-size: 20px;
+	pointer-events: all;
 }
 
 /* Resource Icon */
 .resources > .resourceIcon:first-child {
-    /* Don't pad the left side of the first icon */
-    margin-left: 0;
+	/* Don't pad the left side of the first icon */
+	margin-left: 0;
 }
 
 .resourceIcon {
-    display: inline-block;
-    width: 0.6em;
-    height: 0.6em;
-    margin: 0 0.4em;
-    vertical-align: middle;
+	display: inline-block;
+	width: 0.6em;
+	height: 0.6em;
+	margin: 0 0.4em;
+	vertical-align: middle;
 
-    background-size: contain;
-    background-repeat: no-repeat;
+	background-size: contain;
+	background-repeat: no-repeat;
 }
 
 .resourceIcon.oil {
-    background-image: url(/img/icons/oil.svg);
+	background-image: url(/img/icons/oil.svg);
 }
 
 .resourceIcon.aluminium {
-    background-image: url(/img/icons/aluminium.svg);
+	background-image: url(/img/icons/aluminium.svg);
 }
 
 .resourceIcon.uranium {
-    background-image: url(/img/icons/uranium.svg);
+	background-image: url(/img/icons/uranium.svg);
 }
 
 /* Ship Preview */
 .shipPreview {
-    box-sizing: border-box;
+	box-sizing: border-box;
 
-    position: relative;
-    width: 48px;
-    height: 48px;
-    margin: 0 5px;
+	position: relative;
+	width: 48px;
+	height: 48px;
+	margin: 0 5px;
 
-    cursor: pointer;
+	cursor: pointer;
 
-    border: transparent 3px solid;
-    border-radius: 50%;
+	border: transparent 3px solid;
+	border-radius: 50%;
 
-    transition: background-color 0.2s ease-in-out;
+	transition: background-color 0.2s ease-in-out;
 }
 
 .shipPreview.locked {
-    cursor: default;
+	cursor: default;
 }
 
-.shipPreview.locked .shipPreviewMask, .shipPreview.locked .shipPreviewOverlay {
-    opacity: 0.25;
+.shipPreview.locked .shipPreviewMask,
+.shipPreview.locked .shipPreviewOverlay {
+	opacity: 0.25;
 }
 
 .shipPreview:hover:not(.locked) {
-    background-color: rgba(38, 58, 79, 0.25);
+	background-color: rgba(38, 58, 79, 0.25);
 }
 
 .shipPreview.selected:not(.locked) {
-    background-color: rgba(38, 58, 79, 0.4);
-    border-color: #263a4f;
+	background-color: rgba(38, 58, 79, 0.4);
+	border-color: #263a4f;
 }
 
 .shipPreview .lockedIcon {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    margin: 0;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	margin: 0;
 }
 
-.shipPreviewMask, .shipPreviewOverlay {
-    position: absolute;
-    left: 5px;
-    right: 5px;
-    top: 5px;
-    bottom: 5px;
+.shipPreviewMask,
+.shipPreviewOverlay {
+	position: absolute;
+	left: 5px;
+	right: 5px;
+	top: 5px;
+	bottom: 5px;
 
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-position: center;
+	background-repeat: no-repeat;
+	background-size: contain;
+	background-position: center;
 
-    -webkit-mask-image: var(--ship-img);
-    -webkit-mask-repeat: no-repeat;
-    -webkit-mask-size: contain;
-    -webkit-mask-position: center;
-    mask-image: var(--ship-img);
-    mask-repeat: no-repeat;
-    mask-size: contain;
-    mask-position: center;
+	-webkit-mask-image: var(--ship-img);
+	-webkit-mask-repeat: no-repeat;
+	-webkit-mask-size: contain;
+	-webkit-mask-position: center;
+	mask-image: var(--ship-img);
+	mask-repeat: no-repeat;
+	mask-size: contain;
+	mask-position: center;
 }
 
 .shipColor {
-    position: relative;
-    height: 20px;
-    margin: 0 1px;
-    flex-grow: 1;
+	position: relative;
+	height: 20px;
+	margin: 0 1px;
+	flex-grow: 1;
 
-    border-radius: 2px;
-    cursor: pointer;
+	border-radius: 2px;
+	cursor: pointer;
 
-    transition: width 0.2s ease-in-out, flex-grow 0.2s ease-in-out, margin 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+	transition: width 0.2s ease-in-out, flex-grow 0.2s ease-in-out, margin 0.2s ease-in-out,
+		box-shadow 0.2s ease-in-out;
 }
 
 .shipColor.selected {
-    flex-grow: 2;
-    box-shadow: #263a4f 0 0 0 2px;
-    margin: 0 3px;
+	flex-grow: 2;
+	box-shadow: #263a4f 0 0 0 2px;
+	margin: 0 3px;
 }
 
 .shipColor::after {
-    content: "";
+	content: '';
 
-    position: absolute;
-    height: 8px;
-    left: 2px;
-    right: 2px;
-    bottom: 2px;
+	position: absolute;
+	height: 8px;
+	left: 2px;
+	right: 2px;
+	bottom: 2px;
 
-    border-radius: 1px;
-    background: rgba(0, 0, 0, 0.2);
+	border-radius: 1px;
+	background: rgba(0, 0, 0, 0.2);
 }
 
 /* Social Icon */
 .socialIcon {
-    display: inline-block;
-    width: 0.6em;
-    height: 0.6em;
-    margin: 0 0.4em;
-    vertical-align: middle;
+	display: inline-block;
+	width: 0.6em;
+	height: 0.6em;
+	margin: 0 0.4em;
+	vertical-align: middle;
 
-    background-size: contain;
-    background-repeat: no-repeat;
+	background-size: contain;
+	background-repeat: no-repeat;
 }
 
 .socialIcon.large {
-    width: 0.8em;
-    height: 0.8em;
+	width: 0.8em;
+	height: 0.8em;
 }
 
 .socialIcon.full {
-    width: 1em;
-    height: 1em;
+	width: 1em;
+	height: 1em;
 }
 
-.socialIcon.discord { background-image: url(/img/social/discord.svg); }
-.socialIcon.instagram { background-image: url(/img/social/instagram.svg); }
-.socialIcon.reddit { background-image: url(/img/social/reddit.svg); }
-.socialIcon.twitch { background-image: url(/img/social/twitch.svg); }
-.socialIcon.twitter { background-image: url(/img/social/twitter.svg); }
-.socialIcon.youtube{ background-image: url(/img/social/youtube.svg); }
-.socialIcon.adblock { background-image: url(/img/social/adblock.svg); }
+.socialIcon.discord {
+	background-image: url(/img/social/discord.svg);
+}
+.socialIcon.instagram {
+	background-image: url(/img/social/instagram.svg);
+}
+.socialIcon.reddit {
+	background-image: url(/img/social/reddit.svg);
+}
+.socialIcon.twitch {
+	background-image: url(/img/social/twitch.svg);
+}
+.socialIcon.twitter {
+	background-image: url(/img/social/twitter.svg);
+}
+.socialIcon.youtube {
+	background-image: url(/img/social/youtube.svg);
+}
+.socialIcon.adblock {
+	background-image: url(/img/social/adblock.svg);
+}
 
 /* Social Content */
 #socialContent {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
 }
 
 .socialContentItem {
-    position: relative;
-    width: 60px;
-    text-align: center;
-    cursor: pointer;
+	position: relative;
+	width: 60px;
+	text-align: center;
+	cursor: pointer;
 }
 
 .socialContentItem .socialRewardTip {
-    position: absolute;
-    left: 50%;
-    top: 100%;
-    transform: translateX(-50%);
+	position: absolute;
+	left: 50%;
+	top: 100%;
+	transform: translateX(-50%);
 
-    white-space: nowrap;
-    display: none;
+	white-space: nowrap;
+	display: none;
 
-    background: rgba(0, 0, 0, 0.5);
-    padding: 5px 10px;
+	background: rgba(0, 0, 0, 0.5);
+	padding: 5px 10px;
 }
 
 .socialContentItem:hover .socialRewardTip {
-    display: block;
+	display: block;
 }
 
 .socialContentItem:not(.hasReward) > .socialIcon {
-    animation: pulse 1s ease-in-out 0s infinite alternate both running;
+	animation: pulse 1s ease-in-out 0s infinite alternate both running;
 }
 
 @keyframes pulse {
-    0% {
-        transform: scale(1.0);
-    }
-    100% {
-        transform: scale(1.25);
-    }
+	0% {
+		transform: scale(1);
+	}
+	100% {
+		transform: scale(1.25);
+	}
 }
 
 /* Button */
 .button {
-    box-sizing: border-box;
-    padding: 8px;
+	box-sizing: border-box;
+	padding: 8px;
 
-    color: black;
-    background: white;
-    text-align: center;
+	color: black;
+	background: white;
+	text-align: center;
 
-    cursor: pointer;
-    pointer-events: all;
+	cursor: pointer;
+	pointer-events: all;
 }
 
 .button > * {
-    /* Recolor the images to black */
-    /*filter: brightness(0);*/
+	/* Recolor the images to black */
+	/*filter: brightness(0);*/
 }
 
 .button.disabled {
-    opacity: 0.5;
-    pointer-events: none;
+	opacity: 0.5;
+	pointer-events: none;
 }
 
 .button.compact {
-    padding: 4px;
+	padding: 4px;
 }
 
 .button:hover {
-    transform: scale(1.05);
+	transform: scale(1.05);
 }
 
 .button:active {
-    transform: scale(0.95);
-    opacity: 0.8;
+	transform: scale(0.95);
+	opacity: 0.8;
 }
 
 /* Media Queries */
 @media (max-width: 950px) {
-    :root {
-        --info-width: 250px;
-        --main-content-center: calc((100% - var(--info-width)) / 2 + var(--info-width));
-        --main-content-center: calc((100% - var(--info-width) - env(safe-area-inset-right)) / 2 + var(--info-width));  /* Notch */
-        --main-content-width: calc(100% - var(--info-width));
-        --main-content-width: calc(100% - var(--info-width) - env(safe-area-inset-right));  /* Notch */
-    }
+	:root {
+		--info-width: 250px;
+		--main-content-center: calc((100% - var(--info-width)) / 2 + var(--info-width));
+		--main-content-center: calc(
+			(100% - var(--info-width) - env(safe-area-inset-right)) / 2 + var(--info-width)
+		); /* Notch */
+		--main-content-width: calc(100% - var(--info-width));
+		--main-content-width: calc(100% - var(--info-width) - env(safe-area-inset-right)); /* Notch */
+	}
 
-    /* TODO: Replace all 50% things */
+	/* TODO: Replace all 50% things */
 
-    /* Menu */
-    #moneyMakerSquare {
-        opacity: 0.0001;
-        pointer-events: none;
-    }
+	/* Menu */
+	#moneyMakerSquare {
+		opacity: 0.0001;
+		pointer-events: none;
+	}
 
-    #youTubers {
-        display: none;
-    }
+	#youTubers {
+		display: none;
+	}
 
-    #logoTwitterSeparator, #twitterLinks {
-        display: none;
-    }
+	#logoTwitterSeparator,
+	#twitterLinks {
+		display: none;
+	}
 
-    #extraLinks {
-        right: initial;
-        bottom: 10px;
-        bottom: calc(10px + env(safe-area-inset-bottom)); /* Notch */
-        left: var(--main-content-center);
-        width: var(--main-content-width);
+	#extraLinks {
+		right: initial;
+		bottom: 10px;
+		bottom: calc(10px + env(safe-area-inset-bottom)); /* Notch */
+		left: var(--main-content-center);
+		width: var(--main-content-width);
 
-        transform: translateX(-50%);
-        text-align: center;
-    }
+		transform: translateX(-50%);
+		text-align: center;
+	}
 
-    #menuContent {
-        position: absolute;
-        left: var(--main-content-center);
-    }
+	#menuContent {
+		position: absolute;
+		left: var(--main-content-center);
+	}
 
-    #respawnTip {
-        margin-top: 10px;
-        font-size: 20px;
-    }
+	#respawnTip {
+		margin-top: 10px;
+		font-size: 20px;
+	}
 
-    #moreGamesButton, #redditButton {
-        display: none;
-    }
+	#moreGamesButton,
+	#redditButton {
+		display: none;
+	}
 
-    #extraLinks > #moreGamesButton + .separator {
-        display: none;
-    }
+	#extraLinks > #moreGamesButton + .separator {
+		display: none;
+	}
 
-    #infoPanel {
-        top: 0;
-        left: 0;
-        bottom: 0;
-        width: var(--info-width);
-        height: initial;
-        transform: initial;
-        margin-left: env(safe-area-inset-left); /* Notch */
-        margin-bottom: env(safe-area-inset-bottom); /* Notch */
-        margin-top: env(safe-area-inset-top); /* Notch */
-    }
+	#infoPanel {
+		top: 0;
+		left: 0;
+		bottom: 0;
+		width: var(--info-width);
+		height: initial;
+		transform: initial;
+		margin-left: env(safe-area-inset-left); /* Notch */
+		margin-bottom: env(safe-area-inset-bottom); /* Notch */
+		margin-top: env(safe-area-inset-top); /* Notch */
+	}
 
-    /* Game */
-    #commandPanel {
-        left: 0;
-        bottom: 0;
-        left: env(safe-area-inset-left);  /* Notch */
-        bottom: env(safe-area-inset-bottom);  /* Notch */
-        width: 135px;
+	/* Game */
+	#commandPanel {
+		left: 0;
+		bottom: 0;
+		left: env(safe-area-inset-left); /* Notch */
+		bottom: env(safe-area-inset-bottom); /* Notch */
+		width: 135px;
 
-        /* Make the panel scrollable on overflow */
-        max-height: calc(100% - 90px);
-        overflow-y: scroll;
-        -webkit-overflow-scrolling: touch;
-        pointer-events: all;
-    }
+		/* Make the panel scrollable on overflow */
+		max-height: calc(100% - 90px);
+		overflow-y: scroll;
+		-webkit-overflow-scrolling: touch;
+		pointer-events: all;
+	}
 
-    #commandPanel h3 {
-        font-size: 20px;
-    }
+	#commandPanel h3 {
+		font-size: 20px;
+	}
 
-    .panelDetails {
-        font-size: 15px;
-        margin-bottom: 5px;
-    }
+	.panelDetails {
+		font-size: 15px;
+		margin-bottom: 5px;
+	}
 
-    #buildPallet {
-        left: 140px;
-        right: 140px;
-        bottom: 10px;
-        bottom: calc(10px + env(safe-area-inset-bottom));  /* Notch */
-        margin-bottom: -2px;  /* Fix for odd extra padding at bottom of build pallet */
-    }
+	#buildPallet {
+		left: 140px;
+		right: 140px;
+		bottom: 10px;
+		bottom: calc(10px + env(safe-area-inset-bottom)); /* Notch */
+		margin-bottom: -2px; /* Fix for odd extra padding at bottom of build pallet */
+	}
 
-    .buildPalletItem {
-        width: 30px;
-        height: 30px;
-        padding: 5px;
-        margin: 2px;
-    }
+	.buildPalletItem {
+		width: 30px;
+		height: 30px;
+		padding: 5px;
+		margin: 2px;
+	}
 
-    .buildPalletItem.planetItem {
-        width: 60px;
-    }
+	.buildPalletItem.planetItem {
+		width: 60px;
+	}
 
-    .itemList {
-        flex-wrap: nowrap;  /* Shrink items and don't wrap them */
-    }
+	.itemList {
+		flex-wrap: nowrap; /* Shrink items and don't wrap them */
+	}
 
-    #rankInfo {
-        width: 175px;
-        margin: 5px auto;
-    }
+	#rankInfo {
+		width: 175px;
+		margin: 5px auto;
+	}
 
-    #rankBar {
-        height: 5px;
-        padding: 3px;
-        margin: 0 5px;
-    }
+	#rankBar {
+		height: 5px;
+		padding: 3px;
+		margin: 0 5px;
+	}
 
-    .rankNumber {
-        flex-grow: 0;
-        width: 30px;
-        font-size: 15px;
-    }
+	.rankNumber {
+		flex-grow: 0;
+		width: 30px;
+		font-size: 15px;
+	}
 
-    #rightSidebar {
-        position: absolute;
-        right: 10px;
-        top: 10px;
-        right: calc(10px + env(safe-area-inset-right));  /* Notch */
-        top: calc(10px + env(safe-area-inset-top));  /* Notch */
-        width: 180px;
-    }
+	#rightSidebar {
+		position: absolute;
+		right: 10px;
+		top: 10px;
+		right: calc(10px + env(safe-area-inset-right)); /* Notch */
+		top: calc(10px + env(safe-area-inset-top)); /* Notch */
+		width: 180px;
+	}
 
-    .leaderboardItem {
-        height: 20px;
-        font-size: 13px;
-    }
+	.leaderboardItem {
+		height: 20px;
+		font-size: 13px;
+	}
 
-    .leaderboardItem .leaderboardRank {
-        width: 15px;
-    }
+	.leaderboardItem .leaderboardRank {
+		width: 15px;
+	}
 
-    #weaponSwitcher {
-        right: calc(135px / 2);
-        right: calc(135px / 2 + env(safe-area-inset-right));
-        bottom: 105px;
-        bottom: calc(105px + env(safe-area-inset-bottom));
-        transform: translateX(50%);
-    }
+	#weaponSwitcher {
+		right: calc(135px / 2);
+		right: calc(135px / 2 + env(safe-area-inset-right));
+		bottom: 105px;
+		bottom: calc(105px + env(safe-area-inset-bottom));
+		transform: translateX(50%);
+	}
 }
