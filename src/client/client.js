@@ -12,15 +12,15 @@ const game = new GameClient();
 function start() {
 	if (config.isProd) {
 		// Find lobby
-		let rivet = require('@rivet-gg/matchmaker');
+		let mm = require('@rivet-gg/matchmaker');
 
-		const clientApi = new rivet.MatchmakerService({
+		const clientApi = new mm.MatchmakerService({
 			endpoint: ENV_API_MATCHMAKER_URL ?? 'https://matchmaker.api.rivet.gg/v1',
 			tls: true,
 			requestHandler: api.requestHandlerMiddleware()
 		});
 
-		let res = clientApi
+		clientApi
 			.findLobby({
 				gameModes: ['default'],
 				preventAutoCreateLobby: false

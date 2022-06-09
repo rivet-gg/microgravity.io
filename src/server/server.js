@@ -187,7 +187,7 @@ wss.on('connection', async (ws, req) => {
 	}
 
 	// Send to game
-	let client = game.socketConnected(ws);
+	let client = game.socketConnected(ws, playerToken);
 
 	// Update player count
 	broadcastPlayerCount(game.playerCount);

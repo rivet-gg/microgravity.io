@@ -531,6 +531,12 @@ config.serverMessages = {
 	// Next is 16
 };
 
+config.activeMenu = {
+	INFO: 0,
+	FRIENDS: 1,
+	ACCOUNT: 2
+};
+
 /*** Vignette ***/
 config.defaultVignette = [0, 0, 0, 0.3];
 config.defaultVIgnetteDistance = 0.2;

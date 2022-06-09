@@ -199,9 +199,9 @@ select {
 
 #infoPanel {
 	position: absolute;
-	width: 300px;
+	width: 320px;
 	height: 350px;
-	right: calc((50% - 180px) / 2);
+	right: calc((50% - 190px) / 2);
 	top: 50%;
 	padding: 10px;
 	transform: translate(50%, -50%);
@@ -218,6 +218,51 @@ select {
 
 #infoPanel h3:not(:first-child) {
 	margin-top: 15px;
+}
+
+#info-titles {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 10px;
+}
+
+#infoPanel #info-titles h3 {
+	margin: 0;
+	opacity: 0.55;
+	transition: opacity var(--transition-length);
+	cursor: pointer;
+}
+
+#infoPanel #info-titles h3:not(:last-child) {
+	margin-right: 22px;
+}
+
+#infoPanel #info-titles h3.selected {
+	opacity: 1;
+	border-bottom: 2px solid white;
+}
+
+#friends {
+}
+
+#account {
+}
+
+#linkAccountButton {
+	font-size: 20px;
+	line-height: 37px;
+	padding: 0 18px;
+	font-weight: bold;
+	font-size: 14px;
+	margin-top: 10px;
+
+	background: #3fc7d3;
+	color: white;
+	border-radius: 23px;
+	border: none;
+	outline: none;
 }
 
 #gameLogo {
@@ -252,15 +297,18 @@ select {
 
 #joinButton {
 	position: absolute;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	width: 60px;
 	bottom: 0;
 	top: 0;
 	right: 0;
 
 	font-size: 20px;
-	line-height: 37px;
 
 	background: #3fc7d3;
+	/* font-family: 'Material Icons'; */
 	color: white;
 	border-radius: 23px;
 }
@@ -488,11 +536,18 @@ select {
 	animation: flash 2s infinite;
 }
 
+.matIcon {
+	font-family: 'Material Icons';
+	text-align: center;
+}
+
 /* Leaderboard */
 #leaderboard {
 	box-sizing: border-box;
 	width: 100%;
 	padding: 5px 10px;
+	cursor: default;
+	pointer-events: all;
 
 	background: rgba(0, 0, 0, 0.5);
 }
@@ -508,8 +563,28 @@ select {
 	font-size: 16px;
 }
 
+#leaderboard:hover .leaderboardItem .leaderboardFriendAction {
+	display: flex;
+}
+
+#leaderboard:hover .leaderboardItem:not(.isMine) .leaderboardScore {
+	display: none;
+}
+
+#leaderboard:hover .leaderboardUsername {
+	text-decoration: underline;
+}
+
 .leaderboardItem.isMine {
 	opacity: 1;
+}
+
+.leaderboardItem.isMyFriend.isTheirFriend {
+	opacity: 0.8;
+	color: #bbff99;
+}
+.leaderboardItem.isMyFriend.isTheirFriend a.leaderboardUsername {
+	color: #bbff99;
 }
 
 .leaderboardItem .leaderboardRank {
@@ -518,6 +593,7 @@ select {
 
 .leaderboardItem .leaderboardUsername {
 	flex-grow: 1;
+	text-decoration: none;
 }
 
 .leaderboardItem .leaderboardAlliance {
@@ -528,6 +604,24 @@ select {
 .leaderboardItem .leaderboardScore {
 	flex-grow: 1;
 	text-align: right;
+}
+
+.leaderboardItem .leaderboardFriendAction {
+	display: none;
+	flex-direction: row;
+	justify-content: flex-end;
+	align-items: center;
+	cursor: pointer;
+	flex-grow: 1;
+	text-align: right;
+	color: white;
+	font-size: 14px;
+	padding: 2px;
+}
+
+.leaderboardItem .leaderboardFriendAction .matIcon {
+	margin-left: 4px;
+	font-size: 18px;
 }
 
 /* Command Pallet */
@@ -1171,6 +1265,10 @@ select {
 		margin-left: env(safe-area-inset-left); /* Notch */
 		margin-bottom: env(safe-area-inset-bottom); /* Notch */
 		margin-top: env(safe-area-inset-top); /* Notch */
+	}
+
+	#infoPanel #info-titles h3:not(:last-child) {
+		margin-right: 12px;
 	}
 
 	/* Game */

@@ -1,7 +1,10 @@
+const identity = require('@rivet-gg/identity');
+
 const WebSocket = require('ws');
 const Player = require('../entities/Player');
 const config = require('../config/config');
 const utils = require('../utils');
+const serverUtils = require('./utils');
 const weapons = require('../config/weapons');
 const structures = require('../config/structures');
 const resources = require('../config/resources');
@@ -92,11 +95,16 @@ class ClientHandle {
 
 		/** @type {number[]} */ this.ownedWeapons = [[0, -1]];
 
+		/** @type {identity.IdentityProfile} */ this.identity = null;
+		/** @type {string} */ this.identityToken = null;
+
 		/** @type {boolean} */ this.gaveAdBlockReward = false;
 		/** @type {boolean} */ this.gaveDiscordReward = false;
 
 		/** @type {Object} */ this.ws = ws;
+
 		this.onClosed = () => {};
+
 		// Add WS events
 		this.ws.on('message', message => {
 			try {
@@ -560,15 +568,41 @@ class ClientHandle {
 	}
 
 	/*** Socket Events ***/
-	onInit(data) {
+	async onInit(data) {
 		// Validate challenge
 		let correctChallengeResponse = (this.challengeSeed * this.id) % 256;
-		let [challengeResponse] = data;
+		let [challengeResponse, identityToken] = data;
+
 		if (challengeResponse !== correctChallengeResponse) {
 			console.warn(
 				`Client ${this.id} answered challenge incorrectly. Guessed ${challengeResponse}, correct answer was ${correctChallengeResponse}.`
 			);
 			this.ws.close();
+			return;
+		}
+
+		utils.assertString(identityToken);
+
+		// Save identity token
+		this.identityToken = identityToken;
+
+		try {
+			let identityApi = new identity.IdentityService({
+				endpoint: process.env.RIVET_API_IDENTITY_URL
+					? process.env.RIVET_API_IDENTITY_URL
+					: 'https://identity.api.rivet.gg/v1',
+				tls: true,
+				requestHandler: serverUtils.requestHandlerMiddleware(identityToken)
+			});
+
+			let res = await identityApi.getIdentitySelf({});
+
+			this.identity = res.identity;
+			console.log('Identity connected', this.identity.id);
+		} catch (err) {
+			console.error('Identity creation error', err);
+			this.ws.close();
+
 			return;
 		}
 

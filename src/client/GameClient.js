@@ -1,3 +1,6 @@
+const identity = require('@rivet-gg/identity');
+const api = require('../api');
+
 const Game = require('../Game');
 const InputHandler = require('./InputHandler');
 const ExplosionManager = require('./effects/ExplosionManager');
@@ -175,10 +178,17 @@ class GameClient extends Game {
 		/** @type {number} */ this.showControlsTimer = 10;
 		/** @type {number} */ this.heartBeatTimer = 0;
 
-		/* @type {?number} */ this.deathPosX = null;
-		/* @type {?number} */ this.deathPosY = null;
+		/** @type {?number} */ this.deathPosX = null;
+		/** @type {?number} */ this.deathPosY = null;
 
-		/* @type {boolean} */ this.demolishConfirm = false;
+		/** @type {boolean} */ this.demolishConfirm = false;
+
+		/** @type {identity.IdentityService} */ this.identityApi = null;
+		/** @type {identity.IdentityProfile} */ this.identity = null;
+		/** @type {string} */ this.identityToken = null;
+
+		/** @type {Map<string, identity.IdentityProfile>} */ this.identities = new Map();
+		/** @type {Set<string>} */ this.fetchedIdentities = new Set();
 
 		this.recognition = null;
 
@@ -227,14 +237,16 @@ class GameClient extends Game {
 
 			// Move ad to disconnect screen
 			const ad = document.getElementById('microgravity-io_300x250');
-			document.getElementById('disconnectScreen').appendChild(ad);
-			ad.style.marginTop = '20px';
-			setTimeout(() => window.refreshAd(), 200); // Refresh ad after moved
+			if (ad) {
+				document.getElementById('disconnectScreen').appendChild(ad);
+				ad.style.marginTop = '20px';
+				setTimeout(() => window.refreshAd(), 200); // Refresh ad after moved
 
-			// Refresh the ad at interval
-			setInterval(() => {
-				window.refreshAd();
-			}, 2 * 60 * 1000); // Refresh every 2 minutes
+				// Refresh the ad at interval
+				setInterval(() => {
+					window.refreshAd();
+				}, 2 * 60 * 1000); // Refresh every 2 minutes
+			}
 		};
 		this.ws.onerror = e => console.log('Socket error:', e);
 
@@ -346,6 +358,8 @@ class GameClient extends Game {
 				utils: utils,
 				config: config,
 				i18n: this.i18n,
+				identityApi: this.identityApi,
+				identities: this.identities,
 
 				// Languages
 				languages: translationsRaw,
@@ -378,6 +392,8 @@ class GameClient extends Game {
 
 				leaderboardItems: [],
 
+				activeMenu: config.activeMenu.INFO,
+
 				isLanded: false,
 				onPlanet: false,
 
@@ -407,6 +423,47 @@ class GameClient extends Game {
 
 					// Send join
 					game.sendJoin();
+				},
+				changeActiveMenu(value) {
+					this.activeMenu = value;
+				},
+				async getGameLink() {
+					if (this.identityApi) {
+						try {
+							let res = await this.identityApi.requestIdentityGameLink({});
+
+							window.open(res.linkUrl, '_blank');
+						} catch (err) {
+							console.error(err);
+						}
+					}
+				},
+				async friendAction(leaderboardItem) {
+					if (this.identityApi) {
+						try {
+							if (this.identities.has(leaderboardItem.identity.id)) {
+								let identity = this.identities.get(leaderboardItem.identity.id);
+
+								if (!identity.isMyFriend) {
+									await this.identityApi.addFriend({
+										identityId: leaderboardItem.identity.id
+									});
+								} else {
+									await this.identityApi.removeFriend({
+										identityId: leaderboardItem.identity.id
+									});
+								}
+
+								// Update identity
+								let res = await this.identityApi.getIdentityProfile({
+									identityId: leaderboardItem.identity.id
+								});
+								this.identities.set(res.identity.id, res.identity);
+							}
+						} catch (err) {
+							console.error(err);
+						}
+					}
 				},
 
 				// Build
@@ -744,6 +801,19 @@ class GameClient extends Game {
 		}
 	}
 
+	async fetchIdentity(identityId) {
+		this.fetchedIdentities.add(identityId);
+
+		try {
+			let res = await this.identityApi.getIdentityProfile({
+				identityId: identityId
+			});
+			this.identities.set(res.identity.id, res.identity);
+		} catch (err) {
+			console.error(err);
+		}
+	}
+
 	sendPing(pingValidation) {
 		this.send(config.clientMessages.PING, pingValidation);
 	}
@@ -936,7 +1006,7 @@ class GameClient extends Game {
 	}
 
 	sendInit(challengeResponse) {
-		this.send(config.clientMessages.INIT, [challengeResponse]);
+		this.send(config.clientMessages.INIT, [challengeResponse, this.identityToken]);
 	}
 
 	sendJoin() {
@@ -1129,14 +1199,17 @@ class GameClient extends Game {
 	render() {
 		const ctx = this.context;
 
-		// Update the world with a static DT
-		this.update(GameClient.dt);
+		// // Update the world with a static DT
+		// this.update(GameClient.dt);
 
 		// Calculate rendering dt
 		let now = Date.now();
 		let lastUpdate = this.lastRenderTime || now - 16; // Default dt is 16 ms
 		let dt = (now - lastUpdate) / 1000;
 		this.lastRenderTime = now;
+
+		// Update the world with a dynamic DT
+		this.update(dt);
 
 		// Get FPS
 		this.framesPerSecond = 1 / dt;
@@ -1958,10 +2031,43 @@ class GameClient extends Game {
 		return active;
 	}
 
-	onPreInit(data) {
+	async onPreInit(data) {
 		// Save client ID
 		let [clientId, challengeSeed] = data;
 		this.clientId = clientId;
+
+		// Setup identity API
+		let existingIdentityToken = localStorage.getItem('rivet:identity-token');
+		this.identityApi = new identity.IdentityService({
+			endpoint: ENV_API_IDENTITY_URL ?? 'https://identity.api.rivet.gg/v1',
+			tls: true,
+			requestHandler: api.requestHandlerMiddleware()
+		});
+		this.vue.identityApi = this.identityApi;
+
+		try {
+			let { identity, identityToken } = await this.identityApi.setupIdentity({
+				identityToken: existingIdentityToken
+			});
+
+			console.log('Identity connected', identity);
+
+			this.identity = identity;
+			this.fetchedIdentities.add(this.identity.id);
+			this.identities.set(this.identity.id, this.identity);
+			this.identityToken = identityToken;
+
+			// Save identity token in local storage
+			localStorage.setItem('rivet:identity-token', identityToken);
+
+			// Update request handler with bearer token
+			this.identityApi.config.requestHandler = api.requestHandlerMiddleware(
+				identityToken ?? ENV_RIVET_CLIENT_TOKEN
+			);
+		} catch (err) {
+			console.error(err);
+			this.ws.close();
+		}
 
 		// Respond to challenge
 		let challengeResponse = (challengeSeed * this.clientId) % 256;
@@ -2047,6 +2153,8 @@ class GameClient extends Game {
 	}
 
 	onLeaderboard(data) {
+		let newPlayers = [];
+
 		// Save the data
 		[this.leaderboardData, this.playerRank, this.playerLeaderboardItem] = data;
 
@@ -2070,7 +2178,10 @@ class GameClient extends Game {
 			rank++; // Make rank 1-based index
 
 			// Parse leaderboard
-			let [clientId, allianceId, username, score] = item;
+			let [clientId, identityId, allianceId, username, score] = item;
+
+			// Fetch new player data
+			if (identityId && !this.fetchedIdentities.has(identityId)) newPlayers.push(identityId);
 
 			// Get the alliance data
 			let allianceData =
@@ -2083,9 +2194,14 @@ class GameClient extends Game {
 				score,
 				allianceName: allianceData ? allianceData[2] : null,
 				allianceColor: allianceData ? utils.getAllianceColor(allianceData[0]) : null,
-				isMine: clientId === this.clientId
+				isMine: clientId === this.clientId,
+				isMyIdentity: this.identity ? identityId == this.identity.id : false,
+				identity: this.identities.get(identityId) ?? {}
 			});
 		}
+
+		// Fetch all new identities
+		newPlayers.forEach(identityId => this.fetchIdentity(identityId));
 
 		// Save data to Vue
 		this.vue.leaderboardItems = leaderboardItems;

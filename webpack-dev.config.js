@@ -10,7 +10,9 @@ let defineValues = {};
 
 // Expose environment variables
 const envValues = {
-	API_MATCHMAKER_URL: process.env.RIVET_MATCHMAKER_API_URL
+	API_IDENTITY_URL: process.env.RIVET_IDENTITY_API_URL,
+	API_MATCHMAKER_URL: process.env.RIVET_MATCHMAKER_API_URL,
+	RIVET_CLIENT_TOKEN: process.env.RIVET_CLIENT_TOKEN
 };
 for (let key in envValues) {
 	defineValues[`ENV_${key}`] = JSON.stringify(process.env[key] || envValues[key]);

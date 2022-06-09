@@ -10,7 +10,7 @@ module.exports = {
 		return {
 			handle: async (req, opts) => {
 				req.headers = {};
-				if (token) req.headers.Authorization = `Bearer ${token.token}`;
+				if (token) req.headers.Authorization = `Bearer ${token}`;
 
 				// Default body
 				if (!req.body) {
