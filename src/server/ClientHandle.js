@@ -627,13 +627,13 @@ class ClientHandle {
 		let shipIndex = config.shipIndexForId(selectedShip);
 		if (shipIndex === -1) shipIndex = 0; // Invalid ship index
 
-		// Save username
-		this.username = username;
+		// // Save username
+		this.username = this.identity.displayName;
 
 		// Create new player
 		this.player = new Player(this.game);
 		this.player.clientHandle = this;
-		this.player.username = username;
+		this.player.username = this.username;
 		this.player.shipIndex = shipIndex;
 		this.player.shipFill = selectedFill;
 
@@ -663,7 +663,7 @@ class ClientHandle {
 		this.updatePerks();
 
 		// Tally the play
-		stats.tallyPlay(username, selectedShip, selectedFill);
+		stats.tallyPlay(this.identity.displayName, selectedShip, selectedFill);
 
 		// Give ad block reward
 		if (this.rewards.has('adblock') && !this.gaveAdBlockReward) {

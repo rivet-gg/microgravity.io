@@ -829,9 +829,9 @@ class GameClient extends Game {
 
 		/* Data */
 		// Set default name
-		let username = localStorage.getItem('username');
-		let usernameInput = document.getElementById('usernameField');
-		usernameInput.value = username ? username : utils.generateUsername();
+		// let username = localStorage.getItem('username');
+		// let usernameInput = document.getElementById('usernameField');
+		// usernameInput.value = username ? username : utils.generateUsername();
 
 		/* Mobile */ // See https://web.archive.org/web/20151103001838/http://www.luster.io/blog/9-29-14-mobile-web-checklist.html
 		// Add basic support
@@ -1110,18 +1110,19 @@ class GameClient extends Game {
 	}
 
 	sendJoin() {
-		// Get and save username
-		let usernameField = document.getElementById('usernameField');
-		let username = utils.cleanString(usernameField.value, true);
-		if (username.length === 0) {
-			username = utils.generateUsername();
-			usernameField.value = username;
-		}
-		localStorage.setItem('username', username);
+		// // Get and save username
+		// let usernameField = document.getElementById('usernameField');
+		// let username = utils.cleanString(usernameField.value, true);
+		// if (username.length === 0) {
+		// 	username = utils.generateUsername();
+		// 	usernameField.value = username;
+		// }
+		// localStorage.setItem('username', username);
 
 		// Join game
 		this.send(config.clientMessages.JOIN, [
-			username,
+			// username,
+			'',
 			this.vue.selectedShip,
 			this.vue.selectedFill,
 			[...this.rewards.values()]

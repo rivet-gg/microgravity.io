@@ -211,7 +211,7 @@ class GameServer extends Game {
 					client.id,
 					client.identity ? client.identity.id : null,
 					client.alliance ? client.alliance.id : null,
-					client.username,
+					client.identity ? client.identity.displayName : client.username,
 					client.score
 				];
 			});

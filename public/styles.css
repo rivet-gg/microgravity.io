@@ -323,7 +323,7 @@ select {
 
 #joinInfo {
 	position: relative;
-	width: 250px;
+	/* width: 250px; */
 	height: 46px;
 	margin-bottom: 15px;
 }
@@ -347,16 +347,17 @@ select {
 }
 
 #joinButton {
-	position: absolute;
+	/* position: absolute; */
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 60px;
+	width: 65px;
 	bottom: 0;
 	top: 0;
 	right: 0;
 
 	font-size: 20px;
+	line-height: 31px;
 
 	background: #3fc7d3;
 	color: white;
