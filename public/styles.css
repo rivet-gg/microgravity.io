@@ -1247,6 +1247,107 @@ select {
 	opacity: 0.8;
 }
 
+/* Notificaitions */
+#notificationOverlay {
+	position: absolute;
+	display: flex;
+	flex-direction: column;
+	width: 300px;
+	left: 15px;
+	top: 15px;
+
+	cursor: none;
+	pointer-events: none;
+}
+
+#notificationOverlay.inGame {
+	left: 15px;
+	top: 155px;
+}
+
+.notificationItem {
+	display: flex;
+	flex-direction: column;
+	font-family: 'Arial';
+	opacity: 0.6;
+	box-sizing: border-box;
+	padding: 8px 12px;
+	max-height: 200px;
+	cursor: pointer;
+	border-radius: 8px;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+
+	animation: expandNotification 300ms forwards;
+	pointer-events: all;
+
+	transition: opacity var(--transition-length), background-color var(--transition-length);
+	background-color: rgba(15, 15, 15, 0.6);
+}
+
+.notificationItem.isFading {
+	opacity: 0;
+}
+
+.notificationItem:hover {
+	opacity: 1;
+	background-color: rgba(15, 15, 15, 0.8);
+}
+
+.notificationItem .notificationHeader {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 5px;
+}
+
+.notificationItem .notificationTitle {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+.notificationItem .notificationTitle img {
+	width: 22px;
+	height: 22px;
+	border-radius: 4px;
+	margin: 1px 5px 0 0;
+}
+
+.notificationItem .notificationTitle h2 {
+	font-size: 14px;
+	overflow-wrap: break-word;
+	margin: 0;
+}
+
+.notificationItem .notificationClose {
+	padding: 0;
+	font-size: 22px;
+	color: white;
+	background: none;
+}
+
+.notificationItem .notificationSubtitle {
+	margin: 0 0 2px 0;
+	color: #ffffffc0;
+
+	overflow-wrap: break-word;
+	overflow: hidden;
+	text-overflow: ellipsis;
+
+	user-select: none;
+	font-size: 14px;
+}
+
+@keyframes expandNotification {
+	0% {
+		max-height: 0;
+	}
+	100% {
+		max-height: 210px;
+	}
+}
+
 /* Media Queries */
 @media (max-width: 950px) {
 	:root {
@@ -1410,5 +1511,11 @@ select {
 		bottom: 105px;
 		bottom: calc(105px + env(safe-area-inset-bottom));
 		transform: translateX(50%);
+	}
+
+	#notificationOverlay {
+		left: unset;
+		right: 15px;
+		top: 15px;
 	}
 }

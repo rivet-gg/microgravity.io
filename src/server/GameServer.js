@@ -216,8 +216,6 @@ class GameServer extends Game {
 				];
 			});
 
-		console.log(leaderboard);
-
 		// Send leaderboard
 		for (let client of this.clients) {
 			client.sendLeaderboard(leaderboard);

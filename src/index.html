@@ -561,6 +561,29 @@
 				</div>
 			</div>
 
+			<div id="notificationOverlay" style="display: none">
+				<div
+					v-for="{ id, notification } in notifications"
+					:class="{ notificationItem: true, isFading: notification.isFading }"
+					:key="notification.isFading"
+					@click="openNotification(id)"
+					@pointerenter="pointerEnterNotification(id)"
+					@pointerleave="pointerLeaveNotification(id)"
+					@pointercancel="pointerLeaveNotification(id)"
+				>
+					<div class="notificationHeader">
+						<div class="notificationTitle">
+							<img :src="notification.thumbnailUrl" />
+							<h2>{{notification.title}}</h2>
+						</div>
+						<div class="notificationClose button matIcon" @click="closeNotification(id, $event)">
+							close
+						</div>
+					</div>
+					<h3 class="notificationSubtitle">{{notification.description}}</h3>
+				</div>
+			</div>
+
 			<!-- Alliances -->
 			<div id="alliances" class="modal" style="display: none">
 				<h1 v-t="'alliance-title'"></h1>

@@ -29,6 +29,9 @@ const safeAreaInsets = require('safe-area-insets');
 // Import components
 const Resource = require('./views/Resources');
 
+const NOTIFICATION_LIFESPAN = 1000 * 6;
+const NOTIFICATION_FADE_LENGTH = 200;
+
 class GameClient extends Game {
 	/**
 	 * @returns {?Player}
@@ -190,6 +193,7 @@ class GameClient extends Game {
 		/** @type {Map<string, identity.IdentityProfile>} */ this.identities = new Map();
 		/** @type {Set<string>} */ this.fetchedIdentities = new Set();
 		/** @type {RepeatingRequest<identity.GetActivitiesCommandOutput>} */ this.friendsStream = null;
+		/** @type {RepeatingRequest<identity.GetEventsCommandOutput>} */ this.eventsStream = null;
 		/** @type {identity.IdentityHandle[]} */ this.friends = [];
 
 		this.recognition = null;
@@ -405,7 +409,10 @@ class GameClient extends Game {
 
 				// Building
 				buildGroups: structures.groups,
-				showingBuildGroup: null
+				showingBuildGroup: null,
+
+				// Notifications
+				notifications: []
 			},
 
 			methods: {
@@ -559,6 +566,87 @@ class GameClient extends Game {
 				},
 				hasReward(reward) {
 					return this.rewards.indexOf(reward) !== -1;
+				},
+
+				// Notifications
+				pointerEnterNotification(id) {
+					console.log(id);
+
+					// Get the notification
+					let notification = this.notifications.find(n => n.id == id);
+					if (!notification) return;
+
+					notification.isFading = false;
+
+					// Stop removal timer on hover
+					window.clearTimeout(notification.timeoutId);
+				},
+				pointerLeaveNotification(id) {
+					// Get the notification
+					let notification = this.notifications.find(n => n.id == id);
+					if (!notification) return;
+
+					// Start removal timer on pointerout
+					notification.timeoutId = window.setTimeout(
+						() => this.dismissNotification(id),
+						NOTIFICATION_LIFESPAN
+					);
+				},
+				openNotification(id) {
+					// Get the notification
+					let notification = this.notifications.find(n => n.id == id);
+					if (!notification) return;
+
+					console.log('balls', id, notification);
+
+					window.open(notification.notification.url, '_blank');
+
+					this.dismissNotification(id);
+				},
+				closeNotification(id, e) {
+					if (e) e.stopPropagation();
+
+					this.removeNotification(id);
+				},
+				dismissNotification(id) {
+					// Get the notification
+					let notification = this.notifications.find(n => n.id == id);
+					if (!notification) {
+						console.warn(`Attempted to dismiss notification with id ${id} that does not exist`);
+						return;
+					}
+
+					if (notification.isFading) {
+						console.warn(
+							`Attempted to dismiss notification with id ${id} that is already being dismissed`
+						);
+						return;
+					} else {
+						// Set notification as "fading" for CSS animation
+						notification.isFading = true;
+
+						// Remove it
+						window.clearTimeout(notification.timeoutId);
+						notification.timeoutId = window.setTimeout(() => {
+							this.removeNotification(id);
+						}, NOTIFICATION_FADE_LENGTH);
+					}
+				},
+				// Different from dismissNotification, which has a fade animation
+				removeNotification(id) {
+					// Get the notification index
+					let index = this.notifications.findIndex(n => n.id == id);
+					if (index == -1) {
+						console.warn(`Attempted to remove notification with id ${id} that does not exist`);
+						return;
+					}
+
+					let notification = this.notifications[index];
+
+					// Stop removal timer on hover
+					window.clearTimeout(notification.timeoutId);
+
+					this.notifications.splice(index, 1);
 				}
 			},
 
@@ -679,6 +767,8 @@ class GameClient extends Game {
 				settings[settingId] = ev.target.checked;
 			});
 		}
+
+		document.getElementById('notificationOverlay').style.display = 'flex';
 
 		/* Alliances */
 		document
@@ -2077,7 +2167,7 @@ class GameClient extends Game {
 			this.vue.identity = this.identity;
 			this.identityToken = identityToken;
 
-			// Start friends listener
+			// Start friends and events streams
 			this.friendsStream = new RepeatingRequest(async (abortSignal, watchIndex) => {
 				return await this.identityApi.getActivities({ watchIndex }, { abortSignal });
 			});
@@ -2087,6 +2177,23 @@ class GameClient extends Game {
 			});
 
 			this.friendsStream.onError(err => {
+				console.error('Request error:', err);
+			});
+
+			this.eventsStream = new RepeatingRequest(async (abortSignal, watchIndex) => {
+				return await this.identityApi.getEvents({ watchIndex }, { abortSignal });
+			});
+
+			this.eventsStream.onMessage(res => {
+				for (let update of res.events) {
+					if (update.chatMessage && update.chatMessage.notification) {
+						// No notifications are sent if the cache is not present or the watch index expired
+						if (!res.refreshed) this.presentNotification(update.chatMessage);
+					}
+				}
+			});
+
+			this.eventsStream.onError(err => {
 				console.error('Request error:', err);
 			});
 		} catch (err) {
@@ -2574,9 +2681,13 @@ class GameClient extends Game {
 
 		// Update UI
 		if (!inGame) {
+			document.getElementById('notificationOverlay').classList.remove('inGame');
+
 			if (this.showingAlliances) this.toggleAlliances(false);
 			if (this.showingChatBox) this.toggleChatBox(false);
 			if (this.showingHelp) this.toggleHelp(false);
+		} else {
+			document.getElementById('notificationOverlay').classList.add('inGame');
 		}
 
 		// Make sure only one modal showing
@@ -3054,6 +3165,32 @@ class GameClient extends Game {
 			y < this.viewportY + this.viewHeight / 2 + padding &&
 			y > this.viewportY - this.viewHeight / 2 - padding
 		);
+	}
+
+	/*** NOTIFICATIONS ***/
+	presentNotification(notification) {
+		let chatMessage = notification.thread.tailMessage;
+
+		// Don't sent "Chat Created" notifications
+		if (chatMessage.body.chatCreate) return;
+
+		// Don't show notification from self
+		if (chatMessage.body.text && chatMessage.body.text.sender.id == this.identity.id) {
+			return;
+		}
+
+		let timeoutId = window.setTimeout(
+			() => this.vue.dismissNotification(chatMessage.id),
+			NOTIFICATION_LIFESPAN
+		);
+
+		// Insert notification
+		this.vue.notifications.unshift({
+			id: chatMessage.id,
+			notification: notification.notification,
+			timeoutId: timeoutId,
+			isFading: false
+		});
 	}
 }
 
