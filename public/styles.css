@@ -245,24 +245,75 @@ select {
 }
 
 #friends {
+	display: flex;
+	flex-direction: column;
+}
+
+#noFriendsOnline {
+	text-align: center;
+	color: white;
+	opacity: 0.65;
+}
+
+.friendItem {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 8px;
+}
+
+.friendItem .friendUsername {
+	font-size: 22px;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.friendItem .friendUsername:hover {
+	text-decoration: underline;
+}
+
+.friendItem .friendActions {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+
+	font-size: 24px;
+}
+
+.friendItem .friendActions .action {
+	color: white;
+	background: none;
+}
+
+.friendItem .friendActions .action:not(:last-child) {
+	margin-right: 11px;
 }
 
 #account {
 }
 
+#viewAccountButton,
 #linkAccountButton {
+	display: inline-block;
 	font-size: 20px;
-	line-height: 37px;
-	padding: 0 18px;
+	margin: 0 0 10px 0;
+	padding: 11px 18px;
+
 	font-weight: bold;
 	font-size: 14px;
-	margin-top: 10px;
+	font-family: 'Arial';
 
 	background: #3fc7d3;
 	color: white;
 	border-radius: 23px;
 	border: none;
 	outline: none;
+}
+
+#linkAccountButton {
+	margin: 10px 0 0 0;
 }
 
 #gameLogo {
@@ -308,7 +359,6 @@ select {
 	font-size: 20px;
 
 	background: #3fc7d3;
-	/* font-family: 'Material Icons'; */
 	color: white;
 	border-radius: 23px;
 }
@@ -538,7 +588,8 @@ select {
 
 .matIcon {
 	font-family: 'Material Icons';
-	text-align: center;
+	font-display: block;
+	vertical-align: middle;
 }
 
 /* Leaderboard */
@@ -579,11 +630,11 @@ select {
 	opacity: 1;
 }
 
-.leaderboardItem.isMyFriend.isTheirFriend {
+.leaderboardItem.isFriend {
 	opacity: 0.8;
 	color: #bbff99;
 }
-.leaderboardItem.isMyFriend.isTheirFriend a.leaderboardUsername {
+.leaderboardItem.isFriend a.leaderboardUsername {
 	color: #bbff99;
 }
 
@@ -611,12 +662,12 @@ select {
 	flex-direction: row;
 	justify-content: flex-end;
 	align-items: center;
-	cursor: pointer;
 	flex-grow: 1;
 	text-align: right;
-	color: white;
 	font-size: 14px;
-	padding: 2px;
+	padding: 2px 0 2px 2px;
+	color: white;
+	background: none;
 }
 
 .leaderboardItem .leaderboardFriendAction .matIcon {

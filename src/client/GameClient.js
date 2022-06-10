@@ -10,6 +10,7 @@ const Planet = require('../entities/Planet');
 const Player = require('../entities/Player');
 const config = require('../config/config');
 const utils = require('../utils');
+const { RepeatingRequest } = require('./utils');
 const weapons = require('../config/weapons');
 const structures = require('../config/structures');
 const assets = require('./assets');
@@ -184,11 +185,12 @@ class GameClient extends Game {
 		/** @type {boolean} */ this.demolishConfirm = false;
 
 		/** @type {identity.IdentityService} */ this.identityApi = null;
-		/** @type {identity.IdentityProfile} */ this.identity = null;
+		/** @type {identity.IdentityProfile} */ this.identity = {};
 		/** @type {string} */ this.identityToken = null;
-
 		/** @type {Map<string, identity.IdentityProfile>} */ this.identities = new Map();
 		/** @type {Set<string>} */ this.fetchedIdentities = new Set();
+		/** @type {RepeatingRequest<identity.GetActivitiesCommandOutput>} */ this.friendsStream = null;
+		/** @type {identity.IdentityHandle[]} */ this.friends = [];
 
 		this.recognition = null;
 
@@ -359,7 +361,9 @@ class GameClient extends Game {
 				config: config,
 				i18n: this.i18n,
 				identityApi: this.identityApi,
+				identity: this.identity,
 				identities: this.identities,
+				friends: this.friends,
 
 				// Languages
 				languages: translationsRaw,
@@ -464,6 +468,12 @@ class GameClient extends Game {
 							console.error(err);
 						}
 					}
+				},
+				async friendParty(friend) {
+					// TODO:
+				},
+				async friendOpenChat(friend) {
+					window.open(`https://rivet.gg/identities/${friend.id}/chat`, '_blank');
 				},
 
 				// Build
@@ -2052,11 +2062,6 @@ class GameClient extends Game {
 
 			console.log('Identity connected', identity);
 
-			this.identity = identity;
-			this.fetchedIdentities.add(this.identity.id);
-			this.identities.set(this.identity.id, this.identity);
-			this.identityToken = identityToken;
-
 			// Save identity token in local storage
 			localStorage.setItem('rivet:identity-token', identityToken);
 
@@ -2064,6 +2069,26 @@ class GameClient extends Game {
 			this.identityApi.config.requestHandler = api.requestHandlerMiddleware(
 				identityToken ?? ENV_RIVET_CLIENT_TOKEN
 			);
+
+			this.identity = identity;
+			this.fetchedIdentities.add(this.identity.id);
+			this.identities.set(this.identity.id, this.identity);
+
+			this.vue.identity = this.identity;
+			this.identityToken = identityToken;
+
+			// Start friends listener
+			this.friendsStream = new RepeatingRequest(async (abortSignal, watchIndex) => {
+				return await this.identityApi.getActivities({ watchIndex }, { abortSignal });
+			});
+
+			this.friendsStream.onMessage(res => {
+				this.friends = res.identities;
+			});
+
+			this.friendsStream.onError(err => {
+				console.error('Request error:', err);
+			});
 		} catch (err) {
 			console.error(err);
 			this.ws.close();
@@ -2181,7 +2206,9 @@ class GameClient extends Game {
 			let [clientId, identityId, allianceId, username, score] = item;
 
 			// Fetch new player data
-			if (identityId && !this.fetchedIdentities.has(identityId)) newPlayers.push(identityId);
+			if (identityId && this.identity && !this.fetchedIdentities.has(identityId)) {
+				newPlayers.push(identityId);
+			}
 
 			// Get the alliance data
 			let allianceData =

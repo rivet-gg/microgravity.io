@@ -109,12 +109,12 @@
 							:class="{selected: activeMenu == config.activeMenu.INFO}"
 							@click="changeActiveMenu(config.activeMenu.INFO)"
 						></h3>
-						<!-- <h3
+						<h3
 							class="translate"
 							v-t="'friends-title'"
 							:class="{selected: activeMenu == config.activeMenu.FRIENDS}"
 							@click="changeActiveMenu(config.activeMenu.FRIENDS)"
-						></h3> -->
+						></h3>
 						<h3
 							class="translate"
 							v-t="'account-title'"
@@ -297,12 +297,36 @@
 						<div style="margin-top: 10px">&copy; 2020 Fluxr LLC</div>
 					</div>
 					<div id="friends" v-show="activeMenu == config.activeMenu.FRIENDS">
-						<!-- <div v-for="item in friendItems" class="friendItem">
-							<div class="friendUsername">{{ item.username }}</div>
-							<div class="friendActions"></div>
-						</div> -->
+						<div v-for="item in friends" class="friendItem">
+							<a
+								class="friendUsername"
+								:href="`https://rivet.gg/identities/${item.id}`"
+								target="_blank"
+								>{{ item.displayName }}</a
+							>
+							<div class="friendActions">
+								<div class="button action matIcon" @click="friendParty(item)">
+									celebration
+								</div>
+								<div class="button action matIcon" @click="friendOpenChat(item)">
+									chat_bubble
+								</div>
+							</div>
+						</div>
+						<div
+							v-if="!friends.length"
+							id="noFriendsOnline"
+							class="translate"
+							v-t="'no-friends'"
+						></div>
 					</div>
 					<div id="account" v-show="activeMenu == config.activeMenu.ACCOUNT">
+						<a
+							id="viewAccountButton"
+							class="button translate"
+							v-t="'view-account-title'"
+							:href="identity.profileUrl"
+						></a>
 						<div class="translate">
 							<div v-t="'link-account'"></div>
 						</div>
@@ -377,8 +401,7 @@
 							class="leaderboardItem"
 							:class="{
 								isMine: item.isMine,
-								isMyFriend: item.identity.isMyFriend,
-								isTheirFriend: item.identity.isTheirFriend
+								isFriend: item.identity.isMyFriend && item.identity.isTheirFriend,
 							}"
 						>
 							<div class="leaderboardRank">{{ item.rank }}</div>
@@ -395,7 +418,7 @@
 							<div class="leaderboardScore">{{ Math.floor(item.score) }}</div>
 							<div
 								v-if="!item.isMine && !item.isMyIdentity && item.identity"
-								class="leaderboardFriendAction"
+								class="leaderboardFriendAction button"
 								@click="friendAction(item)"
 							>
 								<h3
