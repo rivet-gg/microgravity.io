@@ -1,6 +1,8 @@
 // Since we can't inherit the cert from mkcert
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
 
+require('dotenv').config()
+
 const config = require('../config/config');
 config.isServer = true;
 
@@ -16,22 +18,20 @@ var cors = require('cors');
 
 const nocache = require('nocache');
 
-let rivetServer = null;
-if (config.isProd) {
-	const rivet = require('@rivet-gg/matchmaker');
-	rivetServer = new rivet.MatchmakerService({
-		endpoint: process.env.RIVET_MATCHMAKER_API_URL,
-		tls: true,
-		requestHandler: utils.requestHandlerMiddleware(process.env.RIVET_LOBBY_TOKEN)
-	});
+console.log(process.env.RIVET_MATCHMAKER_API_URL);
+let matchmaker = require('@rivet-gg/matchmaker');
+let matchmakerApi = new matchmaker.MatchmakerService({
+	endpoint: process.env.RIVET_MATCHMAKER_API_URL,
+	tls: true,
+	requestHandler: utils.requestHandlerMiddleware(process.env.RIVET_LOBBY_TOKEN)
+});
 
-	rivetServer
-		.lobbyReady({})
-		.then(() => console.log('Lobby ready'))
-		.catch(err => {
-			throw err;
-		});
-}
+matchmakerApi
+	.lobbyReady({})
+	.then(() => console.log('Lobby ready'))
+	.catch(err => {
+		throw err;
+	});
 
 // Setup stats
 stats.start('local', process.env.REDIS_URI || null);
@@ -123,10 +123,10 @@ wss.on('connection', async (ws, req) => {
 	}
 	let wsUrl = new url.URL(req.url, 'https://microgravity.io');
 	let playerToken = wsUrl.searchParams.get('token');
-	if (rivetServer) {
+	if (matchmakerApi) {
 		if (playerToken) {
 			try {
-				await rivetServer.playerConnected({ playerToken });
+				await matchmakerApi.playerConnected({ playerToken });
 			} catch (err) {
 				console.warn('Failed to connect player', err);
 				ws.close();
@@ -149,9 +149,9 @@ wss.on('connection', async (ws, req) => {
 	client.onClosed = async () => {
 		broadcastPlayerCount(game.playerCount);
 
-		if (rivetServer) {
+		if (matchmakerApi) {
 			try {
-				await rivetServer.playerDisconnected({ playerToken });
+				await matchmakerApi.playerDisconnected({ playerToken });
 			} catch (err) {
 				console.warn('Failed to disconnect player', err);
 			}
