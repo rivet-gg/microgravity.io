@@ -10,6 +10,7 @@ let defineValues = {};
 
 // Expose environment variables
 const envValues = {
+	RIVET_PARTY_API_URL: process.env.RIVET_PARTY_API_URL,
 	RIVET_IDENTITY_API_URL: process.env.RIVET_IDENTITY_API_URL,
 	RIVET_MATCHMAKER_API_URL: process.env.RIVET_MATCHMAKER_API_URL,
 	RIVET_CLIENT_TOKEN: process.env.RIVET_CLIENT_TOKEN,

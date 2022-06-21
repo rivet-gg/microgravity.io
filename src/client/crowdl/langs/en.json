@@ -50,8 +50,8 @@
 	"htp-summary": "Collect resources to build a civilization on a planet. Build defenses and take over other player’s planets.",
 	"htp-title": "How To Play",
 	"info-title": "Info",
-	"invite-friends-copied": "Link copied to clipboard!",
-	"invite-friends": "Invite Friends",
+	"lobby-link-copied": "Link copied to clipboard!",
+	"lobby-link": "Share Lobby",
 	"join-game": "Join",
 	"join-requests": "Join Requests",
 	"labor-demand": "Labor Demand",
@@ -149,5 +149,10 @@
 	"weapon-sniper": "Sniper",
 	"weapon-super-alien-gun": "Super Alien Gun",
 	"weapon-super-minigun": "Super Minigun",
-	"weapon-teleport": "Teleport"
+	"weapon-teleport": "Teleport",
+	"party-title": "Party",
+	"create-party": "Create Party",
+	"leave-party": "Leave Party",
+	"kick-party-member": "Kick",
+	"promote-party-member": "Promote"
 }

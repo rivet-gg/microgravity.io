@@ -5,7 +5,7 @@ rm -rf dist
 mkdir -p dist
 
 # Generate and copy serivces
-for api in identity matchmaker; do
+for api in identity matchmaker party; do
 	echo
 	echo
 	echo "> [api-$api]: Copying Client"

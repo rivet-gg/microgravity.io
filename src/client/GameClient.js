@@ -1,4 +1,5 @@
 const identity = require('@rivet-gg/identity');
+const party = require('@rivet-gg/party');
 const api = require('../api');
 
 const Game = require('../Game');
@@ -188,6 +189,7 @@ class GameClient extends Game {
 		/** @type {boolean} */ this.demolishConfirm = false;
 
 		/** @type {identity.IdentityService} */ this.identityApi = null;
+		/** @type {party.PartyService} */ this.partyApi = null;
 		/** @type {identity.IdentityProfile} */ this.identity = {};
 		/** @type {string} */ this.identityToken = null;
 		/** @type {Map<string, identity.IdentityProfile>} */ this.identities = new Map();
@@ -362,6 +364,7 @@ class GameClient extends Game {
 				config: config,
 				i18n: this.i18n,
 				identityApi: this.identityApi,
+				partyApi: this.partyApi,
 				identity: this.identity,
 				identities: this.identities,
 				friends: this.friends,
@@ -2141,7 +2144,12 @@ class GameClient extends Game {
 			tls: true,
 			requestHandler: api.requestHandlerMiddleware(process.env.RIVET_CLIENT_TOKEN)
 		});
+		this.partyApi = new party.PartyService({
+			endpoint: process.env.RIVET_PARTY_API_URL ?? 'https://party.api.rivet.gg/v1',
+			tls: true,
+		});
 		this.vue.identityApi = this.identityApi;
+		this.vue.partyApi = this.identityApi;
 
 		try {
 			let { identity, identityToken } = await this.identityApi.setupIdentity({
@@ -2154,7 +2162,7 @@ class GameClient extends Game {
 			localStorage.setItem('rivet:identity-token', identityToken);
 
 			// Update request handler with bearer token
-			this.identityApi.config.requestHandler = api.requestHandlerMiddleware(identityToken);
+			this.identityApi.config.requestHandler = this.partyApi.requestHandler = api.requestHandlerMiddleware(identityToken);
 
 			this.identity = identity;
 			this.fetchedIdentities.add(this.identity.id);
@@ -2182,9 +2190,10 @@ class GameClient extends Game {
 
 			this.eventsStream.onMessage(res => {
 				for (let update of res.events) {
-					if (update.chatMessage && update.chatMessage.notification) {
+					console.log("Rivet Event", res);
+					if (update.notification) {
 						// No notifications are sent if the cache is not present or the watch index expired
-						if (!res.refreshed) this.presentNotification(update.chatMessage);
+						if (!res.refreshed) this.presentNotification(update.notification);
 					}
 				}
 			});
@@ -2677,13 +2686,13 @@ class GameClient extends Game {
 
 		// Update UI
 		if (!inGame) {
-			document.getElementById('notificationOverlay').classList.remove('inGame');
+			document.body.classList.remove('inGame');
 
 			if (this.showingAlliances) this.toggleAlliances(false);
 			if (this.showingChatBox) this.toggleChatBox(false);
 			if (this.showingHelp) this.toggleHelp(false);
 		} else {
-			document.getElementById('notificationOverlay').classList.add('inGame');
+			document.body.classList.add('inGame');
 		}
 
 		// Make sure only one modal showing
@@ -3165,16 +3174,6 @@ class GameClient extends Game {
 
 	/*** NOTIFICATIONS ***/
 	presentNotification(notification) {
-		let chatMessage = notification.thread.tailMessage;
-
-		// Don't sent "Chat Created" notifications
-		if (chatMessage.body.chatCreate) return;
-
-		// Don't show notification from self
-		if (chatMessage.body.text && chatMessage.body.text.sender.id == this.identity.id) {
-			return;
-		}
-
 		let timeoutId = window.setTimeout(
 			() => this.vue.dismissNotification(chatMessage.id),
 			NOTIFICATION_LIFESPAN
@@ -3183,7 +3182,7 @@ class GameClient extends Game {
 		// Insert notification
 		this.vue.notifications.unshift({
 			id: chatMessage.id,
-			notification: notification.notification,
+			notification: notification,
 			timeoutId: timeoutId,
 			isFading: false
 		});
