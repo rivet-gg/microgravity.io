@@ -85,53 +85,6 @@ function broadcastPlayerCount(count) {
 // Create game
 const game = new GameServer();
 
-// Create express server
-const app = express();
-app.use(cors());
-if (!config.isProd) app.use(nocache());
-app.use(/^\/$/, nocache()); // Only disable caching on the root, "/" will disable all sub-directories
-app.use('/*.html', nocache());
-app.use('/*.js', nocache());
-app.use('/*.css', nocache());
-app.use(
-	express.static(__dirname + '/../../public', {
-		immutable: true,
-		maxAge: 1000 * 60 * 60 * 2 // 2 hours
-	})
-);
-app.get('/', (req, res) => {
-	res.sendFile(__dirname + '/../../public/index.html');
-});
-app.get('/ping', nocache(), (req, res) => {
-	res.send('Success');
-});
-app.get('/status', nocache(), (req, res) => {
-	res.send('ok');
-});
-app.get('/server-stats', nocache(), async (req, res) => {
-	res.send(await getStats());
-});
-app.get('/server-stats-history', nocache(), async (req, res) => {
-	let results = await stats.fetchServerStatsHistory(serverKey, req.query.count || 1000);
-	res.send(results);
-});
-app.get('/game-stats', nocache(), async (req, res) => {
-	let results = await stats.fetchStats();
-
-	let resultsMap = {};
-	for (let result of results) {
-		resultsMap[result[0]] = result[1];
-	}
-
-	res.send(resultsMap);
-});
-
-// Dev server
-if (!config.isProd) {
-	let port = 8080;
-	app.listen(port, () => console.log(`Listening on port ${port}.`));
-}
-
 // Handle WebSocket CORS
 const corsRegex = /^((.+\.|)microgravity\.io|microgravity\.rivet\.game|microgravity\.rivet-game\.test)$/;
 function isValidOrigin(origin) {
