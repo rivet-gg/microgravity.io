@@ -18,7 +18,6 @@ var cors = require('cors');
 
 const nocache = require('nocache');
 
-console.log(process.env.RIVET_MATCHMAKER_API_URL);
 let matchmaker = require('@rivet-gg/matchmaker');
 let matchmakerApi = new matchmaker.MatchmakerService({
 	endpoint: process.env.RIVET_MATCHMAKER_API_URL,
@@ -123,20 +122,18 @@ wss.on('connection', async (ws, req) => {
 	}
 	let wsUrl = new url.URL(req.url, 'https://microgravity.io');
 	let playerToken = wsUrl.searchParams.get('token');
-	if (matchmakerApi) {
-		if (playerToken) {
-			try {
-				await matchmakerApi.playerConnected({ playerToken });
-			} catch (err) {
-				console.warn('Failed to connect player', err);
-				ws.close();
-				return;
-			}
-		} else {
-			console.warn('Missing token');
+	if (playerToken) {
+		try {
+			await matchmakerApi.playerConnected({ playerToken });
+		} catch (err) {
+			console.warn('Failed to connect player', err);
 			ws.close();
 			return;
 		}
+	} else {
+		console.warn('Missing token');
+		ws.close();
+		return;
 	}
 
 	// Send to game
@@ -149,12 +146,10 @@ wss.on('connection', async (ws, req) => {
 	client.onClosed = async () => {
 		broadcastPlayerCount(game.playerCount);
 
-		if (matchmakerApi) {
-			try {
-				await matchmakerApi.playerDisconnected({ playerToken });
-			} catch (err) {
-				console.warn('Failed to disconnect player', err);
-			}
+		try {
+			await matchmakerApi.playerDisconnected({ playerToken });
+		} catch (err) {
+			console.warn('Failed to disconnect player', err);
 		}
 	};
 });

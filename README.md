@@ -44,9 +44,7 @@ This open-source copy of Microgravity is not built to be distributed, since the 
 
 ## Deploying
 
-This version of Microgravity is not built to be deployed to a server at the moment. If you wish to run this on your server, you will need to modify where `client.js` calls `game.connectSocket` to pass in the appropriate host and port and configure `server.js` to use the correct SSL certificates.
-
-Please note that Microgravity is licensed under [GNU GPLv3](https://choosealicense.com/licenses/gpl-3.0/), meaning you may legally run your own copy and make money off it, but you must make the complete source code available for any modified version of the game. If you have any questions, please refer to the license or contact us directly. We look forward to seeing what you create!
+Microgravity is built to be deployed on [Rivet](https://rivet.gg). Rivet is in private beta at the moment, so we can't share the deploy process yet.
 
 ## Show Us Your Ideas!
 

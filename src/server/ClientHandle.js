@@ -588,9 +588,7 @@ class ClientHandle {
 
 		try {
 			let identityApi = new identity.IdentityService({
-				endpoint: process.env.RIVET_API_IDENTITY_URL
-					? process.env.RIVET_API_IDENTITY_URL
-					: 'https://identity.api.rivet.gg/v1',
+				endpoint: process.env.RIVET_IDENTITY_API_URL || 'https://identity.api.rivet.gg/v1',
 				tls: true,
 				requestHandler: serverUtils.requestHandlerMiddleware(identityToken)
 			});

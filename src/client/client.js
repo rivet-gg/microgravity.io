@@ -5,35 +5,28 @@ config.isClient = true;
 const api = require('../api');
 const GameClient = require('./GameClient');
 
+let matchmaker = require('@rivet-gg/matchmaker');
+const matchmakerApi = new matchmaker.MatchmakerService({
+	endpoint: process.env.RIVET_MATCHMAKER_API_URL ?? 'https://matchmaker.api.rivet.gg/v1',
+	tls: true,
+	maxAttempts: 0,
+	requestHandler: api.requestHandlerMiddleware(process.env.RIVET_CLIENT_TOKEN ?? null),
+});
+
 // Create game
 const game = new GameClient();
 
 // Start connection
 function start() {
-	if (config.isProd) {
-		// Find lobby
-		let mm = require('@rivet-gg/matchmaker');
-
-		const clientApi = new mm.MatchmakerService({
-			endpoint: ENV_API_MATCHMAKER_URL ?? 'https://matchmaker.api.rivet.gg/v1',
-			tls: true,
-			maxAttempts: 0,
-			requestHandler: api.requestHandlerMiddleware()
-		});
-
-		connectToLobby(clientApi);
-	} else {
-		// Create dev socket
-		game.connectSocket('127.0.0.1', 8008, false, 0);
-	}
+	connectToLobby();
 }
 
 window.addEventListener('load', start);
 
-function connectToLobby(clientApi, captcha) {
+function connectToLobby(captcha = null) {
 	document.querySelector('#hCaptcha').style.display = 'none';
 
-	clientApi
+	matchmakerApi
 		.findLobby({
 			gameModes: ['default'],
 			preventAutoCreateLobby: false,

@@ -217,12 +217,9 @@ class GameClient extends Game {
 		this.render();
 	}
 
-	connectSocket(address, port, useTls, gameIndex, token = null) {
+	connectSocket(address, port, useTls, gameIndex, token) {
 		let wsProtocol = useTls ? 'wss:' : 'ws:';
-		let url = `${wsProtocol}//${address}:${port}/?gameIndex=${gameIndex}`;
-		if (token != null) {
-			url += `&token=${token}`;
-		}
+		let url = `${wsProtocol}//${address}:${port}/?gameIndex=${gameIndex}&token=${token}`;
 		console.log('Connecting', { url, address, port, useTls, gameIndex, token });
 
 		this.ws = new WebSocket(url);
@@ -2140,9 +2137,9 @@ class GameClient extends Game {
 		// Setup identity API
 		let existingIdentityToken = localStorage.getItem('rivet:identity-token');
 		this.identityApi = new identity.IdentityService({
-			endpoint: ENV_API_IDENTITY_URL ?? 'https://identity.api.rivet.gg/v1',
+			endpoint: process.env.RIVET_IDENTITY_API_URL ?? 'https://identity.api.rivet.gg/v1',
 			tls: true,
-			requestHandler: api.requestHandlerMiddleware()
+			requestHandler: api.requestHandlerMiddleware(process.env.RIVET_CLIENT_TOKEN)
 		});
 		this.vue.identityApi = this.identityApi;
 
@@ -2157,9 +2154,7 @@ class GameClient extends Game {
 			localStorage.setItem('rivet:identity-token', identityToken);
 
 			// Update request handler with bearer token
-			this.identityApi.config.requestHandler = api.requestHandlerMiddleware(
-				identityToken ?? ENV_RIVET_CLIENT_TOKEN
-			);
+			this.identityApi.config.requestHandler = api.requestHandlerMiddleware(identityToken);
 
 			this.identity = identity;
 			this.fetchedIdentities.add(this.identity.id);

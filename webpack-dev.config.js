@@ -10,14 +10,11 @@ let defineValues = {};
 
 // Expose environment variables
 const envValues = {
-	API_IDENTITY_URL: process.env.RIVET_IDENTITY_API_URL,
-	API_MATCHMAKER_URL: process.env.RIVET_MATCHMAKER_API_URL,
-	RIVET_CLIENT_TOKEN: process.env.RIVET_CLIENT_TOKEN
+	RIVET_IDENTITY_API_URL: process.env.RIVET_IDENTITY_API_URL,
+	RIVET_MATCHMAKER_API_URL: process.env.RIVET_MATCHMAKER_API_URL,
+	RIVET_CLIENT_TOKEN: process.env.RIVET_CLIENT_TOKEN,
 };
-for (let key in envValues) {
-	defineValues[`ENV_${key}`] = JSON.stringify(process.env[key] || envValues[key]);
-}
-console.log('defineValues:', defineValues);
+console.log('envValues:', envValues);
 
 module.exports = {
 	entry: {
@@ -53,8 +50,14 @@ module.exports = {
 			}
 		]
 	},
+	devServer: {
+		port: 8080,
+		static: {
+			directory: path.join(__dirname, 'public'),
+		},
+	},
 	plugins: [
-		new webpack.DefinePlugin(defineValues),
+		new webpack.EnvironmentPlugin(envValues),
 		new HtmlWebpackPlugin({
 			// Compile HTML so it matches the client hash
 			template: path.join(__dirname, 'src', 'index.html'),

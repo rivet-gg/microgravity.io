@@ -9,7 +9,7 @@ for api in identity matchmaker; do
 	echo
 	echo
 	echo "> [api-$api]: Copying Client"
-      (cp -r ~/dev/backend/gen/svc/api-$api/smithy/typescript/ dist/api-$api || cp -r ~/dev/backend/gen/svc/api-$api/openapi/typescript/ dist/api-$api)
+      (cp -r ~/rivet/backend/gen/svc/api-$api/smithy/typescript/ dist/api-$api || cp -r ~/dev/backend/gen/svc/api-$api/openapi/typescript/ dist/api-$api)
 
 	echo
 	echo
