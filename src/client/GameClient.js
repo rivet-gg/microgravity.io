@@ -412,7 +412,10 @@ class GameClient extends Game {
 				showingBuildGroup: null,
 
 				// Notifications
-				notifications: []
+				notifications: [],
+
+				// Party
+				party: null,
 			},
 
 			methods: {
@@ -647,7 +650,15 @@ class GameClient extends Game {
 					window.clearTimeout(notification.timeoutId);
 
 					this.notifications.splice(index, 1);
-				}
+				},
+				createParty() {
+					this.partyApi.createParty({
+						partySize: 8,
+					});
+				},
+				leaveParty() {
+					this.partyApi.leaveParty({});
+				},
 			},
 
 			computed: {
@@ -685,7 +696,13 @@ class GameClient extends Game {
 				},
 				hoveringPerkData() {
 					return this.hoveringPerk != null ? upgrades.perks[this.hoveringPerk] : null;
-				}
+				},
+
+				// Party
+				isPartyLeader() {
+					if (this.party) return this.party.members.find(x => x.isLeader)?.identity.id == this.identity?.id;
+					else return false;
+				},
 			},
 
 			watch: {
@@ -2147,9 +2164,10 @@ class GameClient extends Game {
 		this.partyApi = new party.PartyService({
 			endpoint: process.env.RIVET_PARTY_API_URL ?? 'https://party.api.rivet.gg/v1',
 			tls: true,
+			requestHandler: api.requestHandlerMiddleware()
 		});
 		this.vue.identityApi = this.identityApi;
-		this.vue.partyApi = this.identityApi;
+		this.vue.partyApi = this.partyApi;
 
 		try {
 			let { identity, identityToken } = await this.identityApi.setupIdentity({
@@ -2162,7 +2180,7 @@ class GameClient extends Game {
 			localStorage.setItem('rivet:identity-token', identityToken);
 
 			// Update request handler with bearer token
-			this.identityApi.config.requestHandler = this.partyApi.requestHandler = api.requestHandlerMiddleware(identityToken);
+			this.identityApi.config.requestHandler = this.partyApi.config.requestHandler = api.requestHandlerMiddleware(identityToken);
 
 			this.identity = identity;
 			this.fetchedIdentities.add(this.identity.id);
@@ -2191,9 +2209,14 @@ class GameClient extends Game {
 			this.eventsStream.onMessage(res => {
 				for (let update of res.events) {
 					console.log("Rivet Event", res);
+
 					if (update.notification) {
 						// No notifications are sent if the cache is not present or the watch index expired
 						if (!res.refreshed) this.presentNotification(update.notification);
+					}
+
+					if (update.kind.partyUpdate) {
+						this.vue.party = update.kind.partyUpdate.party;
 					}
 				}
 			});

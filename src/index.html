@@ -575,18 +575,17 @@
 			</div>
 
 			<div id="partyOverlay">
-				<div id="partyMembers">
-					<div class="partyMember">
-						<a class="partyMemberName" target="_blank" href="https://google.com/">Member Name</a>
-						<div class="translate button compact" v-t="'kick-party-member'"></div>
-						<div class="translate button compact" v-t="'promote-party-member'"></div>
+				<div v-if="party != null" id="partyMembers">
+					<div v-for="member in party.members" class="partyMember">
+						<a class="partyMemberName" target="_blank" :href="`https://rivet.gg/identities/${member.id}`">{{member.identity.displayName}}</a>
+						<div v-if="isPartyLeader && !member.isLeader" class="translate button compact" v-t="'kick-party-member'"></div>
+						<div v-if="isPartyLeader && !member.isLeader" class="translate button compact" v-t="'promote-party-member'"></div>
 					</div>
 
 				</div>
 				<div id="partyActions">
-					<div class="translate button compact" v-t="'create-party'"></div>
-
-					<div class="translate button compact" v-t="'leave-party'"></div>
+					<div v-if="party == null" class="translate button compact" v-t="'create-party'" @click="createParty()"></div>
+					<div v-if="party != null" class="translate button compact" v-t="'leave-party'" @click="leaveParty()"></div>
 				</div>
 			</div>
 
