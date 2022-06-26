@@ -104,8 +104,8 @@ class GameClient extends Game {
 	get isLSD() {
 		return this.normalizedUsername === 'lsd';
 	}
-	get isFuckNathan() {
-		return this.normalizedUsername === '#fucknathan' || this.normalizedUsername === '#fuckingnathan';
+	get isOopsie() {
+		return this.normalizedUsername === '#oopsie'
 	}
 
 	constructor() {
@@ -1445,7 +1445,7 @@ class GameClient extends Game {
 	renderWorld(ctx, dt) {
 		// Calculate screen shake
 		let shakeMagnitude = this.explosionManager.getScreenShake(this.viewportX, this.viewportY);
-		if (this.isReee || this.isFuckNathan) shakeMagnitude = 2000; // Easter egg
+		if (this.isReee || this.isOopsie) shakeMagnitude = 2000; // Easter egg
 		shakeMagnitude *= 0.05; // Pixels/magnitude
 		shakeMagnitude = Math.min(
 			shakeMagnitude,
@@ -1729,7 +1729,7 @@ class GameClient extends Game {
 			ctx.globalAlpha = 0.7;
 			ctx.fillRect(0, 0, this.screenWidth, this.screenHeight);
 			ctx.restore();
-		} else if (this.isFuckNathan) {
+		} else if (this.isOopsie) {
 			ctx.save();
 
 			ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
