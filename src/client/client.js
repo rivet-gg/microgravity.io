@@ -16,14 +16,14 @@ const matchmakerApi = new matchmaker.MatchmakerService({
 // Parse the URL and clear the query
 let params = new URLSearchParams(location.search);
 console.log(params);
-let partyCode = params.get("p");
+let partyAlias = params.get("p");
 let lobbyId = params.get("l");
-console.log('Parsed URL params', {partyCode, lobbyId});
+console.log('Parsed URL params', {partyAlias, lobbyId});
 window.history.replaceState({}, document.title, "/");
 
 // Create game
-const game = new GameClient(partyCode);
-game.autoJoinPartyCode = partyCode;
+const game = new GameClient(partyAlias);
+game.autoJoinPartyAlias = partyAlias;
 
 // Start connection
 function start() {

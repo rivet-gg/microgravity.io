@@ -130,7 +130,7 @@ class GameClient extends Game {
 		/* @type {boolean} */ this.renderingUI = false;
 
 		/** @type {boolean} */ this.initiated = false;
-		/** @type {?string} */ this.autoJoinPartyCode = null;
+		/** @type {?string} */ this.autoJoinPartyAlias = null;
 
 		/** @type {number} */ this.ping = 0;
 		/** @type {boolean} */ this.pingStart = null;
@@ -654,12 +654,12 @@ class GameClient extends Game {
 					this.notifications.splice(index, 1);
 				},
 				transferParty(member) {
-					this.partyApi.transferPartyOwnership({
-						leaderIdentityId: member.identity.id,
+					this.partyApi.transferOwnership({
+						identityId: member.identity.id,
 					});
 				},
 				kickPartyMember(member) {
-					this.partyApi.kickPartyMember({
+					this.partyApi.kickMember({
 						identityId: member.identity.id,
 					});
 				},
@@ -667,7 +667,7 @@ class GameClient extends Game {
 					this.partyApi.createParty({
 						partySize: 8,
 						invites: [
-							{ code: utils.generateRandomCode() },
+							{ alias: utils.generateRandomCode() },
 						],
 					});
 				},
@@ -767,8 +767,9 @@ class GameClient extends Game {
 		});
 		new ClipboardJS('#shareParty', {
 			text: () => {
-				if (this.party && this.party.invites.length > 0) {
-					return `${location.origin}/?p=${this.party.invites[0].code}`;
+				if (this.party) {
+					let alias = this.party.invites.find(x => !!x.alias.alias);
+					return `${location.origin}/?p=${alias.alias.alias}`;
 				}
 			},
 		});
@@ -2260,10 +2261,10 @@ class GameClient extends Game {
 		}
 
 		// Join party if needed
-		if (this.autoJoinPartyCode) {
-			console.log('Joining party', this.autoJoinPartyCode);
+		if (this.autoJoinPartyAlias) {
+			console.log('Joining party', this.autoJoinPartyAlias);
 			this.partyApi.joinParty({
-				code: this.autoJoinPartyCode,
+				invite: { alias: this.autoJoinPartyAlias },
 			})
 			.catch((err) => {
 				if (err.code) {
