@@ -130,6 +130,7 @@ class GameClient extends Game {
 		/* @type {boolean} */ this.renderingUI = false;
 
 		/** @type {boolean} */ this.initiated = false;
+		/** @type {?string} */ this.autoJoinPartyCode = null;
 
 		/** @type {number} */ this.ping = 0;
 		/** @type {boolean} */ this.pingStart = null;
@@ -219,10 +220,11 @@ class GameClient extends Game {
 		this.render();
 	}
 
-	connectSocket(address, port, useTls, gameIndex, token) {
-		let wsProtocol = useTls ? 'wss:' : 'ws:';
-		let url = `${wsProtocol}//${address}:${port}/?gameIndex=${gameIndex}&token=${token}`;
-		console.log('Connecting', { url, address, port, useTls, gameIndex, token });
+	connectSocket(lobby) {
+		let port = lobby.ports['default'];
+		let wsProtocol = port.isTls ? 'wss:' : 'ws:';
+		let url = `${wsProtocol}//${port.hostname}:${port.port}/?token=${lobby.player.token}`;
+		console.log('Connecting', { lobby, url });
 
 		this.ws = new WebSocket(url);
 		this.ws.binaryType = 'arraybuffer';
@@ -2227,6 +2229,19 @@ class GameClient extends Game {
 		} catch (err) {
 			console.error(err);
 			this.ws.close();
+		}
+
+		// Join party if needed
+		if (this.autoJoinPartyCode) {
+			console.log('Joining party', this.autoJoinPartyCode);
+			this.partyApi.joinParty({
+				code: this.autoJoinPartyCode,
+			})
+			.catch((err) => {
+				if (err.code) {
+					alert(`Failed to join party: ${err.code}`);
+				}
+			});
 		}
 
 		// Respond to challenge

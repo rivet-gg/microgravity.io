@@ -13,51 +13,72 @@ const matchmakerApi = new matchmaker.MatchmakerService({
 	requestHandler: api.requestHandlerMiddleware(process.env.RIVET_CLIENT_TOKEN ?? null),
 });
 
+// Parse the URL and clear the query
+let params = new URLSearchParams(location.search);
+console.log(params);
+let partyCode = params.get("p");
+let lobbyId = params.get("l");
+console.log('Parsed URL params', {partyCode, lobbyId});
+window.history.replaceState({}, document.title, "/");
+
 // Create game
-const game = new GameClient();
+const game = new GameClient(partyCode);
+game.autoJoinPartyCode = partyCode;
 
 // Start connection
 function start() {
-	connectToLobby();
+	connectToLobby(lobbyId);
 }
 
 window.addEventListener('load', start);
 
-function connectToLobby(captcha = null) {
+async function connectToLobby(lobbyId, captcha = null) {
 	document.querySelector('#hCaptcha').style.display = 'none';
 
-	matchmakerApi
-		.findLobby({
-			gameModes: ['default'],
-			preventAutoCreateLobby: false,
-			captcha
-		})
-		.then(res => {
-			console.log('Found lobby', res);
-			if (!res.lobby) throw 'Missing lobby';
-			let port = res.lobby.ports['default'];
-			game.connectSocket(port.hostname, port.port, port.isTls, 0, res.lobby.player.token);
-		})
-		.catch(err => {
-			// Request captcha on error
-			if (err.code == 'CAPTCHA_REQUIRED') {
-				document.querySelector('#hCaptcha').style.display = 'flex';
+	let lobby = null;
+	try {
+		if (lobbyId) {
+			console.log('Joining lobby', lobbyId);
+			let res = await matchmakerApi.joinLobby({
+				lobbyId,
+				captcha,
+			});
+			lobby = res.lobby;
 
-				hcaptcha.render('hCaptcha', {
-					sitekey: err.metadata.hcaptcha.site_id,
-					callback: clientResponse => {
-						connectToLobby(clientApi, {
-							hcaptcha: {
-								clientResponse
-							}
-						});
-					}
+			// TODO: Handle lobby not found
+		} else {
+			console.log('Finding lobby');
+			let res = await matchmakerApi
+				.findLobby({
+					gameModes: ['default'],
+					preventAutoCreateLobby: false,
+					captcha,
 				});
-			} else {
-				console.error('Failed to find lobby:', err);
+			lobby = res.lobby;
+		}
+	} catch (err) {
+		// Request captcha on error
+		if (err.code == 'CAPTCHA_REQUIRED') {
+			document.querySelector('#hCaptcha').style.display = 'flex';
 
-				delete err.$metadata;
-				alert('Failed to find lobby:' + JSON.stringify(err));
-			}
-		});
+			hcaptcha.render('hCaptcha', {
+				sitekey: err.metadata.hcaptcha.site_id,
+				callback: clientResponse => {
+					connectToLobby(lobbyId, clientApi, {
+						hcaptcha: {
+							clientResponse
+						}
+					});
+				}
+			});
+		} else {
+			console.error('Failed to find lobby:', err);
+			alert(`Failed to find lobby: ${err.code}`);
+		}
+	}
+
+	if (!lobby) throw 'Missing lobby';
+	console.log('Found lobby', lobby);
+	game.connectSocket(lobby);
 }
+
