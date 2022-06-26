@@ -131,7 +131,6 @@ class GameClient extends Game {
 
 		/** @type {boolean} */ this.initiated = false;
 		/** @type {?string} */ this.autoJoinPartyCode = null;
-		/** @type {?string} */ this.lobbyLink = null;
 
 		/** @type {number} */ this.ping = 0;
 		/** @type {boolean} */ this.pingStart = null;
@@ -222,7 +221,7 @@ class GameClient extends Game {
 	}
 
 	connectSocket(lobby) {
-		this.lobbyLink = `${location.origin}/?l=${lobby.lobbyId}`;
+		this.lobby = lobby;
 
 		let port = lobby.ports['default'];
 		let wsProtocol = port.isTls ? 'wss:' : 'ws:';
@@ -378,7 +377,8 @@ class GameClient extends Game {
 				languages: translationsRaw,
 
 				// Main menu
-				linkJustCopied: false,
+				lobbyLinkJustCopied: false,
+				partyLinkJustCopied: false,
 				showConsent: localStorage.consentedToPrivacyPolicy !== 'true',
 				kickTimer: 0,
 				usingTouch: false,
@@ -426,13 +426,10 @@ class GameClient extends Game {
 			methods: {
 				// Main menu
 				copyLobbyLink() {
-					// Report
-					utils.reportEvent('link-copied', this.lobbyLink);
-
 					// Animate copied
-					this.linkJustCopied = true;
+					this.lobbyLinkJustCopied = true;
 					setTimeout(() => {
-						this.linkJustCopied = false;
+						this.lobbyLinkJustCopied = false;
 					}, 1000);
 				},
 				joinGame() {
@@ -659,10 +656,20 @@ class GameClient extends Game {
 				createParty() {
 					this.partyApi.createParty({
 						partySize: 8,
+						invites: [
+							{ code: utils.generateRandomCode() },
+						],
 					});
 				},
 				leaveParty() {
 					this.partyApi.leaveParty({});
+				},
+				copyPartyLink() {
+					// Animate copied
+					this.partyLinkJustCopied = true;
+					setTimeout(() => {
+						this.partyLinkJustCopied = false;
+					}, 1000);
 				},
 			},
 
@@ -744,8 +751,16 @@ class GameClient extends Game {
 			window.onbeforeunload = () => 'Are you sure you want to leave? You will lose all progress.';
 
 		// Share link button
-		new ClipboardJS('#shareLink', {
-			text: () => this.lobbyLink,
+		new ClipboardJS('#shareLobby', {
+			text: () => `${location.origin}/?l=${lobby.lobbyId}`,
+
+		});
+		new ClipboardJS('#shareParty', {
+			text: () => {
+				if (this.party && this.party.invites.length > 0) {
+					return `${location.origin}/?p=${this.party.invites[0].code}`;
+				}
+			},
 		});
 
 		// Update ad reward panel HTML
@@ -2221,7 +2236,7 @@ class GameClient extends Game {
 					}
 
 					if (update.kind.partyUpdate) {
-						this.vue.party = update.kind.partyUpdate.party;
+						this.party = this.vue.party = update.kind.partyUpdate.party;
 					}
 				}
 			});

@@ -344,10 +344,10 @@
 				<!-- Extra Links -->
 				<div id="extraLinks">
 					<a
-						id="shareLink"
+						id="shareLobby"
 						class="link"
 						@click="copyLobbyLink"
-						v-t="linkJustCopied ? 'lobby-link-copied' : 'lobby-link'"
+						v-t="lobbyLinkJustCopied ? 'lobby-link-copied' : 'lobby-link'"
 					></a>
 					<div class="separator"></div>
 					<a class="link" href="/versions.html" target="_blank">v1.2.0</a>
@@ -586,6 +586,11 @@
 				<div id="partyActions">
 					<div v-if="party == null" class="translate button compact" v-t="'create-party'" @click="createParty()"></div>
 					<div v-if="party != null" class="translate button compact" v-t="'leave-party'" @click="leaveParty()"></div>
+					<div
+						v-if="isPartyLeader"
+						id="shareParty" class="translate button compact"
+						v-t="partyLinkJustCopied ? 'share-party-copied' : 'share-party'"
+						@click="copyPartyLink()"></div>
 				</div>
 			</div>
 

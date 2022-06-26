@@ -50,7 +50,7 @@
 	"htp-summary": "Collect resources to build a civilization on a planet. Build defenses and take over other player’s planets.",
 	"htp-title": "How To Play",
 	"info-title": "Info",
-	"lobby-link-copied": "Link copied to clipboard!",
+	"lobby-link-copied": "Link copied!",
 	"lobby-link": "Share Lobby",
 	"join-game": "Join",
 	"join-requests": "Join Requests",
@@ -153,6 +153,8 @@
 	"party-title": "Party",
 	"create-party": "Create Party",
 	"leave-party": "Leave Party",
+	"share-party": "Share Party",
+	"share-party-copied": "Link copied!",
 	"kick-party-member": "Kick",
 	"promote-party-member": "Promote"
 }
