@@ -578,8 +578,8 @@
 				<div v-if="party != null" id="partyMembers">
 					<div v-for="member in party.members" class="partyMember">
 						<a class="partyMemberName" target="_blank" :href="`https://rivet.gg/identities/${member.id}`">{{member.identity.displayName}}</a>
-						<div v-if="isPartyLeader && !member.isLeader" class="translate button compact" v-t="'kick-party-member'"></div>
-						<div v-if="isPartyLeader && !member.isLeader" class="translate button compact" v-t="'promote-party-member'"></div>
+						<div v-if="isPartyLeader && !member.isLeader" class="translate button compact" v-t="'kick-party-member'" @click="kickPartyMember(member)"></div>
+						<div v-if="isPartyLeader && !member.isLeader" class="translate button compact" v-t="'transfer-party-member'" @click="transferParty(member)"></div>
 					</div>
 
 				</div>

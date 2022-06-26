@@ -653,6 +653,16 @@ class GameClient extends Game {
 
 					this.notifications.splice(index, 1);
 				},
+				transferParty(member) {
+					this.partyApi.transferPartyOwnership({
+						leaderIdentityId: member.identity.id,
+					});
+				},
+				kickPartyMember(member) {
+					this.partyApi.kickPartyMember({
+						identityId: member.identity.id,
+					});
+				},
 				createParty() {
 					this.partyApi.createParty({
 						partySize: 8,
