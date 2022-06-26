@@ -131,6 +131,7 @@ class GameClient extends Game {
 
 		/** @type {boolean} */ this.initiated = false;
 		/** @type {?string} */ this.autoJoinPartyCode = null;
+		/** @type {?string} */ this.lobbyLink = null;
 
 		/** @type {number} */ this.ping = 0;
 		/** @type {boolean} */ this.pingStart = null;
@@ -221,6 +222,8 @@ class GameClient extends Game {
 	}
 
 	connectSocket(lobby) {
+		this.lobbyLink = `${location.origin}/?l=${lobby.lobbyId}`;
+
 		let port = lobby.ports['default'];
 		let wsProtocol = port.isTls ? 'wss:' : 'ws:';
 		let url = `${wsProtocol}//${port.hostname}:${port.port}/?token=${lobby.player.token}`;
@@ -422,9 +425,9 @@ class GameClient extends Game {
 
 			methods: {
 				// Main menu
-				copyInviteLink() {
+				copyLobbyLink() {
 					// Report
-					utils.reportEvent('link-copied', location.href);
+					utils.reportEvent('link-copied', this.lobbyLink);
 
 					// Animate copied
 					this.linkJustCopied = true;
@@ -742,7 +745,7 @@ class GameClient extends Game {
 
 		// Share link button
 		new ClipboardJS('#shareLink', {
-			text: () => location.href
+			text: () => this.lobbyLink,
 		});
 
 		// Update ad reward panel HTML
