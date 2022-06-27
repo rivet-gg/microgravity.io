@@ -294,56 +294,74 @@ class GameClient extends Game {
 	async findLobby(lobbyId = null, captcha = null) {
 		document.querySelector('#hCaptcha').style.display = 'none';
 
-		let lobby = null;
-		try {
+		let gameModes = [settings.getString("gameMode", "classic")];
+		let regions = settings.has("region") ? [settings.getString("region")] : null;
+
+		if (this.party) {
 			if (lobbyId) {
-				console.log('Joining lobby', lobbyId);
-				let res = await this.matchmakerApi.joinLobby({
+				console.log('Joining party lobby', lobbyId);
+
+				await this.partyApi.partyActivityJoinLobby({
 					lobbyId,
-					captcha,
 				});
-				lobby = res.lobby;
-
-				// TODO: Handle lobby not found
 			} else {
-				let gameModes = [settings.getString("gameMode", "classic")];
-				let regions = settings.has("region") ? [settings.getString("region")] : null;
-				console.log('Finding lobby', {gameModes, regions});
+				console.log('Finding party lobby', {gameModes, regions});
 
-				let res = await this.matchmakerApi
-					.findLobby({
-						gameModes,
-						regions,
-						preventAutoCreateLobby: false,
+				await this.partyApi.partyActivityFindLobby({
+					gameModes,
+					regions,
+				});
+			}
+		} else {
+			let lobby = null;
+			try {
+				if (lobbyId) {
+					console.log('Joining lobby', lobbyId);
+
+					let res = await this.matchmakerApi.joinLobby({
+						lobbyId,
 						captcha,
 					});
-				lobby = res.lobby;
-			}
-		} catch (err) {
-			// Request captcha on error
-			if (err.code == 'CAPTCHA_REQUIRED') {
-				document.querySelector('#hCaptcha').style.display = 'flex';
+					lobby = res.lobby;
 
-				window.hcaptcha.render('hCaptcha', {
-					sitekey: err.metadata.hcaptcha.site_id,
-					callback: clientResponse => {
-						this.start(lobbyId, clientApi, {
-							hcaptcha: {
-								clientResponse
-							}
+					// TODO: Handle lobby not found
+				} else {
+					console.log('Finding lobby', {gameModes, regions});
+
+					let res = await this.matchmakerApi
+						.findLobby({
+							gameModes,
+							regions,
+							captcha,
 						});
-					}
-				});
-			} else {
-				console.error('Failed to find lobby:', err);
-				alert(`Failed to find lobby: ${err.code}`);
-				location.reload();
-			}
-		}
+					lobby = res.lobby;
+				}
+			} catch (err) {
+				// Request captcha on error
+				if (err.code == 'CAPTCHA_REQUIRED') {
+					document.querySelector('#hCaptcha').style.display = 'flex';
 
-		if (!lobby) throw 'Missing lobby';
-		console.log('Found lobby', lobby);
-		this.connectSocket(lobby);
+					window.hcaptcha.render('hCaptcha', {
+						sitekey: err.metadata.hcaptcha.site_id,
+						callback: clientResponse => {
+							this.start(lobbyId, clientApi, {
+								hcaptcha: {
+									clientResponse
+								}
+							});
+						}
+					});
+				} else {
+					console.error('Failed to find lobby:', err);
+					alert(`Failed to find lobby: ${err.code}`);
+					location.reload();
+				}
+			}
+
+			if (!lobby) throw 'Missing lobby';
+			console.log('Found lobby', lobby);
+			this.connectSocket(lobby);
+		}
 	}
 
 	connectSocket(lobby) {
