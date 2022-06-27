@@ -1424,6 +1424,18 @@ select {
 	background-color: rgba(0, 0, 0, 0.25);
 }
 
+.buttonList {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+
+	font-size: 16px;
+}
+
+.buttonList .button:not(:last-child) {
+	margin-right: 10px;
+}
+
 /* Media Queries */
 @media (max-width: 950px) {
 	:root {

@@ -125,14 +125,14 @@
 					</div>
 					<div v-show="activeMenu == config.activeMenu.INFO">
 						<h3 class="translate" v-t="'game-mode'"></h3>
-						<select v-if="gameMode && gameModes" id="gameModeSelector" @change="selectGameMode($event.target.value)">
-							<option v-for="gm in gameModes" :key="gm.id" :value="gm.id" :selected="gm.id == gameMode">{{gm.title}}</option>
-						</select>
+						<div v-if="gameMode && gameModes" class="buttonList">
+							<div v-for="gm in gameModes" :key="gm.id" class="button" :class="{disabled: gm.id == gameMode}" @click="selectGameMode(gm.id)">{{gm.title}}</div>
+						</div>
 
 						<h3 class="translate" v-t="'region'">Region</h3>
-						<select v-if="region && regions" id="regionSelector" @change="selectRegion($event.target.value)">
-							<option v-for="r in regions" :key="r.id" :value="r.id" :selected="r.id == region">{{r.title}}</option>
-						</select>
+						<div class="buttonList">
+							<div v-for="r in regions" :key="r.id" class="button" :class="{disabled: r.id == region}" @click="selectRegion(r.id)">{{r.title}}</div>
+						</div>
 
 						<h3 class="translate" v-t="'social-title'"></h3>
 						<div id="socialContent" style="margin: 10px 0">
