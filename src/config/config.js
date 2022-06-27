@@ -17,6 +17,9 @@ Object.defineProperty(config, 'isProd', {
 	}
 });
 
+
+config.aliens = true || process.env.ALIENS == '1';
+
 config.pingInterval = 2.5;
 config.pingTimeout = 10;
 config.kickTimeout = 60 * 3; // Kick after 3 idle minutes
@@ -278,9 +281,9 @@ config.centerPlanetAtmosphereSize = 600;
 config.centerPlanetResourceMap = 15000;
 config.centerPlanetResourceGenRate = 100;
 
-config.planetCount = 36;
-config.minPlanetRadius = 750;
-config.maxPlanetRadius = 2600;
+config.planetCount = config.aliens ? 6 : 36;
+config.minPlanetRadius = config.aliens ? 1500 : 750;
+config.maxPlanetRadius = config.aliens ? 3500 : 2600;
 config.minPlanetAtmosphereSize = 300;
 config.planetTotalResourceMaxMin = 2500;
 config.planetTotalResourceMaxMax = 10000;
@@ -295,7 +298,7 @@ config.wormholes = {
 };
 
 /*** Bots ***/
-config.botCount = 20;
+config.botCount = config.aliens ? 200 : 20;
 
 /*** Players ***/
 config.maxPlayers = 50;
