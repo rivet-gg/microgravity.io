@@ -6,7 +6,7 @@
 	"scripts": {
 		"setup": "node ./scripts/setup.js",
 		"start": "node ./src/server/server.js",
-		"nodemon": "nodemon ./src/server/server.js",
+		"nodemon": "DOTENV_CONFIG_PATH=.env.dev nodemon -r dotenv/config ./src/server/server.js",
 		"serve": "webpack serve --config webpack-dev.config.js",
 		"build": "webpack --config webpack-dev.config.js",
 		"build-watch": "webpack --watch --config webpack-dev.config.js",
