@@ -1,3 +1,4 @@
+const matchmaker = require('@rivet-gg/matchmaker');
 const identity = require('@rivet-gg/identity');
 const party = require('@rivet-gg/party');
 const api = require('../api');
@@ -131,11 +132,14 @@ class GameClient extends Game {
 
 		/** @type {boolean} */ this.initiated = false;
 		/** @type {?string} */ this.autoJoinPartyAlias = null;
+		/** @type {?string} */ this.autoJoinLobbyId = null;
 
 		/** @type {number} */ this.ping = 0;
 		/** @type {boolean} */ this.pingStart = null;
 
 		/** @type {number} */ this.kickTimer = 0; // Only increments if on home screen
+
+		/** @type {string} */ this.gameMode = null;
 
 		/** @type {Set<string>} */ this.rewards = new Set((localStorage.getItem('r') || '').split(','));
 
@@ -189,6 +193,12 @@ class GameClient extends Game {
 
 		/** @type {boolean} */ this.demolishConfirm = false;
 
+		/** @type {matchmaker.MatchmakerService} */ this.matchmakerApi = new matchmaker.MatchmakerService({
+			endpoint: process.env.RIVET_MATCHMAKER_API_URL ?? 'https://matchmaker.api.rivet.gg/v1',
+			tls: true,
+			maxAttempts: 0,
+			requestHandler: api.requestHandlerMiddleware(process.env.RIVET_CLIENT_TOKEN ?? null),
+		});
 		/** @type {identity.IdentityService} */ this.identityApi = null;
 		/** @type {party.PartyService} */ this.partyApi = null;
 		/** @type {identity.IdentityProfile} */ this.identity = {};
@@ -220,8 +230,70 @@ class GameClient extends Game {
 		this.render();
 	}
 
+	start() {
+		console.log("Starting game");
+
+		this.findLobby(this.autoJoinLobbyId);
+	}
+
+	async findLobby(lobbyId = null, captcha = null) {
+		document.querySelector('#hCaptcha').style.display = 'none';
+
+		let lobby = null;
+		try {
+			if (lobbyId) {
+				console.log('Joining lobby', lobbyId);
+				let res = await this.matchmakerApi.joinLobby({
+					lobbyId,
+					captcha,
+				});
+				lobby = res.lobby;
+
+				// TODO: Handle lobby not found
+			} else {
+				let gameModes = [settings.getString("gameMode", "classic")];
+				let regions = settings.has("region") ? [settings.getString("region")] : null;
+				console.log('Finding lobby', {gameModes, regions});
+
+				let res = await this.matchmakerApi
+					.findLobby({
+						gameModes,
+						regions,
+						preventAutoCreateLobby: false,
+						captcha,
+					});
+				lobby = res.lobby;
+			}
+		} catch (err) {
+			// Request captcha on error
+			if (err.code == 'CAPTCHA_REQUIRED') {
+				document.querySelector('#hCaptcha').style.display = 'flex';
+
+				window.hcaptcha.render('hCaptcha', {
+					sitekey: err.metadata.hcaptcha.site_id,
+					callback: clientResponse => {
+						this.start(lobbyId, clientApi, {
+							hcaptcha: {
+								clientResponse
+							}
+						});
+					}
+				});
+			} else {
+				console.error('Failed to find lobby:', err);
+				alert(`Failed to find lobby: ${err.code}`);
+				location.reload();
+			}
+		}
+
+		if (!lobby) throw 'Missing lobby';
+		console.log('Found lobby', lobby);
+		this.connectSocket(lobby);
+	}
+
 	connectSocket(lobby) {
 		this.lobby = lobby;
+		this.region = this.vue.region = lobby.region.regionId;
 
 		let port = lobby.ports['default'];
 		let wsProtocol = port.isTls ? 'wss:' : 'ws:';
@@ -383,6 +455,15 @@ class GameClient extends Game {
 				kickTimer: 0,
 				usingTouch: false,
 				rewards: new Array(game.rewards.values()),
+
+				// Matchmaking
+				gameMode: "",
+				region: "",
+				gameModes: [
+					{ id: "classic", title: "Classic" },
+					{ id: "aliens", title: "Aliens" },
+				],
+				regions: [],
 
 				// Ships
 				selectedShip: localStorage.getItem('selectedShip') || config.ships[0].id,
@@ -681,6 +762,15 @@ class GameClient extends Game {
 						this.partyLinkJustCopied = false;
 					}, 1000);
 				},
+
+				selectGameMode(id) {
+					settings.setString("gameMode", id);
+					game.findLobby();
+				},
+				selectRegion(id) {
+					settings.setString("region", id);
+					game.findLobby();
+				},
 			},
 
 			computed: {
@@ -750,6 +840,11 @@ class GameClient extends Game {
 
 			i18n: this.i18n
 		});
+
+		this.matchmakerApi.recommendRegions({})
+			.then(res => {
+				this.vue.regions = res.regions.map(x => ({ id: x.regionId, title: x.regionId }));
+			});
 
 		// Handle resize
 		this.resize();
@@ -2281,7 +2376,10 @@ class GameClient extends Game {
 		this.updateGameState();
 	}
 
-	onInit() {
+	onInit(data) {
+		let [gameMode] = data;
+		this.gameMode = this.vue.gameMode = gameMode;
+
 		// Save initiated
 		this.initiated = true;
 

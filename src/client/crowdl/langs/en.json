@@ -156,5 +156,7 @@
 	"share-party": "Share Party",
 	"share-party-copied": "Link copied!",
 	"kick-party-member": "Kick",
-	"transfer-party-member": "Transfer"
+	"transfer-party-member": "Transfer",
+	"game-mode": "Game Mode",
+	"region": "Region"
 }

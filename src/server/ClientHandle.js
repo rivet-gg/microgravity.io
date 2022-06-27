@@ -309,7 +309,7 @@ class ClientHandle {
 		this.sendOwnedStructures();
 
 		// Send init data
-		this.send(config.serverMessages.INIT, null);
+		this.send(config.serverMessages.INIT, [config.gameMode]);
 
 		// Set initiated
 		this.initiated = true;

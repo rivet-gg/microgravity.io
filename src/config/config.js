@@ -17,8 +17,16 @@ Object.defineProperty(config, 'isProd', {
 	}
 });
 
-
-config.aliens = true || process.env.ALIENS == '1';
+Object.defineProperty(config, 'gameMode', {
+	get: () => {
+		if (config.isServer) {
+			return process.env.GAME_MODE || 'aliens';
+		} else {
+			return null;
+		}
+	}
+});
+config.aliens = config.gameMode == 'aliens';
 
 config.pingInterval = 2.5;
 config.pingTimeout = 10;
