@@ -197,7 +197,7 @@ class GameClient extends Game {
 			endpoint: process.env.RIVET_MATCHMAKER_API_URL ?? 'https://matchmaker.api.rivet.gg/v1',
 			tls: true,
 			maxAttempts: 0,
-			requestHandler: api.requestHandlerMiddleware(process.env.RIVET_CLIENT_TOKEN ?? null),
+			requestHandler: api.requestHandlerMiddleware(process.env.RIVET_CLIENT_TOKEN || null),
 		});
 		/** @type {identity.IdentityService} */ this.identityApi = null;
 		/** @type {party.PartyService} */ this.partyApi = null;
@@ -2342,7 +2342,7 @@ class GameClient extends Game {
 		this.identityApi = new identity.IdentityService({
 			endpoint: process.env.RIVET_IDENTITY_API_URL ?? 'https://identity.api.rivet.gg/v1',
 			tls: true,
-			requestHandler: api.requestHandlerMiddleware(process.env.RIVET_CLIENT_TOKEN)
+			requestHandler: api.requestHandlerMiddleware(process.env.RIVET_CLIENT_TOKEN || null)
 		});
 		this.partyApi = new party.PartyService({
 			endpoint: process.env.RIVET_PARTY_API_URL ?? 'https://party.api.rivet.gg/v1',

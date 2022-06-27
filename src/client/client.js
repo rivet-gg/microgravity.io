@@ -1,6 +1,6 @@
 // Setup config
 const config = require('../config/config');
-config.isClient = true;
+config.init(false);
 
 const GameClient = require('./GameClient');
 

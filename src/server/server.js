@@ -1,10 +1,8 @@
 // Since we can't inherit the cert from mkcert
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
 
-require('dotenv').config()
-
 const config = require('../config/config');
-config.isServer = true;
+config.init(true);
 
 const utils = require('./utils');
 const GameServer = require('./GameServer');
