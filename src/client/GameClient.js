@@ -289,6 +289,7 @@ class GameClient extends Game {
 		console.log("Starting game");
 
 		this.findLobby(this.autoJoinLobbyId);
+		this.autoJoinLobbyId = null;
 	}
 
 	async findLobby(lobbyId = null, captcha = null) {
@@ -2412,12 +2413,29 @@ class GameClient extends Game {
 					console.log("Rivet Event", res);
 
 					if (update.notification) {
+						console.log("Received notification", update.notifications);
 						// No notifications are sent if the cache is not present or the watch index expired
 						if (!res.refreshed) this.presentNotification(update.notification);
 					}
 
 					if (update.kind.partyUpdate) {
+						console.log("Received party update", update.kind.partyUpdate.party);
 						this.party = this.vue.party = update.kind.partyUpdate.party;
+					}
+
+					if (update.kind.matchmakerLobbyJoin) {
+						console.log("Received join lobby event", update.kind.matchmakerLobbyJoin.lobby);
+						this.connectSocket(update.kind.matchmakerLobbyJoin.lobby);
+					}
+
+					if (update.kind.matchmakerLobbyLeave) {
+						console.log("Received leave lobby", update.kind.matchmakerLobbyLeave.lobbyId);
+						if (this.lobby && update.kind.matchmakerLobbyLeave.lobbyId == this.lobby.lobbyId) {
+							console.log("Leaving lobby");
+							this.ws.close();
+						} else {
+							console.log("Does not match actively running lobby");
+						}
 					}
 				}
 			});
@@ -2432,6 +2450,7 @@ class GameClient extends Game {
 
 		// Join party if needed
 		if (this.autoJoinPartyAlias) {
+			this.autoJoinPartyAlias = null;
 			console.log('Joining party', this.autoJoinPartyAlias);
 			this.partyApi.joinParty({
 				invite: { alias: this.autoJoinPartyAlias },
