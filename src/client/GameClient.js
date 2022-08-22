@@ -1,7 +1,6 @@
 const matchmaker = require('@rivet-gg/matchmaker');
 const identity = require('@rivet-gg/identity');
 const party = require('@rivet-gg/party');
-const api = require('../api');
 
 const Game = require('../Game');
 const InputHandler = require('./InputHandler');
@@ -282,24 +281,20 @@ class GameClient extends Game {
 
 		// Setup APIs
 		/** @type {identity.IdentityService} */ this.identityApi = new identity.IdentityService({
-			endpoint: process.env.RIVET_IDENTITY_API_URL ?? 'https://identity.api.rivet.gg/v1',
-			tls: true,
-			requestHandler: api.requestHandlerMiddleware(process.env.RIVET_CLIENT_TOKEN || null)
+			endpoint: process.env.RIVET_IDENTITY_API_URL || 'https://identity.api.rivet.gg/v1',
+			token: () => this.identityToken ?? process.env.RIVET_CLIENT_TOKEN,
 		});
 		/** @type {matchmaker.MatchmakerService} */ this.matchmakerApi = new matchmaker.MatchmakerService({
-			endpoint: process.env.RIVET_MATCHMAKER_API_URL ?? 'https://matchmaker.api.rivet.gg/v1',
-			tls: true,
-			maxAttempts: 0,
-			requestHandler: api.requestHandlerMiddleware(process.env.RIVET_CLIENT_TOKEN || null),
+			endpoint: process.env.RIVET_MATCHMAKER_API_URL || 'https://matchmaker.api.rivet.gg/v1',
+			token: process.env.RIVET_CLIENT_TOKEN,
 		});
 		/** @type {party.PartyService} */ this.partyApi = new party.PartyService({
-			endpoint: process.env.RIVET_PARTY_API_URL ?? 'https://party.api.rivet.gg/v1',
-			tls: true,
-			requestHandler: api.requestHandlerMiddleware()
+			endpoint: process.env.RIVET_PARTY_API_URL || 'https://party.api.rivet.gg/v1',
+			token: () => this.identityToken ?? process.env.RIVET_CLIENT_TOKEN,
 		});
 
 		// Fetch recommended regions
-		this.matchmakerApi.recommendRegions({})
+		this.matchmakerApi.listRegions({})
 			.then(res => {
 				this.vue.regions = res.regions.map(x => ({ id: x.regionId, title: x.regionId }));
 			});
@@ -308,7 +303,7 @@ class GameClient extends Game {
 		let existingIdentityToken = localStorage.getItem('rivet:identity-token');
 		try {
 			let { identity, identityToken } = await this.identityApi.setupIdentity({
-				identityToken: existingIdentityToken
+				existingIdentityToken: existingIdentityToken
 			});
 
 			console.log('Identity connected', identity);
@@ -317,7 +312,7 @@ class GameClient extends Game {
 			localStorage.setItem('rivet:identity-token', identityToken);
 
 			// Update request handler with new bearer token
-			this.identityApi.config.requestHandler = this.partyApi.config.requestHandler = api.requestHandlerMiddleware(identityToken);
+			this.identityToken = identityToken;
 
 			this.identity = identity;
 			this.fetchedIdentities.add(this.identity.id);
@@ -328,7 +323,8 @@ class GameClient extends Game {
 
 			// Start friends stream
 			this.activityStream = new RepeatingRequest(async (abortSignal, watchIndex) => {
-				return await this.identityApi.getActivities({ watchIndex }, { abortSignal });
+				console.log(this.identityApi);
+				return await this.identityApi.listActivities({ watchIndex }, { abortSignal });
 			});
 
 			this.activityStream.onMessage(res => {
@@ -341,7 +337,7 @@ class GameClient extends Game {
 
 			// Start event stream
 			this.eventsStream = new RepeatingRequest(async (abortSignal, watchIndex) => {
-				return await this.identityApi.getEvents({ watchIndex }, { abortSignal });
+				return await this.identityApi.watchEvents({ watchIndex }, { abortSignal });
 			});
 
 			this.eventsStream.onMessage(res => {
@@ -413,13 +409,13 @@ class GameClient extends Game {
 			if (lobbyId) {
 				console.log('Joining party lobby', lobbyId);
 
-				await this.partyApi.partyActivityJoinLobby({
+				await this.partyApi.joinMatchmakerLobbyForParty({
 					lobbyId,
 				});
 			} else {
 				console.log('Finding party lobby', {gameModes, regions});
 
-				await this.partyApi.partyActivityFindLobby({
+				await this.partyApi.findMatchmakerLobbyForParty({
 					gameModes,
 					regions,
 				});
@@ -726,11 +722,11 @@ class GameClient extends Game {
 							let identity = this.identities.get(leaderboardItem.identity.id);
 
 							if (!identity.isMyFriend) {
-								await game.identityApi.addFriend({
+								await game.identityApi.followIdentity({
 									identityId: leaderboardItem.identity.id
 								});
 							} else {
-								await game.identityApi.removeFriend({
+								await game.identityApi.unfollowIdentity({
 									identityId: leaderboardItem.identity.id
 								});
 							}
@@ -918,7 +914,7 @@ class GameClient extends Game {
 					this.notifications.splice(index, 1);
 				},
 				transferParty(member) {
-					game.partyApi.transferOwnership({
+					game.partyApi.transferPartyOwnership({
 						identityId: member.identity.id,
 					});
 				},

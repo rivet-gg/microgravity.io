@@ -16,11 +16,12 @@ var cors = require('cors');
 
 const nocache = require('nocache');
 
+console.log('Lobby token', process.env.RIVET_LOBBY_TOKEN)
+
 let matchmaker = require('@rivet-gg/matchmaker');
 let matchmakerApi = new matchmaker.MatchmakerService({
-	endpoint: process.env.RIVET_MATCHMAKER_API_URL,
-	tls: true,
-	requestHandler: utils.requestHandlerMiddleware(process.env.RIVET_LOBBY_TOKEN)
+	endpoint: "https://matchmaker.api.rivet.gg/v1",
+	token: process.env.RIVET_LOBBY_TOKEN,
 });
 
 matchmakerApi
@@ -92,7 +93,7 @@ function isValidOrigin(origin) {
 // Create WebSocket server
 let wsPort = process.env.PORT ? parseInt(process.env.PORT) : 8008;
 let wsServer = require('http').createServer();
-const wss = new WebSocket.Server({ server: wsServer, path: '/' });
+const wss = new WebSocket.Server({ host: '0.0.0.0', server: wsServer, path: '/' });
 wss.on('connection', async (ws, req) => {
 	// Don't allow connection if full
 	if (game.playerCount >= config.maxPlayersHard) {
