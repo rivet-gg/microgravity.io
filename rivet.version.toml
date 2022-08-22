@@ -1,18 +1,18 @@
 [cdn]
 
 [matchmaker]
-	[matchmaker.game_modes.default]
+	[matchmaker.game_modes.classic]
 		tier = "basic-1d1"
 		max_players = 50
 
-		[matchmaker.game_modes.default.docker]
+		[matchmaker.game_modes.classic.docker]
 			args = []
 
-			[matchmaker.game_modes.default.docker.env]
+			[matchmaker.game_modes.classic.docker.env]
 				PORT = '80'
 				IS_PROD = '1'
 
-			[matchmaker.game_modes.default.docker.ports]
+			[matchmaker.game_modes.classic.docker.ports]
 				default = { proto = "https", target = 80 }
 
 	[matchmaker.game_modes.aliens]
