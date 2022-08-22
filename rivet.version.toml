@@ -15,6 +15,10 @@
 			[matchmaker.game_modes.default.docker.ports]
 				https = { proto = "https", target = 80 }
 
+	[matchmaker.game_modes.aliens]
+		tier = "basic-1d1"
+		max_players = 30
+
 		[matchmaker.game_modes.aliens.docker]
 			args = []
 
