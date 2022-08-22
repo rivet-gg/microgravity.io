@@ -77,9 +77,6 @@ jobs:
           echo "::set-output name=git_branch::${GITHUB_REF#refs/heads/}"
           echo "::set-output name=git_sha_short::$(git rev-parse --short HEAD)"
 
-      - name: Build Rivet Libraries
-        run: ./bin/build-libs.sh
-
       - name: Install
         run: yarn install
 
