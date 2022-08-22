@@ -587,13 +587,13 @@ class ClientHandle {
 		this.identityToken = identityToken;
 
 		try {
+			// TODO: This is wrong
 			let identityApi = new identity.IdentityService({
 				endpoint: process.env.RIVET_IDENTITY_API_URL || 'https://identity.api.rivet.gg/v1',
-				tls: true,
-				requestHandler: serverUtils.requestHandlerMiddleware(identityToken)
+				token: identityToken,
 			});
 
-			let res = await identityApi.getIdentitySelf({});
+			let res = await identityApi.getIdentitySelfProfile({});
 
 			this.identity = res.identity;
 			console.log('Identity connected', this.identity.id);
