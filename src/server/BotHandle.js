@@ -85,6 +85,9 @@ class BotHandle {
 				return;
 			}
 
+			// Sprint when has target
+			this.player.sprinting = config.aliens;
+
 			// Turn towards target
 			let targetDir = -Math.atan2(this.target.y - this.player.y, this.target.x - this.player.x);
 			this.player.targetRot += utils.turnDir(this.player.targetRot, targetDir) * Math.PI * 0.1;

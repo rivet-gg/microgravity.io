@@ -1,6 +1,10 @@
-const config = require('../config/config');
-config.isServer = true;
+// Since we can't inherit the cert from mkcert
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
 
+const config = require('../config/config');
+config.init(true);
+
+const utils = require('./utils');
 const GameServer = require('./GameServer');
 const stats = require('./stats');
 const url = require('url');
@@ -12,15 +16,20 @@ var cors = require('cors');
 
 const nocache = require('nocache');
 
-let rivetServer = null;
-if (config.isProd) {
-	const rivet = require('@rivet-gg/matchmaker');
-	rivetServer = new rivet.ServerApi({
-		basePath: process.env.RIVET_GAME_API_URL,
-		accessToken: process.env.RIVET_LOBBY_TOKEN
+console.log('Lobby token', process.env.RIVET_LOBBY_TOKEN)
+
+let matchmaker = require('@rivet-gg/matchmaker');
+let matchmakerApi = new matchmaker.MatchmakerService({
+	endpoint: "https://matchmaker.api.rivet.gg/v1",
+	token: process.env.RIVET_LOBBY_TOKEN,
+});
+
+matchmakerApi
+	.lobbyReady({})
+	.then(() => console.log('Lobby ready'))
+	.catch(err => {
+		throw err;
 	});
-	rivetServer.lobbyReady({});
-}
 
 // Setup stats
 stats.start('local', process.env.REDIS_URI || null);
@@ -74,55 +83,8 @@ function broadcastPlayerCount(count) {
 // Create game
 const game = new GameServer();
 
-// Create express server
-const app = express();
-app.use(cors());
-if (!config.isProd) app.use(nocache());
-app.use(/^\/$/, nocache()); // Only disable caching on the root, "/" will disable all sub-directories
-app.use('/*.html', nocache());
-app.use('/*.js', nocache());
-app.use('/*.css', nocache());
-app.use(
-	express.static(__dirname + '/../../public', {
-		immutable: true,
-		maxAge: 1000 * 60 * 60 * 2 // 2 hours
-	})
-);
-app.get('/', (req, res) => {
-	res.sendFile(__dirname + '/../../public/index.html');
-});
-app.get('/ping', nocache(), (req, res) => {
-	res.send('Success');
-});
-app.get('/status', nocache(), (req, res) => {
-	res.send('ok');
-});
-app.get('/server-stats', nocache(), async (req, res) => {
-	res.send(await getStats());
-});
-app.get('/server-stats-history', nocache(), async (req, res) => {
-	let results = await stats.fetchServerStatsHistory(serverKey, req.query.count || 1000);
-	res.send(results);
-});
-app.get('/game-stats', nocache(), async (req, res) => {
-	let results = await stats.fetchStats();
-
-	let resultsMap = {};
-	for (let result of results) {
-		resultsMap[result[0]] = result[1];
-	}
-
-	res.send(resultsMap);
-});
-
-// Dev server
-if (!config.isProd) {
-	let port = 8080;
-	app.listen(port, () => console.log(`Listening on port ${port}.`));
-}
-
 // Handle WebSocket CORS
-const corsRegex = /^((.+\.|)microgravity\.io|microgravity.rivet.game)$/;
+const corsRegex = /^((.+\.|)microgravity\.io|microgravity\.rivet\.game|microgravity\.rivet-game\.test)$/;
 function isValidOrigin(origin) {
 	if (!config.isProd) return true; // Allow from anywhere if dev
 	return corsRegex.test(origin);
@@ -131,7 +93,7 @@ function isValidOrigin(origin) {
 // Create WebSocket server
 let wsPort = process.env.PORT ? parseInt(process.env.PORT) : 8008;
 let wsServer = require('http').createServer();
-const wss = new WebSocket.Server({ server: wsServer, path: '/' });
+const wss = new WebSocket.Server({ host: '0.0.0.0', server: wsServer, path: '/' });
 wss.on('connection', async (ws, req) => {
 	// Don't allow connection if full
 	if (game.playerCount >= config.maxPlayersHard) {
@@ -159,24 +121,22 @@ wss.on('connection', async (ws, req) => {
 	}
 	let wsUrl = new url.URL(req.url, 'https://microgravity.io');
 	let playerToken = wsUrl.searchParams.get('token');
-	if (rivetServer) {
-		if (playerToken) {
-			try {
-				await rivetServer.playerConnected({ playerToken });
-			} catch (err) {
-				console.warn('Failed to connect player', err);
-				ws.close();
-				return;
-			}
-		} else {
-			console.warn('Missing token');
+	if (playerToken) {
+		try {
+			await matchmakerApi.playerConnected({ playerToken });
+		} catch (err) {
+			console.warn('Failed to connect player', err);
 			ws.close();
 			return;
 		}
+	} else {
+		console.warn('Missing token');
+		ws.close();
+		return;
 	}
 
 	// Send to game
-	let client = game.socketConnected(ws);
+	let client = game.socketConnected(ws, playerToken);
 
 	// Update player count
 	broadcastPlayerCount(game.playerCount);
@@ -185,12 +145,10 @@ wss.on('connection', async (ws, req) => {
 	client.onClosed = async () => {
 		broadcastPlayerCount(game.playerCount);
 
-		if (rivetServer) {
-			try {
-				await rivetServer.playerDisconnected({ playerToken });
-			} catch (err) {
-				console.warn('Failed to disconnect player', err);
-			}
+		try {
+			await matchmakerApi.playerDisconnected({ playerToken });
+		} catch (err) {
+			console.warn('Failed to disconnect player', err);
 		}
 	};
 });

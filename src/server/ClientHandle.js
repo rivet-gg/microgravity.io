@@ -1,7 +1,10 @@
+const identity = require('@rivet-gg/identity');
+
 const WebSocket = require('ws');
 const Player = require('../entities/Player');
 const config = require('../config/config');
 const utils = require('../utils');
+const serverUtils = require('./utils');
 const weapons = require('../config/weapons');
 const structures = require('../config/structures');
 const resources = require('../config/resources');
@@ -92,11 +95,16 @@ class ClientHandle {
 
 		/** @type {number[]} */ this.ownedWeapons = [[0, -1]];
 
+		/** @type {identity.IdentityProfile} */ this.identity = null;
+		/** @type {string} */ this.identityToken = null;
+
 		/** @type {boolean} */ this.gaveAdBlockReward = false;
 		/** @type {boolean} */ this.gaveDiscordReward = false;
 
 		/** @type {Object} */ this.ws = ws;
+
 		this.onClosed = () => {};
+
 		// Add WS events
 		this.ws.on('message', message => {
 			try {
@@ -301,7 +309,7 @@ class ClientHandle {
 		this.sendOwnedStructures();
 
 		// Send init data
-		this.send(config.serverMessages.INIT, null);
+		this.send(config.serverMessages.INIT, [config.gameMode]);
 
 		// Set initiated
 		this.initiated = true;
@@ -560,15 +568,39 @@ class ClientHandle {
 	}
 
 	/*** Socket Events ***/
-	onInit(data) {
+	async onInit(data) {
 		// Validate challenge
 		let correctChallengeResponse = (this.challengeSeed * this.id) % 256;
-		let [challengeResponse] = data;
+		let [challengeResponse, identityToken] = data;
+
 		if (challengeResponse !== correctChallengeResponse) {
 			console.warn(
 				`Client ${this.id} answered challenge incorrectly. Guessed ${challengeResponse}, correct answer was ${correctChallengeResponse}.`
 			);
 			this.ws.close();
+			return;
+		}
+
+		utils.assertString(identityToken);
+
+		// Save identity token
+		this.identityToken = identityToken;
+
+		try {
+			// TODO: This is wrong
+			let identityApi = new identity.IdentityService({
+				endpoint: process.env.RIVET_IDENTITY_API_URL || 'https://identity.api.rivet.gg/v1',
+				token: identityToken,
+			});
+
+			let res = await identityApi.getIdentitySelfProfile({});
+
+			this.identity = res.identity;
+			console.log('Identity connected', this.identity.id);
+		} catch (err) {
+			console.error('Identity creation error', err);
+			this.ws.close();
+
 			return;
 		}
 
@@ -593,13 +625,13 @@ class ClientHandle {
 		let shipIndex = config.shipIndexForId(selectedShip);
 		if (shipIndex === -1) shipIndex = 0; // Invalid ship index
 
-		// Save username
-		this.username = username;
+		// // Save username
+		this.username = this.identity.displayName;
 
 		// Create new player
 		this.player = new Player(this.game);
 		this.player.clientHandle = this;
-		this.player.username = username;
+		this.player.username = this.username;
 		this.player.shipIndex = shipIndex;
 		this.player.shipFill = selectedFill;
 
@@ -629,7 +661,7 @@ class ClientHandle {
 		this.updatePerks();
 
 		// Tally the play
-		stats.tallyPlay(username, selectedShip, selectedFill);
+		stats.tallyPlay(this.identity.displayName, selectedShip, selectedFill);
 
 		// Give ad block reward
 		if (this.rewards.has('adblock') && !this.gaveAdBlockReward) {

@@ -199,9 +199,9 @@ select {
 
 #infoPanel {
 	position: absolute;
-	width: 300px;
+	width: 320px;
 	height: 350px;
-	right: calc((50% - 180px) / 2);
+	right: calc((50% - 190px) / 2);
 	top: 50%;
 	padding: 10px;
 	transform: translate(50%, -50%);
@@ -220,6 +220,102 @@ select {
 	margin-top: 15px;
 }
 
+#info-titles {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 10px;
+}
+
+#infoPanel #info-titles h3 {
+	margin: 0;
+	opacity: 0.55;
+	transition: opacity var(--transition-length);
+	cursor: pointer;
+}
+
+#infoPanel #info-titles h3:not(:last-child) {
+	margin-right: 22px;
+}
+
+#infoPanel #info-titles h3.selected {
+	opacity: 1;
+	border-bottom: 2px solid white;
+}
+
+#friends {
+	display: flex;
+	flex-direction: column;
+}
+
+#noFriendsOnline {
+	text-align: center;
+	color: white;
+	opacity: 0.65;
+}
+
+.friendItem {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 8px;
+}
+
+.friendItem .friendUsername {
+	font-size: 22px;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.friendItem .friendUsername:hover {
+	text-decoration: underline;
+}
+
+.friendItem .friendActions {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+
+	font-size: 24px;
+}
+
+.friendItem .friendActions .action {
+	color: white;
+	background: none;
+}
+
+.friendItem .friendActions .action:not(:last-child) {
+	margin-right: 11px;
+}
+
+#account {
+}
+
+#viewAccountButton,
+#linkAccountButton {
+	display: inline-block;
+	font-size: 20px;
+	margin: 0 0 10px 0;
+	padding: 11px 18px;
+
+	font-weight: bold;
+	font-size: 14px;
+	font-family: 'Arial';
+
+	background: #3fc7d3;
+	color: white;
+	border-radius: 23px;
+	border: none;
+	outline: none;
+}
+
+#linkAccountButton {
+	margin: 10px 0 0 0;
+}
+
 #gameLogo {
 	margin-bottom: -200px;
 	pointer-events: none;
@@ -227,7 +323,7 @@ select {
 
 #joinInfo {
 	position: relative;
-	width: 250px;
+	/* width: 250px; */
 	height: 46px;
 	margin-bottom: 15px;
 }
@@ -251,14 +347,17 @@ select {
 }
 
 #joinButton {
-	position: absolute;
-	width: 60px;
+	/* position: absolute; */
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 65px;
 	bottom: 0;
 	top: 0;
 	right: 0;
 
 	font-size: 20px;
-	line-height: 37px;
+	line-height: 31px;
 
 	background: #3fc7d3;
 	color: white;
@@ -271,13 +370,6 @@ select {
 	font-weight: bold;
 	font-size: 27px;
 	text-align: center;
-}
-
-#twitterLinks {
-	position: absolute;
-	left: 30px;
-	bottom: 48px;
-	transform: translateY(50%);
 }
 
 .separator {
@@ -488,11 +580,19 @@ select {
 	animation: flash 2s infinite;
 }
 
+.matIcon {
+	font-family: 'Material Icons';
+	font-display: block;
+	vertical-align: middle;
+}
+
 /* Leaderboard */
 #leaderboard {
 	box-sizing: border-box;
 	width: 100%;
 	padding: 5px 10px;
+	cursor: default;
+	pointer-events: all;
 
 	background: rgba(0, 0, 0, 0.5);
 }
@@ -508,8 +608,28 @@ select {
 	font-size: 16px;
 }
 
+#leaderboard:hover .leaderboardItem .leaderboardFriendAction {
+	display: flex;
+}
+
+#leaderboard:hover .leaderboardItem:not(.isMine) .leaderboardScore {
+	display: none;
+}
+
+#leaderboard .leaderboardUsername:hover {
+	text-decoration: underline;
+}
+
 .leaderboardItem.isMine {
 	opacity: 1;
+}
+
+.leaderboardItem.isFriend {
+	opacity: 0.8;
+	color: #bbff99;
+}
+.leaderboardItem.isFriend a.leaderboardUsername {
+	color: #bbff99;
 }
 
 .leaderboardItem .leaderboardRank {
@@ -518,6 +638,7 @@ select {
 
 .leaderboardItem .leaderboardUsername {
 	flex-grow: 1;
+	text-decoration: none;
 }
 
 .leaderboardItem .leaderboardAlliance {
@@ -528,6 +649,24 @@ select {
 .leaderboardItem .leaderboardScore {
 	flex-grow: 1;
 	text-align: right;
+}
+
+.leaderboardItem .leaderboardFriendAction {
+	display: none;
+	flex-direction: row;
+	justify-content: flex-end;
+	align-items: center;
+	flex-grow: 1;
+	text-align: right;
+	font-size: 14px;
+	padding: 2px 0 2px 2px;
+	color: white;
+	background: none;
+}
+
+.leaderboardItem .leaderboardFriendAction .matIcon {
+	margin-left: 4px;
+	font-size: 18px;
 }
 
 /* Command Pallet */
@@ -1102,6 +1241,201 @@ select {
 	opacity: 0.8;
 }
 
+/* Notificaitions */
+#notificationOverlay {
+	position: absolute;
+	display: flex;
+	flex-direction: column;
+	width: 300px;
+	left: 15px;
+	top: 15px;
+
+	cursor: none;
+	pointer-events: none;
+}
+
+.inGame #notificationOverlay {
+	left: 15px;
+	top: 155px;
+}
+
+#partyOverlay {
+	box-sizing: border-box;
+	position: absolute;
+	left: 10px;
+	top: 10px;
+	width: 220px;
+	padding: 10px;
+
+	display: flex;
+	flex-direction: column;
+
+	background: rgba(0, 0, 0, 0.5);
+}
+
+.inGame #partyOverlay {
+	left: 160px;
+}
+
+#partyMembers {
+	margin-bottom: 10px;
+
+	display: flex;
+	flex-direction: column;
+}
+
+.partyMember {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+
+	height: 25px;
+}
+
+.partyMemberName {
+	flex: 1;
+	pointer-events: all;
+	font-size: 16px;
+}
+
+.partyMember .button {
+	font-size: 12px;
+}
+
+.partyMember .button:not(:first-child) {
+	margin-left: 5px;
+}
+
+.partyMemberName:hover {
+	text-decoration: underline;
+}
+
+#partyActions {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+
+	font-size: 20px;
+}
+
+#partyActions .button {
+	flex: 1;
+}
+
+#partyActions .button:not(:first-child) {
+	margin-left: 5px;
+}
+
+.notificationItem {
+	display: flex;
+	flex-direction: column;
+	font-family: 'Arial';
+	opacity: 0.6;
+	box-sizing: border-box;
+	padding: 8px 12px;
+	max-height: 200px;
+	cursor: pointer;
+	border-radius: 8px;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+
+	animation: expandNotification 300ms forwards;
+	pointer-events: all;
+
+	transition: opacity var(--transition-length), background-color var(--transition-length);
+	background-color: rgba(15, 15, 15, 0.6);
+}
+
+.notificationItem.isFading {
+	opacity: 0;
+}
+
+.notificationItem:hover {
+	opacity: 1;
+	background-color: rgba(15, 15, 15, 0.8);
+}
+
+.notificationItem .notificationHeader {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 5px;
+}
+
+.notificationItem .notificationTitle {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+.notificationItem .notificationTitle img {
+	width: 22px;
+	height: 22px;
+	border-radius: 4px;
+	margin: 1px 5px 0 0;
+}
+
+.notificationItem .notificationTitle h2 {
+	font-size: 14px;
+	overflow-wrap: break-word;
+	margin: 0;
+}
+
+.notificationItem .notificationClose {
+	padding: 0;
+	font-size: 22px;
+	color: white;
+	background: none;
+}
+
+.notificationItem .notificationSubtitle {
+	margin: 0 0 2px 0;
+	color: #ffffffc0;
+
+	overflow-wrap: break-word;
+	overflow: hidden;
+	text-overflow: ellipsis;
+
+	user-select: none;
+	font-size: 14px;
+}
+
+@keyframes expandNotification {
+	0% {
+		max-height: 0;
+	}
+	100% {
+		max-height: 210px;
+	}
+}
+
+#hCaptcha {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	left: 0;
+	top: 0;
+	width: 100vw;
+	height: 100vh;
+	display: none;
+	align-items: center;
+	justify-content: center;
+
+	background-color: rgba(0, 0, 0, 0.25);
+}
+
+.buttonList {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+
+	font-size: 16px;
+}
+
+.buttonList .button:not(:last-child) {
+	margin-right: 10px;
+}
+
 /* Media Queries */
 @media (max-width: 950px) {
 	:root {
@@ -1126,8 +1460,7 @@ select {
 		display: none;
 	}
 
-	#logoTwitterSeparator,
-	#twitterLinks {
+	#logoTwitterSeparator {
 		display: none;
 	}
 
@@ -1171,6 +1504,10 @@ select {
 		margin-left: env(safe-area-inset-left); /* Notch */
 		margin-bottom: env(safe-area-inset-bottom); /* Notch */
 		margin-top: env(safe-area-inset-top); /* Notch */
+	}
+
+	#infoPanel #info-titles h3:not(:last-child) {
+		margin-right: 12px;
 	}
 
 	/* Game */
@@ -1261,5 +1598,11 @@ select {
 		bottom: 105px;
 		bottom: calc(105px + env(safe-area-inset-bottom));
 		transform: translateX(50%);
+	}
+
+	#notificationOverlay {
+		left: unset;
+		right: 15px;
+		top: 15px;
 	}
 }

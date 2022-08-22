@@ -10,7 +10,11 @@ const structures = require('./config/structures');
 
 class Game {
 	constructor() {
-		// Crate quad tree
+		this._init();
+	}
+
+	_init() {
+		// Create quad tree
 		let mapRadius = config.mapSize / 2;
 		this.tree = new QuadNode({
 			minx: -mapRadius,
@@ -24,6 +28,10 @@ class Game {
 		/** @type {{x:number, y: number, radius: number, multiplier: number}[]} */ this.timeWarps = [];
 
 		/* @type {number} */ this.updateIndex = 0;
+	}
+
+	reset() {
+		this._init();
 	}
 
 	entityForId(id) {
