@@ -18,7 +18,7 @@
 		[matchmaker.game_modes.aliens.docker]
 			args = []
 
-			[matchmaker.game_modes.default.docker.env]
+			[matchmaker.game_modes.aliens.docker.env]
 				PORT = '80'
 				IS_PROD = '1'
 
