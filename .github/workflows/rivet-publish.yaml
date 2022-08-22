@@ -1,0 +1,150 @@
+name: Publish Version to Rivet
+
+on:
+  - push
+
+concurrency: 
+  group: publish-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    # Enable fail-fast behavior
+    shell: bash
+
+jobs:
+
+  push_build:
+    name: Push Image
+    runs-on: ubuntu-20.04
+    outputs:
+      build_id: ${{ steps.push_build.outputs.build_id }}
+    steps:
+      - name: Install Rivet CLI
+        shell: bash
+        run: curl -fsSL https://raw.githubusercontent.com/rivet-gg/cli/main/install/unix.sh | sh
+
+      - uses: actions/checkout@v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Constants
+        id: consts
+        shell: bash
+        run: |
+          GIT_BRANCH="${GITHUB_REF#refs/heads/}"
+          GIT_SHA_SHORT="$(git rev-parse --short HEAD)"
+          echo "::set-output name=git_branch::$GIT_BRANCH"
+          echo "::set-output name=git_sha_short::$GIT_SHA_SHORT"
+          echo "::set-output name=build_tag::${GIT_BRANCH}-${GIT_SHA_SHORT}:latest"
+
+      - name: Docker Build
+        run: docker build --tag "${{ steps.consts.outputs.build_tag }}" .
+
+      - name: Push Build
+        id: push_build
+        run: |
+          BUILD_ID="$(rivet --cloud-token "${{ secrets.RIVET_CLOUD_TOKEN }}" build push --tag "${{ steps.consts.outputs.build_tag }}" --name "${{ steps.consts.outputs.git_branch }} (${{ steps.consts.outputs.git_sha_short }})" --format json | jq -r '.build_id')"
+          echo "::set-output name=build_id::$BUILD_ID"
+
+  push_site:
+    name: Push Site
+    runs-on: ubuntu-20.04
+    outputs:
+      site_id: ${{ steps.push_site.outputs.site_id }}
+    steps:
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Install Rivet CLI
+        shell: bash
+        run: curl -fsSL https://raw.githubusercontent.com/rivet-gg/cli/main/install/unix.sh | sh
+
+      - name: Install Yarn
+        run: npm install -g yarn
+
+      - uses: actions/checkout@v3
+
+      - name: Constants
+        id: consts
+        shell: bash
+        run: |
+          echo "::set-output name=git_branch::${GITHUB_REF#refs/heads/}"
+          echo "::set-output name=git_sha_short::$(git rev-parse --short HEAD)"
+
+      - name: Build Rivet Libraries
+        run: ./bin/build-libs.sh
+
+      - name: Install
+        run: yarn install
+
+      - name: Build
+        run: yarn run build
+
+      - name: Push Site
+        id: push_site
+        run: |
+          SITE_ID="$(rivet --cloud-token "${{ secrets.RIVET_CLOUD_TOKEN }}" site push --path ./dist/ --name "${{ steps.consts.outputs.git_branch }} (${{ steps.consts.outputs.git_sha_short }})" --format json | jq -r '.site_id')"
+          echo "::set-output name=site_id::$SITE_ID"
+
+  publish_version:
+    name: Publish Version
+    needs: [push_build, push_site]
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Install Rivet CLI
+        shell: bash
+        run: curl -fsSL https://raw.githubusercontent.com/rivet-gg/cli/main/install/unix.sh | sh
+
+      - uses: actions/checkout@v3
+
+      - name: Constants
+        id: consts
+        shell: bash
+        run: |
+          echo "::set-output name=git_branch::${GITHUB_REF#refs/heads/}"
+          echo "::set-output name=git_sha_short::$(git rev-parse --short HEAD)"
+
+      - name: Get Game
+        id: get_game
+        run: |
+          GAME_ID="$(rivet --cloud-token "${{ secrets.RIVET_CLOUD_TOKEN }}" game get --format json | jq -r '.game_id')"
+          echo "::set-output name=game_id::$GAME_ID"
+
+      - name: Create Version
+        id: create_version
+        run: |
+          VERSION_ID="$(rivet --cloud-token "${{ secrets.RIVET_CLOUD_TOKEN }}" version create --display-name "${{ steps.consts.outputs.git_branch }} (${{ steps.consts.outputs.git_sha_short }})" -o "cdn.site=\"${{ needs.push_site.outputs.site_id }}\"" -o "matchmaker.docker.build=\"${{ needs.push_build.outputs.build_id }}\"" --format json | jq -r '.version_id')"
+          echo "::set-output name=version_id::$VERSION_ID"
+
+      - name: Create Namespace
+        id: create_namespace
+        run: |
+          NS_DISPLAY_NAME="${{ steps.consts.outputs.git_branch }}"
+          NS_NAME_ID="$(sed -E 's/[^[:alnum:]]+/-/g' <<< "$NS_DISPLAY_NAME")"
+          NAMESPACE_ID="$(rivet --cloud-token "${{ secrets.RIVET_CLOUD_TOKEN }}" namespace create --name-id "$NS_NAME_ID" --display-name "$NS_DISPLAY_NAME"  --version "${{ steps.create_version.outputs.version_id }}" --format json | jq -r '.namespace_id')"
+          echo "::set-output name=namespace_id::$NAMESPACE_ID"
+
+      - name: Set Version
+        run: |
+          rivet --cloud-token "${{ secrets.RIVET_CLOUD_TOKEN }}" namespace set-version --namespace "${{ steps.create_namespace.outputs.namespace_id }}" --version "${{ steps.create_version.outputs.version_id }}" --format json
+
+      - name: Dashboards
+        run: |
+          echo
+          echo "Game:"
+          rivet --cloud-token "${{ secrets.RIVET_CLOUD_TOKEN }}" game dashboard
+
+          echo
+          echo "Namespace:"
+          rivet --cloud-token "${{ secrets.RIVET_CLOUD_TOKEN }}" namespace dashboard "${{ steps.create_namespace.outputs.namespace_id }}"
+
+          echo
+          echo "Version:"
+          rivet --cloud-token "${{ secrets.RIVET_CLOUD_TOKEN }}" version dashboard "${{ steps.create_version.outputs.version_id }}"
+          # Bump
