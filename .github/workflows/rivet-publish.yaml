@@ -81,7 +81,7 @@ jobs:
         run: yarn install
 
       - name: Build
-        run: yarn run build
+        run: yarn run build-prod
 
       - name: Push Site
         id: push_site
