@@ -68,6 +68,10 @@ const settings = {
 		return `microgravity:${key}`;
 	},
 
+	has(key) {
+		return localStorage.getItem(this.makeKey(key)) != null;
+	},
+
 	getBoolean(key, defaultValue) {
 		let value = localStorage.getItem(this.makeKey(key));
 		if (value == null) {
@@ -79,6 +83,19 @@ const settings = {
 
 	setBoolean(key, value) {
 		localStorage.setItem(this.makeKey(key), value ? 'true' : 'false');
+	},
+
+	getString(key, defaultValue) {
+		let value = localStorage.getItem(this.makeKey(key));
+		if (value == null) {
+			return defaultValue;
+		} else {
+			return value;
+		}
+	},
+
+	setString(key, value) {
+		localStorage.setItem(this.makeKey(key), value);
 	}
 
 	// Reset settings

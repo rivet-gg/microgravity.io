@@ -44,15 +44,7 @@ This open-source copy of Microgravity is not built to be distributed, since the 
 
 ## Deploying
 
-This version of Microgravity is not built to be deployed to a server at the moment. If you wish to run this on your server, you will need to modify where `client.js` calls `game.connectSocket` to pass in the appropriate host and port and configure `server.js` to use the correct SSL certificates.
-
-Please note that Microgravity is licensed under [GNU GPLv3](https://choosealicense.com/licenses/gpl-3.0/), meaning you may legally run your own copy and make money off it, but you must make the complete source code available for any modified version of the game. If you have any questions, please refer to the license or contact us directly. We look forward to seeing what you create!
-
-## Microgravity 2.0
-
-There is an unreleased version of Microgravity which fixes many of the issues that exist in the current version of the game, including better alliances, building upgrade trees, planet building slots, weapon specialization, and more.
-
-This version was rewritten from the ground up using TypeScript and Pixi.js, but is still very rough. If there is continued interest in this project, we will take the time to polish, publish, and open-source that version too. However, open-sourcing a project takes a considerable amount of work. To do so, we have to write documentation, clean up the setup/build system, add support for developing on other platforms, and provide help to people interested in contributing to the project.
+Microgravity is built to be deployed on [Rivet](https://rivet.gg). Rivet is in private beta at the moment, so we can't share the deploy process yet.
 
 ## Show Us Your Ideas!
 
