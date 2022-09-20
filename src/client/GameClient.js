@@ -10,7 +10,6 @@ const Planet = require('../entities/Planet');
 const Player = require('../entities/Player');
 const config = require('../config/config');
 const utils = require('../utils');
-const { RepeatingRequest } = require('./utils');
 const weapons = require('../config/weapons');
 const structures = require('../config/structures');
 const assets = require('./assets');
@@ -187,13 +186,10 @@ class GameClient extends Game {
 
 		/** @type {boolean} */ this.demolishConfirm = false;
 
-		/** @type {identity.IdentityService} */ this.identityApi = null;
+		/** @type {identity.IdentityManager} */ this.identityManager = null;
 		/** @type {identity.IdentityProfile} */ this.identity = {};
-		/** @type {string} */ this.identityToken = null;
 		/** @type {Map<string, identity.IdentityProfile>} */ this.identities = new Map();
 		/** @type {Set<string>} */ this.fetchedIdentities = new Set();
-		/** @type {RepeatingRequest<identity.GetActivitiesCommandOutput>} */ this.friendsStream = null;
-		/** @type {RepeatingRequest<identity.GetEventsCommandOutput>} */ this.eventsStream = null;
 		/** @type {identity.IdentityHandle[]} */ this.friends = [];
 
 		this.recognition = null;
@@ -364,7 +360,7 @@ class GameClient extends Game {
 				utils: utils,
 				config: config,
 				i18n: this.i18n,
-				identityApi: this.identityApi,
+				identityManager: this.identityManager,
 				identity: this.identity,
 				identities: this.identities,
 				friends: this.friends,
@@ -439,9 +435,9 @@ class GameClient extends Game {
 					this.activeMenu = value;
 				},
 				async getGameLink() {
-					if (this.identityApi) {
+					if (this.identityManager) {
 						try {
-							let res = await this.identityApi.requestIdentityGameLink({});
+							let res = await this.identityManager.service.requestIdentityGameLink({});
 
 							window.open(res.linkUrl, '_blank');
 						} catch (err) {
@@ -450,23 +446,23 @@ class GameClient extends Game {
 					}
 				},
 				async friendAction(leaderboardItem) {
-					if (this.identityApi) {
+					if (this.identityManager) {
 						try {
 							if (this.identities.has(leaderboardItem.identity.id)) {
 								let identity = this.identities.get(leaderboardItem.identity.id);
 
 								if (!identity.isMyFriend) {
-									await this.identityApi.addFriend({
+									await this.identityManager.service.addFriend({
 										identityId: leaderboardItem.identity.id
 									});
 								} else {
-									await this.identityApi.removeFriend({
+									await this.identityManager.service.removeFriend({
 										identityId: leaderboardItem.identity.id
 									});
 								}
 
 								// Update identity
-								let res = await this.identityApi.getIdentityProfile({
+								let res = await this.identityManager.service.getIdentityProfile({
 									identityId: leaderboardItem.identity.id
 								});
 								this.identities.set(res.identity.id, res.identity);
@@ -905,7 +901,7 @@ class GameClient extends Game {
 		this.fetchedIdentities.add(identityId);
 
 		try {
-			let res = await this.identityApi.getIdentityProfile({
+			let res = await this.identityManager.service.getIdentityProfile({
 				identityId: identityId
 			});
 			this.identities.set(res.identity.id, res.identity);
@@ -2137,66 +2133,32 @@ class GameClient extends Game {
 		let [clientId, challengeSeed] = data;
 		this.clientId = clientId;
 
-		// Setup identity API
-		let existingIdentityToken = localStorage.getItem('rivet:identity-token');
-		this.identityApi = new identity.IdentityService({
-			endpoint: ENV_API_IDENTITY_URL ?? 'https://identity.api.rivet.gg/v1',
-			tls: true,
-			requestHandler: api.requestHandlerMiddleware()
-		});
-		this.vue.identityApi = this.identityApi;
-
 		try {
-			let { identity, identityToken } = await this.identityApi.setupIdentity({
-				identityToken: existingIdentityToken
-			});
+			// Setup identity API
+			this.identityManager = await new identity.IdentityManagerBuilder()
+				.withEndpoint(ENV_API_IDENTITY_URL)
+				.withToken(ENV_RIVET_CLIENT_TOKEN)
+				.onIdentityUpdate((identity, token) => {
+					console.log('Identity connected', identity);
 
-			console.log('Identity connected', identity);
+					this.identity = identity;
+					this.vue.identity = this.identity;
+					this.fetchedIdentities.add(this.identity.id);
+					this.identities.set(this.identity.id, this.identity);
 
-			// Save identity token in local storage
-			localStorage.setItem('rivet:identity-token', identityToken);
-
-			// Update request handler with bearer token
-			this.identityApi.config.requestHandler = api.requestHandlerMiddleware(
-				identityToken ?? ENV_RIVET_CLIENT_TOKEN
-			);
-
-			this.identity = identity;
-			this.fetchedIdentities.add(this.identity.id);
-			this.identities.set(this.identity.id, this.identity);
-
-			this.vue.identity = this.identity;
-			this.identityToken = identityToken;
-
-			// Start friends and events streams
-			this.friendsStream = new RepeatingRequest(async (abortSignal, watchIndex) => {
-				return await this.identityApi.getActivities({ watchIndex }, { abortSignal });
-			});
-
-			this.friendsStream.onMessage(res => {
-				this.friends = res.identities;
-			});
-
-			this.friendsStream.onError(err => {
-				console.error('Request error:', err);
-			});
-
-			this.eventsStream = new RepeatingRequest(async (abortSignal, watchIndex) => {
-				return await this.identityApi.getEvents({ watchIndex }, { abortSignal });
-			});
-
-			this.eventsStream.onMessage(res => {
-				for (let update of res.events) {
-					if (update.chatMessage && update.chatMessage.notification) {
-						// No notifications are sent if the cache is not present or the watch index expired
-						if (!res.refreshed) this.presentNotification(update.chatMessage);
-					}
-				}
-			});
-
-			this.eventsStream.onError(err => {
-				console.error('Request error:', err);
-			});
+					this.identityToken = identityToken;
+				})
+				.onActivityUpdate(activities => {
+					this.friends = activities.identities;
+				})
+				.onChatMessage((thread, notification) => {
+					this.presentNotification(thread, notification);
+				})
+				.onError(err => {
+					console.error('Request error:', err);
+				})
+				.build();
+			this.vue.identityManager = this.identityManager;
 		} catch (err) {
 			console.error(err);
 			this.ws.close();
@@ -3169,8 +3131,8 @@ class GameClient extends Game {
 	}
 
 	/*** NOTIFICATIONS ***/
-	presentNotification(notification) {
-		let chatMessage = notification.thread.tailMessage;
+	presentNotification(thread, notification) {
+		let chatMessage = thread.tailMessage;
 
 		// Don't sent "Chat Created" notifications
 		if (chatMessage.body.chatCreate) return;
@@ -3188,7 +3150,7 @@ class GameClient extends Game {
 		// Insert notification
 		this.vue.notifications.unshift({
 			id: chatMessage.id,
-			notification: notification.notification,
+			notification,
 			timeoutId: timeoutId,
 			isFading: false
 		});
