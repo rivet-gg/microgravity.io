@@ -1,11 +1,17 @@
-const devConfig = require('./webpack-dev.config.js');
+const baseConfig = require('./webpack-base.config.js');
 
-// Override the env
-process.env['NODE_ENV'] = 'production';
-process.env['BABEL_ENV'] = 'production';
+require('dotenv').config({ path: ".env.prod" });
 
-module.exports = Object.assign({}, devConfig, {
+// process.env['NODE_ENV'] = 'production';
+// process.env['BABEL_ENV'] = 'production';
+
+// TODO: Only works under dev for some reason
+process.env['BABEL_ENV'] = 'development';
+
+module.exports = Object.assign({}, baseConfig, {
 	// Disabled since this breaks something
 	// devtool: "nosources-source-map",  // This will replace any older source map
 	// mode: "production"
+	// TODO: Only works under dev for some reason
+	mode: "development"
 });
