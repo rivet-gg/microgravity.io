@@ -309,7 +309,7 @@ class ClientHandle {
 		this.sendOwnedStructures();
 
 		// Send init data
-		this.send(config.serverMessages.INIT, null);
+		this.send(config.serverMessages.INIT, [config.gameMode]);
 
 		// Set initiated
 		this.initiated = true;
@@ -587,15 +587,13 @@ class ClientHandle {
 		this.identityToken = identityToken;
 
 		try {
+			// TODO: This is wrong
 			let identityApi = new identity.IdentityService({
-				endpoint: process.env.RIVET_API_IDENTITY_URL
-					? process.env.RIVET_API_IDENTITY_URL
-					: 'https://identity.api.rivet.gg/v1',
-				tls: true,
-				requestHandler: serverUtils.requestHandlerMiddleware(identityToken)
+				endpoint: process.env.RIVET_IDENTITY_API_URL || 'https://identity.api.rivet.gg/v1',
+				token: identityToken,
 			});
 
-			let res = await identityApi.getIdentitySelf({});
+			let res = await identityApi.getIdentitySelfProfile({});
 
 			this.identity = res.identity;
 			console.log('Identity connected', this.identity.id);

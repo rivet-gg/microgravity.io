@@ -456,6 +456,18 @@ module.exports = {
 		return string.trim();
 	},
 
+	generateRandomCode() {
+		let length = 6;
+		let chars = "abcdefghijklmnpqrstuvwxyz1234567890";
+		
+		let code = "";
+		for (let i = 0; i < length; i++) {
+			code += chars[Math.floor(Math.random() * chars.length)];
+		}
+
+		return code;
+	},
+
 	generateResourceHTML(index, value) {
 		let resource = resources.resources[index];
 		return `<div class="resourceIcon ${resource.icon}"></div><span>${

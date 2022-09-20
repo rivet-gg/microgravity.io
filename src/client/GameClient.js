@@ -1,5 +1,6 @@
+const matchmaker = require('@rivet-gg/matchmaker');
 const identity = require('@rivet-gg/identity');
-const api = require('../api');
+const party = require('@rivet-gg/party');
 
 const Game = require('../Game');
 const InputHandler = require('./InputHandler');
@@ -102,8 +103,8 @@ class GameClient extends Game {
 	get isLSD() {
 		return this.normalizedUsername === 'lsd';
 	}
-	get isFuckNathan() {
-		return this.normalizedUsername === '#fucknathan' || this.normalizedUsername === '#fuckingnathan';
+	get isOopsie() {
+		return this.normalizedUsername === '#oopsie';
 	}
 
 	constructor() {
@@ -128,11 +129,15 @@ class GameClient extends Game {
 		/* @type {boolean} */ this.renderingUI = false;
 
 		/** @type {boolean} */ this.initiated = false;
+		/** @type {?string} */ this.autoJoinPartyAlias = null;
+		/** @type {?string} */ this.autoJoinLobbyId = null;
 
 		/** @type {number} */ this.ping = 0;
 		/** @type {boolean} */ this.pingStart = null;
 
 		/** @type {number} */ this.kickTimer = 0; // Only increments if on home screen
+
+		/** @type {string} */ this.gameMode = null;
 
 		/** @type {Set<string>} */ this.rewards = new Set((localStorage.getItem('r') || '').split(','));
 
@@ -213,13 +218,266 @@ class GameClient extends Game {
 		this.render();
 	}
 
-	connectSocket(address, port, useTls, gameIndex, token = null) {
-		let wsProtocol = useTls ? 'wss:' : 'ws:';
-		let url = `${wsProtocol}//${address}:${port}/?gameIndex=${gameIndex}`;
-		if (token != null) {
-			url += `&token=${token}`;
+	reset() {
+		super.reset();
+
+		if (this.ws) {
+			this.ws.onopen = this.ws.onclose = this.ws.onmessage = null;
+			this.ws.close();
 		}
-		console.log('Connecting', { url, address, port, useTls, gameIndex, token });
+		this.ws = null;
+
+		this.initiated = false;
+		this.ping = 0;
+		this.pingStart = null;
+		this.kickTimer = this.vue.kickTimer = 0;
+		this.gameMode = this.vue.gameMode = null;
+		this.region = this.vue.region = null;
+		this.lastRenderTime = null;
+		this.killVignetteProgress = 0.0;
+		this.killVignetteProgressLength = 1.0;
+		this.score = this.vue.score = 0;
+		this.resources = this.vue.resources = [0, 0, 0];
+		this.structureCounts = this.vue.structureCounts = {}; // Slot indexes mapped to counts
+		this.clientId = null;
+		this.playerId = null;
+		this.spectateId = null;
+		this.leaderboardData = [];
+		this.playerRank = -1;
+		this.playerLeaderboardItem = null;
+		this.ownedWeapons = [];
+		this.ownedStructures = [];
+		this.allianceList = [];
+		this.allianceData = null;
+		this.showingAlliances = false;
+		this.showingHelp = false;
+		this.showingChatBox = false;
+		this.chatMessages = {}; // {<client id>: [<message>, <receive time>}
+		this.chatShowTime = 8.0;
+		this.lastNotificationDate = null;
+		this.lastNotificationText = null;
+		this.showControlsTimer = 10;
+		this.heartBeatTimer = 0;
+		this.deathPosX = null;
+		this.deathPosY = null;
+		this.demolishConfirm = false;
+		this.vue.selectedWeaponIndex = -1;
+		this.vue.ownedWeaponIndex = 0;
+		this.vue.weaponList = [];
+		this.vue.structureList = [];
+		this.vue.upgradeOptions = null;
+		this.vue.hoveringPerk = null;
+		this.vue.leaderboardItems = [];
+		this.vue.isLanded = false;
+		this.vue.onPlanet = false;
+		this.vue.showingBuildGroup = null;
+	}
+
+	async start() {
+		console.log('Starting game');
+
+		// Setup APIs
+		/** @type {identity.IdentityService} */ this.identityApi = new identity.IdentityService({
+			endpoint: process.env.RIVET_IDENTITY_API_URL || 'https://identity.api.rivet.gg/v1',
+			token: () => this.identityToken ?? process.env.RIVET_CLIENT_TOKEN
+		});
+		/** @type {matchmaker.MatchmakerService} */ this.matchmakerApi = new matchmaker.MatchmakerService({
+			endpoint: process.env.RIVET_MATCHMAKER_API_URL || 'https://matchmaker.api.rivet.gg/v1',
+			token: process.env.RIVET_CLIENT_TOKEN
+		});
+		/** @type {party.PartyService} */ this.partyApi = new party.PartyService({
+			endpoint: process.env.RIVET_PARTY_API_URL || 'https://party.api.rivet.gg/v1',
+			token: () => this.identityToken ?? process.env.RIVET_CLIENT_TOKEN
+		});
+
+		// Fetch recommended regions
+		this.matchmakerApi.listRegions({}).then(res => {
+			this.vue.regions = res.regions.map(x => ({ id: x.regionId, title: x.regionId }));
+		});
+
+		// Setup identity
+		let existingIdentityToken = localStorage.getItem('rivet:identity-token');
+		try {
+			let { identity, identityToken } = await this.identityApi.setupIdentity({
+				existingIdentityToken: existingIdentityToken
+			});
+
+			console.log('Identity connected', identity);
+
+			// Save identity token in local storage
+			localStorage.setItem('rivet:identity-token', identityToken);
+
+			// Update request handler with new bearer token
+			this.identityToken = identityToken;
+
+			this.identity = identity;
+			this.fetchedIdentities.add(this.identity.id);
+			this.identities.set(this.identity.id, this.identity);
+
+			this.vue.identity = this.identity;
+			this.identityToken = identityToken;
+
+			// Start friends stream
+			this.activityStream = new RepeatingRequest(async (abortSignal, watchIndex) => {
+				console.log(this.identityApi);
+				return await this.identityApi.listActivities({ watchIndex }, { abortSignal });
+			});
+
+			this.activityStream.onMessage(res => {
+				this.friends = res.identities;
+			});
+
+			this.activityStream.onError(err => {
+				console.error('Request error:', err);
+			});
+
+			// Start event stream
+			this.eventsStream = new RepeatingRequest(async (abortSignal, watchIndex) => {
+				return await this.identityApi.watchEvents({ watchIndex }, { abortSignal });
+			});
+
+			this.eventsStream.onMessage(res => {
+				for (let update of res.events) {
+					console.log('Rivet Event', res);
+
+					if (update.notification) {
+						console.log('Received notification', update.notifications);
+						// No notifications are sent if the cache is not present or the watch index expired
+						if (!res.refreshed) this.presentNotification(update.notification);
+					}
+
+					if (update.kind.partyUpdate) {
+						console.log('Received party update', update.kind.partyUpdate.party);
+						this.party = this.vue.party = update.kind.partyUpdate.party;
+					}
+
+					if (update.kind.matchmakerLobbyJoin) {
+						console.log('Received join lobby event', update.kind.matchmakerLobbyJoin.lobby);
+						this.connectSocket(update.kind.matchmakerLobbyJoin.lobby);
+					}
+
+					if (update.kind.matchmakerLobbyLeave) {
+						console.log('Received leave lobby', update.kind.matchmakerLobbyLeave.lobbyId);
+						if (this.lobby && update.kind.matchmakerLobbyLeave.lobbyId == this.lobby.lobbyId) {
+							console.log('Leaving lobby');
+							this.ws.close();
+						} else {
+							console.log('Does not match actively running lobby');
+						}
+					}
+				}
+			});
+
+			this.eventsStream.onError(err => {
+				console.error('Request error:', err);
+			});
+		} catch (err) {
+			console.error(err);
+			this.ws.close();
+		}
+
+		// Join party if needed
+		if (this.autoJoinPartyAlias) {
+			this.autoJoinPartyAlias = null;
+			console.log('Joining party', this.autoJoinPartyAlias);
+			this.partyApi
+				.joinParty({
+					invite: { alias: this.autoJoinPartyAlias }
+				})
+				.catch(err => {
+					if (err.code) {
+						alert(`Failed to join party: ${err.code}`);
+					}
+				});
+		}
+
+		// Join lobby
+		this.findLobby(this.autoJoinLobbyId);
+		this.autoJoinLobbyId = null;
+	}
+
+	async findLobby(lobbyId = null, captcha = null) {
+		document.querySelector('#hCaptcha').style.display = 'none';
+
+		let gameModes = [settings.getString('gameMode', 'classic')];
+		let regions = settings.has('region') ? [settings.getString('region')] : null;
+
+		if (this.party) {
+			if (lobbyId) {
+				console.log('Joining party lobby', lobbyId);
+
+				await this.partyApi.joinMatchmakerLobbyForParty({
+					lobbyId
+				});
+			} else {
+				console.log('Finding party lobby', { gameModes, regions });
+
+				await this.partyApi.findMatchmakerLobbyForParty({
+					gameModes,
+					regions
+				});
+			}
+		} else {
+			let lobby = null;
+			try {
+				if (lobbyId) {
+					console.log('Joining lobby', lobbyId);
+
+					let res = await this.matchmakerApi.joinLobby({
+						lobbyId,
+						captcha
+					});
+					lobby = res.lobby;
+
+					// TODO: Handle lobby not found
+				} else {
+					console.log('Finding lobby', { gameModes, regions });
+
+					let res = await this.matchmakerApi.findLobby({
+						gameModes,
+						regions,
+						captcha
+					});
+					lobby = res.lobby;
+				}
+			} catch (err) {
+				// Request captcha on error
+				if (err.code == 'CAPTCHA_REQUIRED') {
+					document.querySelector('#hCaptcha').style.display = 'flex';
+
+					window.hcaptcha.render('hCaptcha', {
+						sitekey: err.metadata.hcaptcha.site_id,
+						callback: clientResponse => {
+							this.start(lobbyId, clientApi, {
+								hcaptcha: {
+									clientResponse
+								}
+							});
+						}
+					});
+				} else {
+					console.error('Failed to find lobby:', err);
+					alert(`Failed to find lobby: ${err.code}`);
+					location.reload();
+				}
+			}
+
+			if (!lobby) throw 'Missing lobby';
+			console.log('Found lobby', lobby);
+			this.connectSocket(lobby);
+		}
+	}
+
+	connectSocket(lobby) {
+		this.reset();
+
+		this.lobby = lobby;
+		this.region = this.vue.region = lobby.region.regionId;
+
+		let port = lobby.ports['default'];
+		let wsProtocol = port.isTls ? 'wss:' : 'ws:';
+		let url = `${wsProtocol}//${port.hostname}:${port.port}/?token=${lobby.player.token}`;
+		console.log('Connecting', { lobby, url });
 
 		this.ws = new WebSocket(url);
 		this.ws.binaryType = 'arraybuffer';
@@ -360,7 +618,7 @@ class GameClient extends Game {
 				utils: utils,
 				config: config,
 				i18n: this.i18n,
-				identityManager: this.identityManager,
+				identityApi: this.identityApi,
 				identity: this.identity,
 				identities: this.identities,
 				friends: this.friends,
@@ -369,15 +627,25 @@ class GameClient extends Game {
 				languages: translationsRaw,
 
 				// Main menu
-				linkJustCopied: false,
+				lobbyLinkJustCopied: false,
+				partyLinkJustCopied: false,
 				showConsent: localStorage.consentedToPrivacyPolicy !== 'true',
 				kickTimer: 0,
 				usingTouch: false,
 				rewards: new Array(game.rewards.values()),
 
+				// Matchmaking
+				gameMode: '',
+				region: '',
+				gameModes: [
+					{ id: 'classic', title: 'Classic' },
+					{ id: 'aliens', title: 'Aliens' }
+				],
+				regions: [],
+
 				// Ships
-				selectedShip: localStorage.getItem('selectedShip') || config.ships[0].id,
-				selectedFill: localStorage.getItem('selectedFill') || config.shipFills[0].value,
+				selectedShip: settings.getString('selectedShip', config.shipFills[0].value),
+				selectedFill: settings.getString('selectedFill', config.shipFills[0].value),
 
 				// Game state
 				score: 0,
@@ -408,19 +676,19 @@ class GameClient extends Game {
 				showingBuildGroup: null,
 
 				// Notifications
-				notifications: []
+				notifications: [],
+
+				// Party
+				party: null
 			},
 
 			methods: {
 				// Main menu
-				copyInviteLink() {
-					// Report
-					utils.reportEvent('link-copied', location.href);
-
+				copyLobbyLink() {
 					// Animate copied
-					this.linkJustCopied = true;
+					this.lobbyLinkJustCopied = true;
 					setTimeout(() => {
-						this.linkJustCopied = false;
+						this.lobbyLinkJustCopied = false;
 					}, 1000);
 				},
 				joinGame() {
@@ -435,9 +703,9 @@ class GameClient extends Game {
 					this.activeMenu = value;
 				},
 				async getGameLink() {
-					if (this.identityManager) {
+					if (game.identityApi) {
 						try {
-							let res = await this.identityManager.service.requestIdentityGameLink({});
+							let res = await game.identityApi.requestIdentityGameLink({});
 
 							window.open(res.linkUrl, '_blank');
 						} catch (err) {
@@ -446,30 +714,28 @@ class GameClient extends Game {
 					}
 				},
 				async friendAction(leaderboardItem) {
-					if (this.identityManager) {
-						try {
-							if (this.identities.has(leaderboardItem.identity.id)) {
-								let identity = this.identities.get(leaderboardItem.identity.id);
+					try {
+						if (this.identities.has(leaderboardItem.identity.id)) {
+							let identity = this.identities.get(leaderboardItem.identity.id);
 
-								if (!identity.isMyFriend) {
-									await this.identityManager.service.addFriend({
-										identityId: leaderboardItem.identity.id
-									});
-								} else {
-									await this.identityManager.service.removeFriend({
-										identityId: leaderboardItem.identity.id
-									});
-								}
-
-								// Update identity
-								let res = await this.identityManager.service.getIdentityProfile({
+							if (!identity.isMyFriend) {
+								await game.identityApi.followIdentity({
 									identityId: leaderboardItem.identity.id
 								});
-								this.identities.set(res.identity.id, res.identity);
+							} else {
+								await game.identityApi.unfollowIdentity({
+									identityId: leaderboardItem.identity.id
+								});
 							}
-						} catch (err) {
-							console.error(err);
+
+							// Update identity
+							let res = await game.identityApi.getIdentityProfile({
+								identityId: leaderboardItem.identity.id
+							});
+							this.identities.set(res.identity.id, res.identity);
 						}
+					} catch (err) {
+						console.error(err);
 					}
 				},
 				async friendParty(friend) {
@@ -643,6 +909,41 @@ class GameClient extends Game {
 					window.clearTimeout(notification.timeoutId);
 
 					this.notifications.splice(index, 1);
+				},
+				transferParty(member) {
+					game.partyApi.transferPartyOwnership({
+						identityId: member.identity.id
+					});
+				},
+				kickPartyMember(member) {
+					game.partyApi.kickMember({
+						identityId: member.identity.id
+					});
+				},
+				createParty() {
+					game.partyApi.createParty({
+						partySize: 8,
+						invites: [{ alias: utils.generateRandomCode() }]
+					});
+				},
+				leaveParty() {
+					game.partyApi.leaveParty({});
+				},
+				copyPartyLink() {
+					// Animate copied
+					this.partyLinkJustCopied = true;
+					setTimeout(() => {
+						this.partyLinkJustCopied = false;
+					}, 1000);
+				},
+
+				selectGameMode(id) {
+					settings.setString('gameMode', id);
+					game.findLobby();
+				},
+				selectRegion(id) {
+					settings.setString('region', id);
+					game.findLobby();
 				}
 			},
 
@@ -681,6 +982,13 @@ class GameClient extends Game {
 				},
 				hoveringPerkData() {
 					return this.hoveringPerk != null ? upgrades.perks[this.hoveringPerk] : null;
+				},
+
+				// Party
+				isPartyLeader() {
+					if (this.party)
+						return this.party.members.find(x => x.isLeader)?.identity.id == this.identity?.id;
+					else return false;
 				}
 			},
 
@@ -718,8 +1026,16 @@ class GameClient extends Game {
 			window.onbeforeunload = () => 'Are you sure you want to leave? You will lose all progress.';
 
 		// Share link button
-		new ClipboardJS('#shareLink', {
-			text: () => location.href
+		new ClipboardJS('#shareLobby', {
+			text: () => `${location.origin}/?l=${lobby.lobbyId}`
+		});
+		new ClipboardJS('#shareParty', {
+			text: () => {
+				if (this.party) {
+					let alias = this.party.invites.find(x => !!x.alias.alias);
+					return `${location.origin}/?p=${alias.alias.alias}`;
+				}
+			}
 		});
 
 		// Update ad reward panel HTML
@@ -1419,7 +1735,7 @@ class GameClient extends Game {
 	renderWorld(ctx, dt) {
 		// Calculate screen shake
 		let shakeMagnitude = this.explosionManager.getScreenShake(this.viewportX, this.viewportY);
-		if (this.isReee || this.isFuckNathan) shakeMagnitude = 2000; // Easter egg
+		if (this.isReee || this.isOopsie) shakeMagnitude = 2000; // Easter egg
 		shakeMagnitude *= 0.05; // Pixels/magnitude
 		shakeMagnitude = Math.min(
 			shakeMagnitude,
@@ -1703,7 +2019,7 @@ class GameClient extends Game {
 			ctx.globalAlpha = 0.7;
 			ctx.fillRect(0, 0, this.screenWidth, this.screenHeight);
 			ctx.restore();
-		} else if (this.isFuckNathan) {
+		} else if (this.isOopsie) {
 			ctx.save();
 
 			ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
@@ -2172,7 +2488,10 @@ class GameClient extends Game {
 		this.updateGameState();
 	}
 
-	onInit() {
+	onInit(data) {
+		let [gameMode] = data;
+		this.gameMode = this.vue.gameMode = gameMode;
+
 		// Save initiated
 		this.initiated = true;
 
@@ -2644,13 +2963,13 @@ class GameClient extends Game {
 
 		// Update UI
 		if (!inGame) {
-			document.getElementById('notificationOverlay').classList.remove('inGame');
+			document.body.classList.remove('inGame');
 
 			if (this.showingAlliances) this.toggleAlliances(false);
 			if (this.showingChatBox) this.toggleChatBox(false);
 			if (this.showingHelp) this.toggleHelp(false);
 		} else {
-			document.getElementById('notificationOverlay').classList.add('inGame');
+			document.body.classList.add('inGame');
 		}
 
 		// Make sure only one modal showing
