@@ -590,7 +590,7 @@ class ClientHandle {
 			// TODO: This is wrong
 			let identityApi = new identity.IdentityService({
 				endpoint: process.env.RIVET_IDENTITY_API_URL || 'https://identity.api.rivet.gg/v1',
-				token: identityToken,
+				token: identityToken
 			});
 
 			let res = await identityApi.getIdentitySelfProfile({});

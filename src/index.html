@@ -126,12 +126,28 @@
 					<div v-show="activeMenu == config.activeMenu.INFO">
 						<h3 class="translate" v-t="'game-mode'"></h3>
 						<div v-if="gameMode && gameModes" class="buttonList">
-							<div v-for="gm in gameModes" :key="gm.id" class="button" :class="{disabled: gm.id == gameMode}" @click="selectGameMode(gm.id)">{{gm.title}}</div>
+							<div
+								v-for="gm in gameModes"
+								:key="gm.id"
+								class="button"
+								:class="{disabled: gm.id == gameMode}"
+								@click="selectGameMode(gm.id)"
+							>
+								{{gm.title}}
+							</div>
 						</div>
 
 						<h3 class="translate" v-t="'region'">Region</h3>
 						<div class="buttonList">
-							<div v-for="r in regions" :key="r.id" class="button" :class="{disabled: r.id == region}" @click="selectRegion(r.id)">{{r.title}}</div>
+							<div
+								v-for="r in regions"
+								:key="r.id"
+								class="button"
+								:class="{disabled: r.id == region}"
+								@click="selectRegion(r.id)"
+							>
+								{{r.title}}
+							</div>
 						</div>
 
 						<h3 class="translate" v-t="'social-title'"></h3>
@@ -333,7 +349,7 @@
 							class="button translate"
 							target="_blank"
 							v-t="'view-account-title'"
-							:href="identity.profileUrl"
+							:href="identity.external.profile"
 						></a>
 						<div class="translate">
 							<div v-t="'link-account'"></div>
@@ -408,7 +424,10 @@
 							>
 								{{ item.allianceName }}
 							</div>
-							<a class="leaderboardUsername" target="_blank" :href="item.identity.profileUrl"
+							<a
+								class="leaderboardUsername"
+								target="_blank"
+								:href="item.identity.external.profile"
 								>{{ item.username }}</a
 							>
 							<div class="leaderboardScore">{{ Math.floor(item.score) }}</div>
@@ -583,20 +602,46 @@
 			<div id="partyOverlay">
 				<div v-if="party != null" id="partyMembers">
 					<div v-for="member in party.members" class="partyMember">
-						<a class="partyMemberName" target="_blank" :href="`https://rivet.gg/identities/${member.id}`">{{member.identity.displayName}} [{{Object.keys(member.state)[0]}}]</a>
-						<div v-if="isPartyLeader && !member.isLeader" class="translate button compact" v-t="'kick-party-member'" @click="kickPartyMember(member)"></div>
-						<div v-if="isPartyLeader && !member.isLeader" class="translate button compact" v-t="'transfer-party-member'" @click="transferParty(member)"></div>
+						<a
+							class="partyMemberName"
+							target="_blank"
+							:href="`https://rivet.gg/identities/${member.id}`"
+							>{{member.identity.displayName}} [{{Object.keys(member.state)[0]}}]</a
+						>
+						<div
+							v-if="isPartyLeader && !member.isLeader"
+							class="translate button compact"
+							v-t="'kick-party-member'"
+							@click="kickPartyMember(member)"
+						></div>
+						<div
+							v-if="isPartyLeader && !member.isLeader"
+							class="translate button compact"
+							v-t="'transfer-party-member'"
+							@click="transferParty(member)"
+						></div>
 					</div>
-
 				</div>
 				<div id="partyActions">
-					<div v-if="party == null" class="translate button compact" v-t="'create-party'" @click="createParty()"></div>
-					<div v-if="party != null" class="translate button compact" v-t="'leave-party'" @click="leaveParty()"></div>
+					<div
+						v-if="party == null"
+						class="translate button compact"
+						v-t="'create-party'"
+						@click="createParty()"
+					></div>
+					<div
+						v-if="party != null"
+						class="translate button compact"
+						v-t="'leave-party'"
+						@click="leaveParty()"
+					></div>
 					<div
 						v-if="isPartyLeader"
-						id="shareParty" class="translate button compact"
+						id="shareParty"
+						class="translate button compact"
 						v-t="partyLinkJustCopied ? 'share-party-copied' : 'share-party'"
-						@click="copyPartyLink()"></div>
+						@click="copyPartyLink()"
+					></div>
 				</div>
 			</div>
 

@@ -4,6 +4,8 @@ process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
 const config = require('../config/config');
 config.init(true);
 
+require('dotenv').config({ path: config.isProd ? '.env.prod' : '.env.dev' });
+
 const utils = require('./utils');
 const GameServer = require('./GameServer');
 const stats = require('./stats');
@@ -16,12 +18,13 @@ var cors = require('cors');
 
 const nocache = require('nocache');
 
-console.log('Lobby token', process.env.RIVET_LOBBY_TOKEN)
+console.log('Lobby token', process.env.RIVET_LOBBY_TOKEN);
+console.log('Matchmaker', process.env.RIVET_MATCHMAKER_API_URL);
 
 let matchmaker = require('@rivet-gg/matchmaker');
 let matchmakerApi = new matchmaker.MatchmakerService({
-	endpoint: "https://matchmaker.api.rivet.gg/v1",
-	token: process.env.RIVET_LOBBY_TOKEN,
+	endpoint: process.env.RIVET_MATCHMAKER_API_URL,
+	token: process.env.RIVET_LOBBY_TOKEN
 });
 
 matchmakerApi

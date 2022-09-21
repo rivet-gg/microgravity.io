@@ -11,3 +11,7 @@ public/*.js
 public/*.js.map
 
 src/config/audio-sprites.json
+
+### Rivet ###
+.rivet/
+.env
