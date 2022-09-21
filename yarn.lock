@@ -1395,10 +1395,8 @@
     node-fetch "^2.6.7"
     tslib "^2.3.1"
 
-"@rivet-gg/identity@0.0.6":
+"@rivet-gg/identity@file:dist/api-identity":
   version "0.0.6"
-  resolved "https://registry.yarnpkg.com/@rivet-gg/identity/-/identity-0.0.6.tgz#77aff0ef8818a1f8221cdbddb362770062057685"
-  integrity sha512-EQeNbxGjcQvxlUGJ2oRSMb6eoUltgM6I63S41xZKSIJgqBBFjfQKg24l5342AS9Xk37AyBeXMMw6oQHfniSHaQ==
   dependencies:
     "@aws-crypto/sha256-browser" "2.0.0"
     "@aws-crypto/sha256-js" "2.0.0"
@@ -1432,10 +1430,8 @@
     "@rivet-gg/common" "git+https://github.com/rivet-gg/rivet-sdk-js.git#ce562016be3be5ce2bdcd2d662c89acb7567ecd1"
     tslib "^2.3.1"
 
-"@rivet-gg/matchmaker@0.0.5":
+"@rivet-gg/matchmaker@file:dist/api-matchmaker":
   version "0.0.5"
-  resolved "https://registry.yarnpkg.com/@rivet-gg/matchmaker/-/matchmaker-0.0.5.tgz#13d57d7431d177050f55906baf2073842b0ee828"
-  integrity sha512-H5tm3a7ugUKT2I0OM5kfKunfug7siXXlA8r3Qj54GSSup+/R9k1W297pV6VwbQYxt4k06xfOF+xE3kIQYuApAQ==
   dependencies:
     "@aws-crypto/sha256-browser" "2.0.0"
     "@aws-crypto/sha256-js" "2.0.0"
@@ -1469,10 +1465,8 @@
     "@rivet-gg/common" "git+https://github.com/rivet-gg/rivet-sdk-js.git#ce562016be3be5ce2bdcd2d662c89acb7567ecd1"
     tslib "^2.3.1"
 
-"@rivet-gg/party@0.0.5":
+"@rivet-gg/party@file:dist/api-party":
   version "0.0.5"
-  resolved "https://registry.yarnpkg.com/@rivet-gg/party/-/party-0.0.5.tgz#3f13a64b48c03d64a9b6a52431bc4d7632a62e8f"
-  integrity sha512-KmQ2PKO+Hqbb2NHhMjUEFwbFGIfrfHQ7pz1AR+WrE4xvyU5MwIHm2JWqYo0BS9qXCgHCBi/oBz8LOP6pUWRsYQ==
   dependencies:
     "@aws-crypto/sha256-browser" "2.0.0"
     "@aws-crypto/sha256-js" "2.0.0"
