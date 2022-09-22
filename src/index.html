@@ -343,7 +343,7 @@
 							v-t="'no-friends'"
 						></div>
 					</div>
-					<div id="account" v-show="activeMenu == config.activeMenu.ACCOUNT">
+					<div id="account" v-show="activeMenu == config.activeMenu.ACCOUNT" v-if="!!identity">
 						<a
 							id="viewAccountButton"
 							class="button translate"
@@ -413,7 +413,7 @@
 							class="leaderboardItem"
 							:class="{
 								isMine: item.isMine,
-								isFriend: item.identity.isMyFriend && item.identity.isTheirFriend,
+								isFriend: item.identity?.isMyFriend && item.identity?.isTheirFriend,
 							}"
 						>
 							<div class="leaderboardRank">{{ item.rank }}</div>
@@ -427,7 +427,7 @@
 							<a
 								class="leaderboardUsername"
 								target="_blank"
-								:href="item.identity.external.profile"
+								:href="item.identity?.external?.profile"
 								>{{ item.username }}</a
 							>
 							<div class="leaderboardScore">{{ Math.floor(item.score) }}</div>
@@ -437,13 +437,13 @@
 								@click="friendAction(item)"
 							>
 								<h3
-									v-if="!item.identity.isMyFriend"
+									v-if="!item.identity?.isMyFriend"
 									class="translate"
 									v-t="'add-friend'"
 								></h3>
 								<h3 v-else class="translate" v-t="'remove-friend'"></h3>
 								<div class="matIcon">
-									{{item.identity.isMyFriend ? 'person_remove' : 'person_add'}}
+									{{item.identity?.isMyFriend ? 'person_remove' : 'person_add'}}
 								</div>
 							</div>
 						</div>
