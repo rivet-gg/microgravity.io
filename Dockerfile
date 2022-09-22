@@ -1,5 +1,7 @@
 FROM node:16.13.0-alpine3.14
 
+RUN apk add --no-cache git
+
 WORKDIR /app
 
 RUN apk add --no-cache git
