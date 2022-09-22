@@ -89,8 +89,9 @@ const game = new GameServer();
 // Handle WebSocket CORS
 const corsRegex = /^((.+\.|)microgravity\.io|microgravity\.rivet\.game|microgravity\.rivet-game\.test)$/;
 function isValidOrigin(origin) {
-	if (!config.isProd) return true; // Allow from anywhere if dev
-	return corsRegex.test(origin);
+	// if (!config.isProd) return true; // Allow from anywhere if dev
+	// return corsRegex.test(origin);
+	return true;
 }
 
 // Create WebSocket server
