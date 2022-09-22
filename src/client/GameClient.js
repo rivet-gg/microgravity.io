@@ -191,7 +191,7 @@ class GameClient extends Game {
 
 		/** @type {boolean} */ this.demolishConfirm = false;
 
-		/** @type {identity.IdentityProfile} */ this.identity = {};
+		/** @type {identity.IdentityProfile} */ this.identity = null;
 		/** @type {Map<string, identity.IdentityProfile>} */ this.identities = new Map();
 		/** @type {Set<string>} */ this.fetchedIdentities = new Set();
 		/** @type {identity.IdentityHandle[]} */ this.friends = [];
@@ -292,7 +292,7 @@ class GameClient extends Game {
 					this.friends = activities.identities;
 				})
 				.onChatMessage((thread, notification) => {
-					this.presentNotification(thread, notification);
+					if (notification) this.presentNotification(thread, notification);
 				})
 				.onError(err => {
 					console.error(err);
@@ -642,9 +642,9 @@ class GameClient extends Game {
 				async getGameLink() {
 					if (game.identityManager) {
 						try {
-							let res = await game.identityManager.service.requestIdentityGameLink({});
+							let res = await game.identityManager.service.prepareGameLink({});
 
-							window.open(res.linkUrl, '_blank');
+							window.open(res.identityLinkUrl, '_blank');
 						} catch (err) {
 							console.error(err);
 						}
@@ -2518,7 +2518,7 @@ class GameClient extends Game {
 				allianceColor: allianceData ? utils.getAllianceColor(allianceData[0]) : null,
 				isMine: clientId === this.clientId,
 				isMyIdentity: this.identity ? identityId == this.identity.id : false,
-				identity: this.identities.get(identityId) ?? {}
+				identity: this.identities.get(identityId)
 			});
 		}
 
