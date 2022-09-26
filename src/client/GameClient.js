@@ -288,9 +288,6 @@ class GameClient extends Game {
 					this.fetchedIdentities.add(this.identity.id);
 					this.identities.set(this.identity.id, this.identity);
 				})
-				.onActivityUpdate(activities => {
-					this.friends = activities.identities;
-				})
 				.onChatMessage((thread, notification) => {
 					if (notification) this.presentNotification(thread, notification);
 				})
@@ -299,6 +296,21 @@ class GameClient extends Game {
 					if (this.ws) this.ws.close();
 				})
 				.build();
+
+		/** @type {RepeatingRequest<ListActivitiesCommandOutput>} */ this.activitiesStream =
+			new identity.common.RepeatingRequest(async (abortSignal, watchIndex) => {
+				return await this.identityManager.service.listActivities({ watchIndex }, { abortSignal });
+			});
+
+		this.activitiesStream.onMessage(res => {
+			this.friends = res.identities;
+		});
+
+		this.activitiesStream.onError(err => {
+			console.error(err);
+			if (this.ws) this.ws.close();
+		});
+
 		/** @type {matchmaker.MatchmakerService} */ this.matchmakerApi = new matchmaker.MatchmakerService({
 			endpoint: process.env.RIVET_MATCHMAKER_API_URL,
 			token: process.env.RIVET_CLIENT_TOKEN
@@ -639,12 +651,23 @@ class GameClient extends Game {
 				changeActiveMenu(value) {
 					this.activeMenu = value;
 				},
-				async getGameLink() {
+				async startGameLink() {
 					if (game.identityManager) {
 						try {
-							let res = await game.identityManager.service.prepareGameLink({});
+							let res = await game.identityManager.startGameLink(async res => {
+								// Update identity
+								if (res.status == identity.GameLinkStatus.COMPLETE) {
+									this.identity = await this.identityManager.service.getIdentitySelfProfile(
+										{}
+									);
+
+									// TODO: Close "Linking..." overlay
+								}
+							});
 
 							window.open(res.identityLinkUrl, '_blank');
+
+							// TODO: Show some "Linking..." overlay (with a cancel button)
 						} catch (err) {
 							console.error(err);
 						}
