@@ -288,8 +288,10 @@ class GameClient extends Game {
 					this.fetchedIdentities.add(this.identity.id);
 					this.identities.set(this.identity.id, this.identity);
 				})
-				.onChatMessage((thread, notification) => {
-					if (notification) this.presentNotification(thread, notification);
+				.onNotification((notification, eventKind) => {
+					if (eventKind.chatMessage) {
+						this.presentNotification(eventKind.chatMessage.thread, notification);
+					}
 				})
 				.onError(err => {
 					console.error(err);
@@ -655,14 +657,7 @@ class GameClient extends Game {
 					if (game.identityManager) {
 						try {
 							let res = await game.identityManager.startGameLink(async res => {
-								// Update identity
-								if (res.status == identity.GameLinkStatus.COMPLETE) {
-									this.identity = await this.identityManager.service.getIdentitySelfProfile(
-										{}
-									);
-
-									// TODO: Close "Linking..." overlay
-								}
+								// TODO: Close "Linking..." overlay
 							});
 
 							window.open(res.identityLinkUrl, '_blank');
