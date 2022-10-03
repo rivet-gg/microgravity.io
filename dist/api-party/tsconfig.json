@@ -1,1 +1,0 @@
-{"compilerOptions":{"downlevelIteration":true,"importHelpers":true,"incremental":false,"removeComments":true,"resolveJsonModule":true,"rootDir":"./clients/client/src","useUnknownInCatchVariables":false},"exclude":["test/"],"extends":"@tsconfig/recommended/tsconfig.json"}
