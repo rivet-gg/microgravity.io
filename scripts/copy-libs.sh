@@ -1,18 +1,18 @@
 #!/bin/sh
-set -eufx
+set -euf
 
-rm -rf dist
-mkdir -p dist
+mkdir -p gen
 
 # Generate and copy serivces
 for api in identity matchmaker party; do
+	path="gen/api-$api"
+
+	rm -rf $path
+
 	echo
-	echo
-	echo "> [api-$api]: Copying Client"
-      (cp -r ~/dev/rivet/backend/gen/svc/api-$api/smithy/typescript/ dist/api-$api || cp -r ~/dev/rivet/backend/gen/svc/api-$api/openapi/typescript/ dist/api-$api)
-	
-	echo
-	echo
-	echo "> [api-$api]: Building Client"
-      (cd dist/api-$api && yarn install && yarn run build)
+	echo "> Copying $path"
+	(cp -r ../../rivet/backend/gen/svc/api-$api/smithy/typescript/ $path || cp -r ../../rivet/backend/gen/svc/api-$api/openapi/typescript/ $path)
 done
+
+./scripts/build-libs.sh
+

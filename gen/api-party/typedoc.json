@@ -1,0 +1,1 @@
+{"exclude":["**/node_modules/**","**/*.spec.ts","**/protocols/*.ts","**/e2e/*.ts","**/endpoints.ts"],"excludeNotExported":true,"excludePrivate":true,"hideGenerator":true,"ignoreCompilerErrors":true,"includeDeclarations":true,"mode":"file","out":"docs","plugin":["@aws-sdk/service-client-documentation-generator"],"readme":"none","stripInternal":true,"theme":"minimal"}

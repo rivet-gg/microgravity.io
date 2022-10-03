@@ -7,8 +7,10 @@ WORKDIR /app
 RUN apk add --no-cache git
 
 COPY package.json yarn.lock ./
-COPY dist/ dist/
-RUN yarn install --production
+COPY gen/ gen/
+
+COPY ./scripts/build-libs.sh ./scripts/build-libs.sh
+RUN ./scripts/build-libs.sh
 
 COPY src/ src/
 
