@@ -1,10 +1,10 @@
-name: Publish Version to Rivet
+name: Publish Version to Rivet (Staging)
 
 on:
   - push
 
 concurrency: 
-  group: publish-${{ github.ref }}
+  group: publish-staging-${{ github.ref }}
   cancel-in-progress: true
 
 defaults:
