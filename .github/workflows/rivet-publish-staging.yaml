@@ -68,7 +68,14 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Build Site
-        run: npm install -g yarn && ./scripts/build-libs.sh && yarn run build-prod
+        run: |
+          RIVET_PARTY_API_URL="${{ secrets.RIVET_STAGING_PARTY_API_URL }}"
+          RIVET_IDENTITY_API_URL="${{ secrets.RIVET_STAGING_IDENTITY_API_URL }}"
+          RIVET_MATCHMAKER_API_URL="${{ secrets.RIVET_STAGING_MATCHMAKER_API_URL }}"
+
+          npm install -g yarn
+          ./scripts/build-libs.sh
+          yarn run build-prod
 
       - name: Constants
         id: consts
