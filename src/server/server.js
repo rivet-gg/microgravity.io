@@ -18,14 +18,11 @@ var cors = require('cors');
 
 const nocache = require('nocache');
 
-console.log('Lobby token', process.env.RIVET_LOBBY_TOKEN);
+console.log('Lobby token', process.env.RIVET_TOKEN);
 console.log('Matchmaker', process.env.RIVET_MATCHMAKER_API_URL);
 
 let matchmaker = require('@rivet-gg/matchmaker');
-let matchmakerApi = new matchmaker.MatchmakerService({
-	endpoint: process.env.RIVET_MATCHMAKER_API_URL,
-	token: process.env.RIVET_LOBBY_TOKEN
-});
+let matchmakerApi = new matchmaker.MatchmakerService({});
 
 matchmakerApi
 	.lobbyReady({})
