@@ -117,7 +117,7 @@ jobs:
         id: create_namespace
         run: |
           NS_DISPLAY_NAME="${{ steps.consts.outputs.git_branch }}"
-          NS_NAME_ID="$(sed -E 's/[^[:alnum:]]+/-/g' <<< "$NS_DISPLAY_NAME")"
+          NS_NAME_ID="$(sed -E 's/[^[:alnum:]]+/-/g' <<< "$NS_DISPLAY_NAME" | cut -c1-16)"
           NAMESPACE_ID="$(rivet --api-url "${{ secrets.RIVET_STAGING_CLOUD_API_URL }}" --cloud-token "${{ secrets.RIVET_STAGING_CLOUD_TOKEN }}" namespace create --name-id "$NS_NAME_ID" --display-name "$NS_DISPLAY_NAME"  --version "${{ steps.create_version.outputs.version_id }}" --format json | jq -r '.namespace_id')"
           echo "::set-output name=namespace_id::$NAMESPACE_ID"
 
