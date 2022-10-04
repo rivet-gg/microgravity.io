@@ -100,6 +100,7 @@ const wss = new WebSocket.Server({ host: '0.0.0.0', server: wsServer, path: '/' 
 wss.on('connection', async (ws, req) => {
 	// Don't allow connection if full
 	if (game.playerCount >= config.maxPlayersHard) {
+		console.warn('Game full, kicking player');
 		ws.close();
 		return;
 	}
@@ -125,8 +126,18 @@ wss.on('connection', async (ws, req) => {
 	let wsUrl = new url.URL(req.url, 'https://microgravity.io');
 	let playerToken = wsUrl.searchParams.get('token');
 	if (playerToken) {
+		ws.addListener('close', async () => {
+			try {
+				await matchmakerApi.playerDisconnected({ playerToken });
+				console.log("Player disconnected", playerToken);
+			} catch (err) {
+				console.warn('Failed to disconnect player', err);
+			}
+		});
+
 		try {
 			await matchmakerApi.playerConnected({ playerToken });
+			console.log("Player connected", playerToken);
 		} catch (err) {
 			console.warn('Failed to connect player', err);
 			ws.close();
@@ -143,16 +154,8 @@ wss.on('connection', async (ws, req) => {
 
 	// Update player count
 	broadcastPlayerCount(game.playerCount);
-
-	// Add event on close
-	client.onClosed = async () => {
+	client.onClosed = () => {
 		broadcastPlayerCount(game.playerCount);
-
-		try {
-			await matchmakerApi.playerDisconnected({ playerToken });
-		} catch (err) {
-			console.warn('Failed to disconnect player', err);
-		}
 	};
 });
 wsServer.listen(wsPort, () => console.log(`WebSocket server listening on port ${wsPort}.`));
