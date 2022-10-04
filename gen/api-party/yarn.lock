@@ -430,9 +430,9 @@
     "@aws-sdk/util-buffer-from" "3.55.0"
     tslib "^2.3.1"
 
-"@rivet-gg/common@git+https://github.com/rivet-gg/rivet-sdk-js.git#ce562016be3be5ce2bdcd2d662c89acb7567ecd1":
-  version "0.0.1"
-  resolved "git+https://github.com/rivet-gg/rivet-sdk-js.git#ce562016be3be5ce2bdcd2d662c89acb7567ecd1"
+"@rivet-gg/common@git+https://github.com/rivet-gg/rivet-sdk-js.git#5f2e50fa9b499805f068aecf36ce691d1472758a":
+  version "0.1.0"
+  resolved "git+https://github.com/rivet-gg/rivet-sdk-js.git#5f2e50fa9b499805f068aecf36ce691d1472758a"
   dependencies:
     node-fetch "^2.6.7"
     tslib "^2.3.1"

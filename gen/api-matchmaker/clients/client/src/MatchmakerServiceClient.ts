@@ -248,17 +248,6 @@ export class MatchmakerServiceClient extends __Client<
 
   constructor(configuration: MatchmakerServiceClientConfig) {
     /**
-     * Default request handler value
-     */
-    if(!configuration.hasOwnProperty("requestHandler")) {
-      // @ts-ignore
-      if(typeof window !== "undefined")
-      configuration.requestHandler = __middleware.browser.requestHandlerMiddleware(configuration.token);
-      else
-      configuration.requestHandler = __middleware.nodejs.requestHandlerMiddleware(configuration.token);
-    }
-
-    /**
      * Endpoint and token parser
      */
     function rivetConfig<T>(input: T & ClientDefaults): T & {
@@ -269,21 +258,37 @@ export class MatchmakerServiceClient extends __Client<
         try {
           endpoint = process.env.RIVET_MATCHMAKER_API_URL ?? null;
         }
-        catch(_e) {
+        catch {
         }
         if (endpoint === null) {
           endpoint = "https://matchmaker.api.rivet.gg/v1";
         }
       }
+      let token = input.token ?? null;
+      if (token === null) {
+        try {
+          token = process.env.RIVET_MATCHMAKER_TOKEN ?? process.env.RIVET_TOKEN ?? null;
+        }
+        catch {
+        }
+      }
       return Object.assign(Object.assign({}, input), {
         // @ts-ignore
         endpoint,
-        token: input.token ?? null,
+        token,
       });
     }
 
     let _config_0 = __getRuntimeConfig(configuration);
     let _config_1 = rivetConfig(_config_0);
+    /**
+     * Default request handler value
+     */
+    if(!configuration.hasOwnProperty("requestHandler")) {
+      // @ts-ignore
+      _config_1.requestHandler = __middleware.requestHandlerMiddleware(_config_1.token);
+    }
+
     let _config_2 = resolveCustomEndpointsConfig(_config_1);
     let _config_3 = resolveRetryConfig(_config_2);
     let _config_4 = resolveHostHeaderConfig(_config_3);
