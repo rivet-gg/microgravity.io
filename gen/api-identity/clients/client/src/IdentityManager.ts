@@ -105,7 +105,7 @@ export class IdentityManagerBuilder {
 			});
 
 			let { identityToken } = await initService.setupIdentity({
-				existingIdentityToken: fetchToken(),
+				existingIdentityToken: this.config.token ?? fetchToken(),
 			});
 			saveToken(identityToken!);
 			this.config.token = identityToken;
