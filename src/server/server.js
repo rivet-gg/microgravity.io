@@ -4,7 +4,9 @@ process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
 const config = require('../config/config');
 config.init(true);
 
-require('dotenv').config({ path: config.isProd ? '.env.prod' : '.env.dev' });
+const dotenv = require('dotenv');
+dotenv.config({ path: '.env' });
+dotenv.config({ path: config.isProd ? '.env.prod' : '.env.dev' });
 
 const utils = require('./utils');
 const GameServer = require('./GameServer');
