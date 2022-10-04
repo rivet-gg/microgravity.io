@@ -596,7 +596,7 @@ class ClientHandle {
 			let res = await identityApi.getIdentitySelfProfile({});
 
 			this.identity = res.identity;
-			console.log('Identity connected', this.identity.id);
+			console.log('Identity connected', this.identity.identityId);
 		} catch (err) {
 			console.error('Identity creation error', err);
 			this.ws.close();

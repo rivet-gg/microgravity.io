@@ -294,8 +294,7 @@ class GameClient extends Game {
 					}
 				})
 				.onError(err => {
-					console.error(err);
-					if (this.ws) this.ws.close();
+					console.error('IdentityManager error', err);
 				})
 				.build();
 
@@ -309,8 +308,7 @@ class GameClient extends Game {
 		});
 
 		this.activitiesStream.onError(err => {
-			console.error(err);
-			if (this.ws) this.ws.close();
+			console.error('Activities stream error', err);
 		});
 
 		/** @type {matchmaker.MatchmakerService} */ this.matchmakerApi = new matchmaker.MatchmakerService({
