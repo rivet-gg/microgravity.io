@@ -370,7 +370,7 @@ export class IdentityServiceClient extends __Client<
      */
     if(!configuration.hasOwnProperty("requestHandler")) {
       // @ts-ignore
-      configuration.requestHandler = __middleware.requestHandlerMiddleware(_config_1.token);
+      _config_1.requestHandler = __middleware.requestHandlerMiddleware(_config_1.token);
     }
 
     let _config_2 = resolveCustomEndpointsConfig(_config_1);
