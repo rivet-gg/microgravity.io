@@ -11,7 +11,7 @@ for api in identity matchmaker party; do
 
 	echo
 	echo "> Copying $path"
-	(cp -r ../../rivet/backend/gen/svc/api-$api/smithy/typescript/ $path || cp -r ../../rivet/backend/gen/svc/api-$api/openapi/typescript/ $path)
+	(cp -r ../rivet/backend/gen/svc/api-$api/smithy/typescript/ $path || cp -r ../rivet/backend/gen/svc/api-$api/openapi/typescript/ $path)
 done
 
 ./scripts/build-libs.sh
