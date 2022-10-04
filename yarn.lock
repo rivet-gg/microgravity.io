@@ -285,9 +285,9 @@
   integrity sha512-I9PTlVNSbwhIgMfmDM5as1tqRIkVZunjVmfogb2WVVPp4CaX0Ll01S0FSMSLL9k6tcQLXqh45pFRjrxCl9WKdQ==
 
 "@aws-sdk/types@^3.1.0", "@aws-sdk/types@^3.110.0":
-  version "3.178.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/types/-/types-3.178.0.tgz#2b79d705be218f8c9b5829ec71284549c37733be"
-  integrity sha512-CrHxHzXSEr/Z3NLFvJgSGHGcD9tYUZ0Rhp8tFCSpD3TpBo3/Y7RIvqaEPvECsL52UEloeBhQf65AO8590YkVmQ==
+  version "3.183.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/types/-/types-3.183.0.tgz#d58e5dead96ce7a68186e25dcec4d5e716caf01b"
+  integrity sha512-V5IU7q7Y2ADIFzvUxoGfpVahhVnGjCABTv9jZYUSyJW7/OwSB+eA2C1B8ZsKAYLWtc9xKxYpRl5FI5e7FBGUIQ==
 
 "@aws-sdk/url-parser@3.78.0":
   version "3.78.0"
@@ -372,9 +372,9 @@
     tslib "^2.3.1"
 
 "@aws-sdk/util-locate-window@^3.0.0":
-  version "3.170.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/util-locate-window/-/util-locate-window-3.170.0.tgz#acc8717abe1e568de41d9b8ede33a49c6c1e108d"
-  integrity sha512-uQvn3ZaAokWcNSY+tNR71RGXPPncv5ejrpGa/MGOCioeBjkU5n5OJp7BdaTGouZu4fffeVpdZJ/ZNld8LWMgLw==
+  version "3.183.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/util-locate-window/-/util-locate-window-3.183.0.tgz#21edeb5769b562db9343d2e116d2a070bbcfa837"
+  integrity sha512-zcto3whSC1EHnKlygkSBmwI95r3mOpG3o37M2zHhKJlJbPZhI61+MnNQ13T46m4MRWC5gJgPi3gL7kI9Bnb+hA==
   dependencies:
     tslib "^2.3.1"
 
@@ -418,9 +418,9 @@
     tslib "^2.3.1"
 
 "@aws-sdk/util-utf8-browser@^3.0.0":
-  version "3.170.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/util-utf8-browser/-/util-utf8-browser-3.170.0.tgz#3fcea278e7a6fca4fef3d562300a3eea9a2f244f"
-  integrity sha512-tJby9krepSwDsBK+KQF5ACacZQ4LH1Aheh5Dy0pghxsN/9IRw7kMWTumuRCnSntLFFphDD7GM494/Dvnl1UCLA==
+  version "3.183.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/util-utf8-browser/-/util-utf8-browser-3.183.0.tgz#3761cf1aa94f2bb9f0866c89fa81a59a4a076e85"
+  integrity sha512-6JHlQ5VkF2XdUfyK1pjpR1A8I+hVdyV0yGiyOB3Vge2zIkcc6oZQYIsSePFmqujJspz29GK0InbQhJXKuLDekg==
   dependencies:
     tslib "^2.3.1"
 
@@ -1395,7 +1395,7 @@
     node-fetch "^2.6.7"
     tslib "^2.3.1"
 
-"@rivet-gg/identity@file:dist/api-identity":
+"@rivet-gg/identity@file:gen/api-identity":
   version "0.0.6"
   dependencies:
     "@aws-crypto/sha256-browser" "2.0.0"
@@ -1430,7 +1430,7 @@
     "@rivet-gg/common" "git+https://github.com/rivet-gg/rivet-sdk-js.git#ce562016be3be5ce2bdcd2d662c89acb7567ecd1"
     tslib "^2.3.1"
 
-"@rivet-gg/matchmaker@file:dist/api-matchmaker":
+"@rivet-gg/matchmaker@file:gen/api-matchmaker":
   version "0.0.5"
   dependencies:
     "@aws-crypto/sha256-browser" "2.0.0"
@@ -1465,7 +1465,7 @@
     "@rivet-gg/common" "git+https://github.com/rivet-gg/rivet-sdk-js.git#ce562016be3be5ce2bdcd2d662c89acb7567ecd1"
     tslib "^2.3.1"
 
-"@rivet-gg/party@file:dist/api-party":
+"@rivet-gg/party@file:gen/api-party":
   version "0.0.5"
   dependencies:
     "@aws-crypto/sha256-browser" "2.0.0"
@@ -1598,9 +1598,9 @@
   integrity sha512-Y4XFY5VJAuw0FgAqPNd6NNoV44jbq9Bz2L7Rh/J6jLTiHBSBJa9fxqQIvkIld4GsoDOcCbvzOUAbLPsSKKg+uA==
 
 "@types/node@*":
-  version "18.7.23"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.7.23.tgz#75c580983846181ebe5f4abc40fe9dfb2d65665f"
-  integrity sha512-DWNcCHolDq0ZKGizjx2DZjR/PqsYwAcYUJmfMWqtVU2MBMG5Mo+xFZrhGId5r/O5HOuMPyQEcM6KUBp5lBZZBg==
+  version "18.8.1"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.8.1.tgz#33e6759935f7a82821b72fb936e66f6b99a36173"
+  integrity sha512-vuYaNuEIbOYLTLUAJh50ezEbvxrD43iby+lpUA2aa148Nh5kX/AVO/9m1Ahmbux2iU5uxJTNF9g2Y+31uml7RQ==
 
 "@types/qs@*":
   version "6.9.7"
@@ -2664,9 +2664,9 @@ copy-descriptor@^0.1.0:
   integrity sha512-XgZ0pFcakEUlbwQEVNg3+QAis1FyTL3Qel9FYy8pSkQqoG3PNoT0bOCQtOXcOkur21r2Eq2kI+IE+gsmAEVlYw==
 
 core-js-compat@^3.25.1:
-  version "3.25.3"
-  resolved "https://registry.yarnpkg.com/core-js-compat/-/core-js-compat-3.25.3.tgz#d6a442a03f4eade4555d4e640e6a06151dd95d38"
-  integrity sha512-xVtYpJQ5grszDHEUU9O7XbjjcZ0ccX3LgQsyqSvTnjX97ZqEgn9F5srmrwwwMtbKzDllyFPL+O+2OFMl1lU4TQ==
+  version "3.25.5"
+  resolved "https://registry.yarnpkg.com/core-js-compat/-/core-js-compat-3.25.5.tgz#0016e8158c904f7b059486639e6e82116eafa7d9"
+  integrity sha512-ovcyhs2DEBUIE0MGEKHP4olCUW/XYte3Vroyxuh38rD1wAO4dHohsovUC4eAOuzFxE6b+RXvBU3UZ9o0YhUTkA==
   dependencies:
     browserslist "^4.21.4"
 
@@ -2922,9 +2922,9 @@ ee-first@1.1.1:
   integrity sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==
 
 electron-to-chromium@^1.4.251:
-  version "1.4.269"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.269.tgz#93ea2724b07f5f562daa7dd3740a1d28572b028b"
-  integrity sha512-7mHFONwp7MNvdyto1v70fCwk28NJMFgsK79op+iYHzz1BLE8T66a1B2qW5alb8XgE0yi3FL3ZQjSYZpJpF6snw==
+  version "1.4.271"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.271.tgz#2d9f04f6a53c70e1bb1acfaae9c39f07ca40d290"
+  integrity sha512-BCPBtK07xR1/uY2HFDtl3wK2De66AW4MSiPlLrnPNxKC/Qhccxd59W73654S3y6Rb/k3hmuGJOBnhjfoutetXA==
 
 emojis-list@^3.0.0:
   version "3.0.0"
