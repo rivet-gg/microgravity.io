@@ -69,9 +69,9 @@ jobs:
 
       - name: Build Site
         run: |
-          RIVET_PARTY_API_URL="${{ secrets.RIVET_STAGING_PARTY_API_URL }}"
-          RIVET_IDENTITY_API_URL="${{ secrets.RIVET_STAGING_IDENTITY_API_URL }}"
-          RIVET_MATCHMAKER_API_URL="${{ secrets.RIVET_STAGING_MATCHMAKER_API_URL }}"
+          export RIVET_PARTY_API_URL="${{ secrets.RIVET_STAGING_PARTY_API_URL }}"
+          export RIVET_IDENTITY_API_URL="${{ secrets.RIVET_STAGING_IDENTITY_API_URL }}"
+          export RIVET_MATCHMAKER_API_URL="${{ secrets.RIVET_STAGING_MATCHMAKER_API_URL }}"
 
           npm install -g yarn
           ./scripts/build-libs.sh
