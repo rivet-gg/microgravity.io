@@ -2,7 +2,7 @@
 
 pkgs.mkShell {
 	buildInputs = with pkgs; [
-		nodejs-12_x
+		nodejs-16_x
 		gcc
 		gnumake
 

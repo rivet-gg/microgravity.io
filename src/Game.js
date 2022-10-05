@@ -31,6 +31,8 @@ class Game {
 	}
 
 	reset() {
+		console.log('Resetting game');
+
 		this._init();
 	}
 

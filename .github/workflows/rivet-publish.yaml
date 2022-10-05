@@ -43,7 +43,7 @@ jobs:
           echo "::set-output name=build_tag::${GIT_BRANCH}-${GIT_SHA_SHORT}:latest"
 
       - name: Docker Build
-        run: docker build --tag "${{ steps.consts.outputs.build_tag }}" .
+        run: docker build --file 'Dockerfile' --tag "${{ steps.consts.outputs.build_tag }}" .
 
       - name: Push Build
         id: push_build
@@ -65,10 +65,10 @@ jobs:
         shell: bash
         run: curl -fsSL https://raw.githubusercontent.com/rivet-gg/cli/main/install/unix.sh | sh
 
-      - name: Install Yarn
-        run: npm install -g yarn
-
       - uses: actions/checkout@v3
+
+      - name: Build Site
+        run: npm install -g yarn && ./scripts/build-libs.sh && yarn run build-prod
 
       - name: Constants
         id: consts
@@ -77,16 +77,10 @@ jobs:
           echo "::set-output name=git_branch::${GITHUB_REF#refs/heads/}"
           echo "::set-output name=git_sha_short::$(git rev-parse --short HEAD)"
 
-      - name: Install
-        run: yarn install
-
-      - name: Build
-        run: yarn run build-prod
-
       - name: Push Site
         id: push_site
         run: |
-          SITE_ID="$(rivet --cloud-token "${{ secrets.RIVET_CLOUD_TOKEN }}" site push --path ./public/ --name "${{ steps.consts.outputs.git_branch }} (${{ steps.consts.outputs.git_sha_short }})" --format json | jq -r '.site_id')"
+          SITE_ID="$(rivet --cloud-token "${{ secrets.RIVET_CLOUD_TOKEN }}" site push --path 'public' --name "${{ steps.consts.outputs.git_branch }} (${{ steps.consts.outputs.git_sha_short }})" --format json | jq -r '.site_id')"
           echo "::set-output name=site_id::$SITE_ID"
 
   publish_version:
@@ -123,7 +117,7 @@ jobs:
         id: create_namespace
         run: |
           NS_DISPLAY_NAME="${{ steps.consts.outputs.git_branch }}"
-          NS_NAME_ID="$(sed -E 's/[^[:alnum:]]+/-/g' <<< "$NS_DISPLAY_NAME")"
+          NS_NAME_ID="$(sed -E 's/[^[:alnum:]]+/-/g' <<< "$NS_DISPLAY_NAME" | cut -c1-16)"
           NAMESPACE_ID="$(rivet --cloud-token "${{ secrets.RIVET_CLOUD_TOKEN }}" namespace create --name-id "$NS_NAME_ID" --display-name "$NS_DISPLAY_NAME"  --version "${{ steps.create_version.outputs.version_id }}" --format json | jq -r '.namespace_id')"
           echo "::set-output name=namespace_id::$NAMESPACE_ID"
 
