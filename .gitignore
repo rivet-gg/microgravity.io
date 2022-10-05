@@ -2,9 +2,6 @@
 node_modules/
 .idea/
 
-.env
-
-dist/
 # public/audio/
 public/index.html
 public/*.js
@@ -14,3 +11,4 @@ public/*.js.map
 
 ### Rivet ###
 .rivet/
+.env

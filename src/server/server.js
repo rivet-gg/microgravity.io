@@ -4,6 +4,10 @@ process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
 const config = require('../config/config');
 config.init(true);
 
+const dotenv = require('dotenv');
+dotenv.config({ path: '.env' });
+dotenv.config({ path: config.isProd ? '.env.prod' : '.env.dev' });
+
 const utils = require('./utils');
 const GameServer = require('./GameServer');
 const stats = require('./stats');
@@ -16,13 +20,11 @@ var cors = require('cors');
 
 const nocache = require('nocache');
 
-console.log('Lobby token', process.env.RIVET_LOBBY_TOKEN)
+console.log('Lobby token', process.env.RIVET_TOKEN);
+console.log('Matchmaker', process.env.RIVET_MATCHMAKER_API_URL);
 
 let matchmaker = require('@rivet-gg/matchmaker');
-let matchmakerApi = new matchmaker.MatchmakerService({
-	endpoint: "https://matchmaker.api.rivet.gg/v1",
-	token: process.env.RIVET_LOBBY_TOKEN,
-});
+let matchmakerApi = new matchmaker.MatchmakerService({});
 
 matchmakerApi
 	.lobbyReady({})
@@ -98,6 +100,7 @@ const wss = new WebSocket.Server({ host: '0.0.0.0', server: wsServer, path: '/' 
 wss.on('connection', async (ws, req) => {
 	// Don't allow connection if full
 	if (game.playerCount >= config.maxPlayersHard) {
+		console.warn('Game full, kicking player');
 		ws.close();
 		return;
 	}
@@ -123,8 +126,18 @@ wss.on('connection', async (ws, req) => {
 	let wsUrl = new url.URL(req.url, 'https://microgravity.io');
 	let playerToken = wsUrl.searchParams.get('token');
 	if (playerToken) {
+		ws.addListener('close', async () => {
+			try {
+				await matchmakerApi.playerDisconnected({ playerToken });
+				console.log("Player disconnected", playerToken);
+			} catch (err) {
+				console.warn('Failed to disconnect player', err);
+			}
+		});
+
 		try {
 			await matchmakerApi.playerConnected({ playerToken });
+			console.log("Player connected", playerToken);
 		} catch (err) {
 			console.warn('Failed to connect player', err);
 			ws.close();
@@ -141,16 +154,8 @@ wss.on('connection', async (ws, req) => {
 
 	// Update player count
 	broadcastPlayerCount(game.playerCount);
-
-	// Add event on close
-	client.onClosed = async () => {
+	client.onClosed = () => {
 		broadcastPlayerCount(game.playerCount);
-
-		try {
-			await matchmakerApi.playerDisconnected({ playerToken });
-		} catch (err) {
-			console.warn('Failed to disconnect player', err);
-		}
 	};
 });
 wsServer.listen(wsPort, () => console.log(`WebSocket server listening on port ${wsPort}.`));

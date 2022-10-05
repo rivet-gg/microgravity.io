@@ -6,10 +6,10 @@ let defineValues = {};
 
 // Expose environment variables
 const envValues = {
-	RIVET_PARTY_API_URL: process.env.RIVET_PARTY_API_URL || "",
-	RIVET_IDENTITY_API_URL: process.env.RIVET_IDENTITY_API_URL || "",
-	RIVET_MATCHMAKER_API_URL: process.env.RIVET_MATCHMAKER_API_URL || "",
-	RIVET_CLIENT_TOKEN: process.env.RIVET_CLIENT_TOKEN || "",
+	RIVET_PARTY_API_URL: process.env.RIVET_PARTY_API_URL || null,
+	RIVET_IDENTITY_API_URL: process.env.RIVET_IDENTITY_API_URL || null,
+	RIVET_MATCHMAKER_API_URL: process.env.RIVET_MATCHMAKER_API_URL || null,
+	RIVET_CLIENT_TOKEN: process.env.RIVET_CLIENT_TOKEN || null
 };
 console.log('envValues:', envValues);
 
@@ -50,8 +50,8 @@ module.exports = {
 	devServer: {
 		port: 8080,
 		static: {
-			directory: path.join(__dirname, 'public'),
-		},
+			directory: path.join(__dirname, 'public')
+		}
 	},
 	plugins: [
 		new webpack.EnvironmentPlugin(envValues),
