@@ -298,6 +298,13 @@ class GameClient extends Game {
 				})
 				.build();
 
+		// Remove game activity on unload
+		window.addEventListener('unload', () => {
+			if (this.identity?.presence?.gameActivity?.game.gameId == 'TODO') {
+				this.identityManager.service.removeIdentityGameActivity({});
+			}
+		});
+
 		/** @type {RepeatingRequest<ListActivitiesCommandOutput>} */ this.activitiesStream =
 			new identity.common.RepeatingRequest(async (abortSignal, watchIndex) => {
 				return await this.identityManager.service.listActivities({ watchIndex }, { abortSignal });
@@ -397,7 +404,7 @@ class GameClient extends Game {
 					window.hcaptcha.render('hCaptcha', {
 						sitekey: err.metadata.hcaptcha.site_id,
 						callback: clientResponse => {
-							this.start(lobbyId, clientApi, {
+							this.findLobby(lobbyId, {
 								hcaptcha: {
 									clientResponse
 								}
@@ -413,6 +420,19 @@ class GameClient extends Game {
 
 			if (!lobby) throw 'Missing lobby';
 			console.log('Found lobby', lobby);
+
+			// Set game activity
+			this.identityManager.service.setIdentityGameActivity({
+				gameActivity: {
+					message: 'Playing Microgravity.io',
+					mutualMetadata: {
+						lobbyId: lobby.lobbyId,
+						gameMode: settings.getString('gameMode'),
+						region: settings.getString('region')
+					}
+				}
+			});
+
 			this.connectSocket(lobby);
 		}
 	}
@@ -696,6 +716,9 @@ class GameClient extends Game {
 				},
 				async friendOpenChat(friend) {
 					window.open(`https://rivet.gg/identities/${friend.id}/chat`, '_blank');
+				},
+				async friendJoin(friend) {
+					game.findLobby(friend.presence.gameActivity.friendMetadata['lobbyId']);
 				},
 
 				// Build

@@ -321,10 +321,7 @@
 					</div>
 					<div id="friends" v-show="activeMenu == config.activeMenu.FRIENDS">
 						<div v-for="item in friends" class="friendItem">
-							<a
-								class="friendUsername"
-								:href="`https://rivet.gg/identities/${item.id}`"
-								target="_blank"
+							<a class="friendUsername" :href="item.external.profile" target="_blank"
 								>{{ item.displayName }}</a
 							>
 							<div class="friendActions">
@@ -333,6 +330,13 @@
 								</div>
 								<div class="button action matIcon" @click="friendOpenChat(item)">
 									chat_bubble
+								</div>
+								<div
+									v-if="item.presence?.gameActivity?.gameId == 'TODO'"
+									class="button action matIcon"
+									@click="friendJoin(item)"
+								>
+									navigate_next
 								</div>
 							</div>
 						</div>
