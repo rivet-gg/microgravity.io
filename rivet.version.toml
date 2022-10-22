@@ -31,3 +31,20 @@
 
 [kv]
 
+[identity]
+	custom_display_names = [
+		"Astronaut",
+		"Cosmonaut",
+		"Starman",
+		"Spaceman",
+		"Rocketman",
+		"Pilot",
+		"Rocketeer",
+	]
+
+	custom_avatars = [
+		"6e934530-5578-433f-ad99-f9c4ae37a58d",
+		"141acc40-3f92-46f2-a703-84d895ae156e",
+		"de6ead0e-6f05-4da3-87f2-f45d48b054ee",
+	]
+
