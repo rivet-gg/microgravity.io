@@ -46,7 +46,15 @@ class GameServer extends Game {
 		}
 
 		// Start update loop
-		this.requestUpdate();
+		setInterval(() => {
+			// Execute the update in a safe block
+			try {
+				this.update(GameServer.dt);
+			} catch (error) {
+				console.error('Update error:', this.updateIndex);
+				console.error(error);
+			}
+		}, GameServer.dt * 1000);
 	}
 
 	initWorld() {
@@ -239,25 +247,6 @@ class GameServer extends Game {
 		for (let client of this.clients) {
 			client.sendMessage(player, message);
 		}
-	}
-
-	requestUpdate() {
-		// We don't use `setInterval` for updates, since that's not accurate and will not guarantee a specific execution time
-		setImmediate(() => {
-			// Check if next update is ready
-			if (this.lastUpdateStartTime + GameServer.dt * 1000 <= Date.now()) {
-				// Execute the update in a safe block
-				try {
-					this.update(GameServer.dt);
-				} catch (error) {
-					console.error('Update error:', this.updateIndex);
-					console.error(error);
-				}
-			}
-
-			// Request new update on the next tick
-			this.requestUpdate();
-		});
 	}
 
 	update(dt) {
