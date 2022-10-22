@@ -73,6 +73,7 @@ jobs:
           export RIVET_IDENTITY_API_URL="${{ secrets.RIVET_STAGING_IDENTITY_API_URL }}"
           export RIVET_MATCHMAKER_API_URL="${{ secrets.RIVET_STAGING_MATCHMAKER_API_URL }}"
 
+          export npm_config_yes=true
           npm install -g yarn
           ./scripts/build-libs.sh
           yarn run build-prod
