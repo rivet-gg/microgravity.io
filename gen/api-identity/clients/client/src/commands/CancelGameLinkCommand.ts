@@ -5,12 +5,12 @@ import {
   ServiceOutputTypes,
 } from "../IdentityServiceClient";
 import {
-  FollowIdentityInput,
-  FollowIdentityOutput,
+  CancelGameLinkInput,
+  CancelGameLinkOutput,
 } from "../models/models_0";
 import {
-  deserializeAws_restJson1FollowIdentityCommand,
-  serializeAws_restJson1FollowIdentityCommand,
+  deserializeAws_restJson1CancelGameLinkCommand,
+  serializeAws_restJson1CancelGameLinkCommand,
 } from "../protocols/Aws_restJson1";
 import { getSerdePlugin } from "@aws-sdk/middleware-serde";
 import {
@@ -28,34 +28,31 @@ import {
   SerdeContext as __SerdeContext,
 } from "@aws-sdk/types";
 
-export interface FollowIdentityCommandInput extends FollowIdentityInput {}
-export interface FollowIdentityCommandOutput extends FollowIdentityOutput, __MetadataBearer {}
+export interface CancelGameLinkCommandInput extends CancelGameLinkInput {}
+export interface CancelGameLinkCommandOutput extends CancelGameLinkOutput, __MetadataBearer {}
 
 /**
- * Follows the given identity.
- *
- * In order for identities to be "friends", the other identity has to also follow
- * this identity.
+ * Cancels a game link. It can no longer be used to link after cancellation.
  * @example
  * Use a bare-bones client and the command you need to make an API call.
  * ```javascript
- * import { IdentityServiceClient, FollowIdentityCommand } from "@rivet-gg/identity"; // ES Modules import
- * // const { IdentityServiceClient, FollowIdentityCommand } = require("@rivet-gg/identity"); // CommonJS import
+ * import { IdentityServiceClient, CancelGameLinkCommand } from "@rivet-gg/identity"; // ES Modules import
+ * // const { IdentityServiceClient, CancelGameLinkCommand } = require("@rivet-gg/identity"); // CommonJS import
  * const client = new IdentityServiceClient(config);
- * const command = new FollowIdentityCommand(input);
+ * const command = new CancelGameLinkCommand(input);
  * const response = await client.send(command);
  * ```
  *
- * @see {@link FollowIdentityCommandInput} for command's `input` shape.
- * @see {@link FollowIdentityCommandOutput} for command's `response` shape.
+ * @see {@link CancelGameLinkCommandInput} for command's `input` shape.
+ * @see {@link CancelGameLinkCommandOutput} for command's `response` shape.
  * @see {@link IdentityServiceClientResolvedConfig | config} for IdentityServiceClient's `config` shape.
  *
  */
-export class FollowIdentityCommand extends $Command<FollowIdentityCommandInput, FollowIdentityCommandOutput, IdentityServiceClientResolvedConfig> {
+export class CancelGameLinkCommand extends $Command<CancelGameLinkCommandInput, CancelGameLinkCommandOutput, IdentityServiceClientResolvedConfig> {
   // Start section: command_properties
   // End section: command_properties
 
-  constructor(readonly input: FollowIdentityCommandInput) {
+  constructor(readonly input: CancelGameLinkCommandInput) {
     // Start section: command_constructor
     super();
     // End section: command_constructor
@@ -68,22 +65,22 @@ export class FollowIdentityCommand extends $Command<FollowIdentityCommandInput, 
     clientStack: MiddlewareStack<ServiceInputTypes, ServiceOutputTypes>,
     configuration: IdentityServiceClientResolvedConfig,
     options?: __HttpHandlerOptions
-  ): Handler<FollowIdentityCommandInput, FollowIdentityCommandOutput> {
+  ): Handler<CancelGameLinkCommandInput, CancelGameLinkCommandOutput> {
     this.middlewareStack.use(getSerdePlugin(configuration, this.serialize, this.deserialize));
 
     const stack = clientStack.concat(this.middlewareStack);
 
     const { logger } = configuration;
     const clientName = "IdentityServiceClient";
-    const commandName = "FollowIdentityCommand";
+    const commandName = "CancelGameLinkCommand";
     const handlerExecutionContext: HandlerExecutionContext = {
       logger,
       clientName,
       commandName,
       inputFilterSensitiveLog:
-        FollowIdentityInput.filterSensitiveLog,
+        CancelGameLinkInput.filterSensitiveLog,
       outputFilterSensitiveLog:
-        FollowIdentityOutput.filterSensitiveLog,
+        CancelGameLinkOutput.filterSensitiveLog,
     }
     const { requestHandler } = configuration;
     return stack.resolve(
@@ -94,17 +91,17 @@ export class FollowIdentityCommand extends $Command<FollowIdentityCommandInput, 
   }
 
   private serialize(
-    input: FollowIdentityCommandInput,
+    input: CancelGameLinkCommandInput,
     context: __SerdeContext
   ): Promise<__HttpRequest> {
-    return serializeAws_restJson1FollowIdentityCommand(input, context);
+    return serializeAws_restJson1CancelGameLinkCommand(input, context);
   }
 
   private deserialize(
     output: __HttpResponse,
     context: __SerdeContext
-  ): Promise<FollowIdentityCommandOutput> {
-    return deserializeAws_restJson1FollowIdentityCommand(output, context);
+  ): Promise<CancelGameLinkCommandOutput> {
+    return deserializeAws_restJson1CancelGameLinkCommand(output, context);
   }
 
   // Start section: command_body_extra

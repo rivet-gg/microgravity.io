@@ -1,6 +1,11 @@
 // smithy-typescript generated code
 import { IdentityServiceClient } from "./IdentityServiceClient";
 import {
+  CancelGameLinkCommand,
+  CancelGameLinkCommandInput,
+  CancelGameLinkCommandOutput,
+} from "./commands/CancelGameLinkCommand";
+import {
   CompleteGameLinkCommand,
   CompleteGameLinkCommandInput,
   CompleteGameLinkCommandOutput,
@@ -21,6 +26,11 @@ import {
   GetGameLinkCommandOutput,
 } from "./commands/GetGameLinkCommand";
 import {
+  GetIdentityHandlesCommand,
+  GetIdentityHandlesCommandInput,
+  GetIdentityHandlesCommandOutput,
+} from "./commands/GetIdentityHandlesCommand";
+import {
   GetIdentityProfileCommand,
   GetIdentityProfileCommandInput,
   GetIdentityProfileCommandOutput,
@@ -30,6 +40,11 @@ import {
   GetIdentitySelfProfileCommandInput,
   GetIdentitySelfProfileCommandOutput,
 } from "./commands/GetIdentitySelfProfileCommand";
+import {
+  GetIdentitySummariesCommand,
+  GetIdentitySummariesCommandInput,
+  GetIdentitySummariesCommandOutput,
+} from "./commands/GetIdentitySummariesCommand";
 import {
   ListActivitiesCommand,
   ListActivitiesCommandInput,
@@ -65,6 +80,11 @@ import {
   RemoveIdentityGameActivityCommandInput,
   RemoveIdentityGameActivityCommandOutput,
 } from "./commands/RemoveIdentityGameActivityCommand";
+import {
+  ReportIdentityCommand,
+  ReportIdentityCommandInput,
+  ReportIdentityCommandOutput,
+} from "./commands/ReportIdentityCommand";
 import {
   SearchIdentitiesCommand,
   SearchIdentitiesCommandInput,
@@ -113,6 +133,39 @@ import {
 import { HttpHandlerOptions as __HttpHandlerOptions } from "@aws-sdk/types";
 
 export class IdentityService extends IdentityServiceClient {
+  /**
+   * Cancels a game link. It can no longer be used to link after cancellation.
+   */
+  public cancelGameLink(
+    args: CancelGameLinkCommandInput,
+    options?: __HttpHandlerOptions,
+  ): Promise<CancelGameLinkCommandOutput>;
+  public cancelGameLink(
+    args: CancelGameLinkCommandInput,
+    cb: (err: any, data?: CancelGameLinkCommandOutput) => void
+  ): void;
+  public cancelGameLink(
+    args: CancelGameLinkCommandInput,
+    options: __HttpHandlerOptions,
+    cb: (err: any, data?: CancelGameLinkCommandOutput) => void
+  ): void;
+  public cancelGameLink(
+    args: CancelGameLinkCommandInput,
+    optionsOrCb?: __HttpHandlerOptions | ((err: any, data?: CancelGameLinkCommandOutput) => void),
+    cb?: (err: any, data?: CancelGameLinkCommandOutput) => void
+  ): Promise<CancelGameLinkCommandOutput> | void {
+    const command = new CancelGameLinkCommand(args);
+    if (typeof optionsOrCb === "function") {
+      this.send(command, optionsOrCb)
+    } else if (typeof cb === "function") {
+      if (typeof optionsOrCb !== "object")
+        throw new Error(`Expect http options but get ${typeof optionsOrCb}`)
+      this.send(command, optionsOrCb || {}, cb)
+    } else {
+      return this.send(command, optionsOrCb);
+    }
+  }
+
   /**
    * Completes a game link process and returns whether or not the link is valid.
    */
@@ -182,7 +235,7 @@ export class IdentityService extends IdentityServiceClient {
   /**
    * Follows the given identity.
    *
-   * In order for identities to be friends, the other identity has to also follow
+   * In order for identities to be "friends", the other identity has to also follow
    * this identity.
    */
   public followIdentity(
@@ -252,6 +305,39 @@ export class IdentityService extends IdentityServiceClient {
   }
 
   /**
+   * Fetches a list of identity handles.
+   */
+  public getIdentityHandles(
+    args: GetIdentityHandlesCommandInput,
+    options?: __HttpHandlerOptions,
+  ): Promise<GetIdentityHandlesCommandOutput>;
+  public getIdentityHandles(
+    args: GetIdentityHandlesCommandInput,
+    cb: (err: any, data?: GetIdentityHandlesCommandOutput) => void
+  ): void;
+  public getIdentityHandles(
+    args: GetIdentityHandlesCommandInput,
+    options: __HttpHandlerOptions,
+    cb: (err: any, data?: GetIdentityHandlesCommandOutput) => void
+  ): void;
+  public getIdentityHandles(
+    args: GetIdentityHandlesCommandInput,
+    optionsOrCb?: __HttpHandlerOptions | ((err: any, data?: GetIdentityHandlesCommandOutput) => void),
+    cb?: (err: any, data?: GetIdentityHandlesCommandOutput) => void
+  ): Promise<GetIdentityHandlesCommandOutput> | void {
+    const command = new GetIdentityHandlesCommand(args);
+    if (typeof optionsOrCb === "function") {
+      this.send(command, optionsOrCb)
+    } else if (typeof cb === "function") {
+      if (typeof optionsOrCb !== "object")
+        throw new Error(`Expect http options but get ${typeof optionsOrCb}`)
+      this.send(command, optionsOrCb || {}, cb)
+    } else {
+      return this.send(command, optionsOrCb);
+    }
+  }
+
+  /**
    * Fetches an identity profile.
    */
   public getIdentityProfile(
@@ -306,6 +392,39 @@ export class IdentityService extends IdentityServiceClient {
     cb?: (err: any, data?: GetIdentitySelfProfileCommandOutput) => void
   ): Promise<GetIdentitySelfProfileCommandOutput> | void {
     const command = new GetIdentitySelfProfileCommand(args);
+    if (typeof optionsOrCb === "function") {
+      this.send(command, optionsOrCb)
+    } else if (typeof cb === "function") {
+      if (typeof optionsOrCb !== "object")
+        throw new Error(`Expect http options but get ${typeof optionsOrCb}`)
+      this.send(command, optionsOrCb || {}, cb)
+    } else {
+      return this.send(command, optionsOrCb);
+    }
+  }
+
+  /**
+   * Fetches a list of identity summaries.
+   */
+  public getIdentitySummaries(
+    args: GetIdentitySummariesCommandInput,
+    options?: __HttpHandlerOptions,
+  ): Promise<GetIdentitySummariesCommandOutput>;
+  public getIdentitySummaries(
+    args: GetIdentitySummariesCommandInput,
+    cb: (err: any, data?: GetIdentitySummariesCommandOutput) => void
+  ): void;
+  public getIdentitySummaries(
+    args: GetIdentitySummariesCommandInput,
+    options: __HttpHandlerOptions,
+    cb: (err: any, data?: GetIdentitySummariesCommandOutput) => void
+  ): void;
+  public getIdentitySummaries(
+    args: GetIdentitySummariesCommandInput,
+    optionsOrCb?: __HttpHandlerOptions | ((err: any, data?: GetIdentitySummariesCommandOutput) => void),
+    cb?: (err: any, data?: GetIdentitySummariesCommandOutput) => void
+  ): Promise<GetIdentitySummariesCommandOutput> | void {
+    const command = new GetIdentitySummariesCommand(args);
     if (typeof optionsOrCb === "function") {
       this.send(command, optionsOrCb)
     } else if (typeof cb === "function") {
@@ -547,6 +666,39 @@ export class IdentityService extends IdentityServiceClient {
     cb?: (err: any, data?: RemoveIdentityGameActivityCommandOutput) => void
   ): Promise<RemoveIdentityGameActivityCommandOutput> | void {
     const command = new RemoveIdentityGameActivityCommand(args);
+    if (typeof optionsOrCb === "function") {
+      this.send(command, optionsOrCb)
+    } else if (typeof cb === "function") {
+      if (typeof optionsOrCb !== "object")
+        throw new Error(`Expect http options but get ${typeof optionsOrCb}`)
+      this.send(command, optionsOrCb || {}, cb)
+    } else {
+      return this.send(command, optionsOrCb);
+    }
+  }
+
+  /**
+   * Creates an abuse report for an identity.
+   */
+  public reportIdentity(
+    args: ReportIdentityCommandInput,
+    options?: __HttpHandlerOptions,
+  ): Promise<ReportIdentityCommandOutput>;
+  public reportIdentity(
+    args: ReportIdentityCommandInput,
+    cb: (err: any, data?: ReportIdentityCommandOutput) => void
+  ): void;
+  public reportIdentity(
+    args: ReportIdentityCommandInput,
+    options: __HttpHandlerOptions,
+    cb: (err: any, data?: ReportIdentityCommandOutput) => void
+  ): void;
+  public reportIdentity(
+    args: ReportIdentityCommandInput,
+    optionsOrCb?: __HttpHandlerOptions | ((err: any, data?: ReportIdentityCommandOutput) => void),
+    cb?: (err: any, data?: ReportIdentityCommandOutput) => void
+  ): Promise<ReportIdentityCommandOutput> | void {
+    const command = new ReportIdentityCommand(args);
     if (typeof optionsOrCb === "function") {
       this.send(command, optionsOrCb)
     } else if (typeof cb === "function") {
