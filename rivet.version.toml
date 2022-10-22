@@ -2,6 +2,7 @@
 
 [matchmaker]
 	tier = "basic-1d2"
+	idle_lobbies = { min = 0, max = 0 }
 
 	[matchmaker.docker]
 		[matchmaker.docker.env]
