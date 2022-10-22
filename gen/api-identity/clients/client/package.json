@@ -1,7 +1,7 @@
 {
     "name": "@rivet-gg/identity",
     "description": "Rivet service for authenticating and managing identities",
-    "version": "0.0.6",
+    "version": "0.0.8",
     "scripts": {
         "build": "concurrently 'yarn:build:cjs' 'yarn:build:es' 'yarn:build:types'",
         "build:cjs": "tsc -p tsconfig.cjs.json",
