@@ -328,15 +328,15 @@
 								<div class="button action matIcon" @click="friendParty(item)">
 									celebration
 								</div>
-								<div class="button action matIcon" @click="friendOpenChat(item)">
-									chat_bubble
-								</div>
+								<a class="button action matIcon" :href="item.external.chat" target='"_blank'
+									>chat_bubble</a
+								>
 								<div
-									v-if="item.presence?.gameActivity?.gameId == 'TODO'"
+									v-if="item.presence?.gameActivity?.game.gameId == game.identityManager.gameId"
 									class="button action matIcon"
 									@click="friendJoin(item)"
 								>
-									navigate_next
+									sports_esports
 								</div>
 							</div>
 						</div>

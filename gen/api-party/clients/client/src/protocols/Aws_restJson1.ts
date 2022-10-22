@@ -466,8 +466,8 @@ export const serializeAws_restJson1SetPartyPublicityCommand = async(
   let resolvedPath = `${basePath?.endsWith('/') ? basePath.slice(0, -1) : (basePath || '')}` + "/parties/self/publicity";
   let body: any;
   body = JSON.stringify({
-    ...(input.friends !== undefined && input.friends !== null &&{ "friends": input.friends }),
     ...(input.groups !== undefined && input.groups !== null &&{ "groups": input.groups }),
+    ...(input.mutualFollowers !== undefined && input.mutualFollowers !== null &&{ "mutual_followers": input.mutualFollowers }),
     ...(input.public !== undefined && input.public !== null &&{ "public": input.public }),
   });
   return new __HttpRequest({
@@ -1803,8 +1803,8 @@ const deserializeAws_restJson1CreatePartyCommandError = async(
                                       context: __SerdeContext
                                     ): any => {
                                       return {
-                                        ...(input.friends !== undefined && input.friends !== null && { "friends": input.friends }),
                                         ...(input.groups !== undefined && input.groups !== null && { "groups": input.groups }),
+                                        ...(input.mutualFollowers !== undefined && input.mutualFollowers !== null && { "mutual_followers": input.mutualFollowers }),
                                         ...(input.public !== undefined && input.public !== null && { "public": input.public }),
                                       };
                                     }
@@ -1908,9 +1908,9 @@ const deserializeAws_restJson1CreatePartyCommandError = async(
                                       context: __SerdeContext
                                     ): IdentityGameActivity => {
                                       return {
-                                        friendMetadata: (output.friend_metadata !== undefined && output.friend_metadata !== null) ? deserializeAws_restJson1Document(output.friend_metadata, context): undefined,
                                         game: (output.game !== undefined && output.game !== null) ? deserializeAws_restJson1GameHandle(output.game, context): undefined,
                                         message: __expectString(output.message),
+                                        mutualMetadata: (output.mutual_metadata !== undefined && output.mutual_metadata !== null) ? deserializeAws_restJson1Document(output.mutual_metadata, context): undefined,
                                         publicMetadata: (output.public_metadata !== undefined && output.public_metadata !== null) ? deserializeAws_restJson1Document(output.public_metadata, context): undefined,
                                       } as any;
                                     }
@@ -2173,8 +2173,8 @@ const deserializeAws_restJson1CreatePartyCommandError = async(
                                       context: __SerdeContext
                                     ): PartyPublicity => {
                                       return {
-                                        friends: __expectString(output.friends),
                                         groups: __expectString(output.groups),
+                                        mutualFollowers: __expectString(output.mutual_followers),
                                         public: __expectString(output.public),
                                       } as any;
                                     }

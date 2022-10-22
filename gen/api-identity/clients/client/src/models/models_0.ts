@@ -330,9 +330,9 @@ export interface IdentityGameActivity {
   publicMetadata?: __DocumentType;
 
   /**
-   * JSON data seen only by the given identity and their friends.
+   * JSON data seen only by the given identity and their mutual followers.
    */
-  friendMetadata?: __DocumentType;
+  mutualMetadata?: __DocumentType;
 }
 
 export namespace IdentityGameActivity {
@@ -659,7 +659,7 @@ export enum PartyPublicityLevel {
 
 export interface PartyPublicity {
   public: PartyPublicityLevel | string | undefined;
-  friends: PartyPublicityLevel | string | undefined;
+  mutualFollowers: PartyPublicityLevel | string | undefined;
   groups: PartyPublicityLevel | string | undefined;
 }
 
@@ -896,6 +896,40 @@ export namespace ListActivitiesOutput {
         IdentityHandle.filterSensitiveLog(item)
       )
     }),
+  })
+}
+
+export interface CancelGameLinkInput {
+  /**
+   * A JSON Web Token.
+   *
+   * Slightly modified to include a description prefix and use Protobufs of
+   * JSON.
+   */
+  identityLinkToken: string | undefined;
+}
+
+export namespace CancelGameLinkInput {
+  /**
+   * @internal
+   */
+  export const filterSensitiveLog = (obj: CancelGameLinkInput): any => ({
+    ...obj,
+    ...(obj.identityLinkToken && { identityLinkToken:
+      SENSITIVE_STRING
+    }),
+  })
+}
+
+export interface CancelGameLinkOutput {
+}
+
+export namespace CancelGameLinkOutput {
+  /**
+   * @internal
+   */
+  export const filterSensitiveLog = (obj: CancelGameLinkOutput): any => ({
+    ...obj,
   })
 }
 
@@ -2179,19 +2213,19 @@ export interface IdentityProfile {
   followingCount: number | undefined;
 
   /**
-   * Whether or not this identity is a friend of the requestee's identity.
+   * Whether or not the requestee's identity is following this identity.
    */
-  isMyFriend: boolean | undefined;
+  following: boolean | undefined;
 
   /**
-   * Whether or not this identity is friended by the requestee's identity.
+   * Whether or not this identity following the requestee's identity.
    */
-  isTheirFriend: boolean | undefined;
+  isFollowingMe: boolean | undefined;
 
   /**
-   * Whether or not this identity is both friended by and a friend of the requestee's identity.
+   * Whether or not this identity is both followng and is followed by the requestee's identity.
    */
-  isMutualFriend: boolean | undefined;
+  isMutualFollowing: boolean | undefined;
 
   /**
    * RFC3339 timestamp.
@@ -2829,9 +2863,9 @@ export namespace GetGameLinkNewIdentity {
 }
 
 export enum GameLinkStatus {
+  CANCELLED = "cancelled",
   COMPLETE = "complete",
   INCOMPLETE = "incomplete",
-  REVOKED = "revoked",
 }
 
 export interface GetGameLinkOutput {
@@ -2844,6 +2878,11 @@ export interface GetGameLinkOutput {
    * A game handle.
    */
   game: GameHandle | undefined;
+
+  /**
+   * The current game user identity which created this game link.
+   */
+  currentIdentity: IdentityHandle | undefined;
 
   /**
    * If `status` is `GameLinkStatus$COMPLETE`, this will return the new
@@ -2863,8 +2902,49 @@ export namespace GetGameLinkOutput {
    */
   export const filterSensitiveLog = (obj: GetGameLinkOutput): any => ({
     ...obj,
+    ...(obj.currentIdentity && { currentIdentity:
+      IdentityHandle.filterSensitiveLog(obj.currentIdentity)
+    }),
     ...(obj.newIdentity && { newIdentity:
       GetGameLinkNewIdentity.filterSensitiveLog(obj.newIdentity)
+    }),
+  })
+}
+
+export interface GetIdentityHandlesInput {
+  /**
+   * A list of identity IDs.
+   */
+  identityIds: (string)[] | undefined;
+}
+
+export namespace GetIdentityHandlesInput {
+  /**
+   * @internal
+   */
+  export const filterSensitiveLog = (obj: GetIdentityHandlesInput): any => ({
+    ...obj,
+  })
+}
+
+export interface GetIdentityHandlesOutput {
+  /**
+   * A list of identity handles.
+   */
+  identities: (IdentityHandle)[] | undefined;
+}
+
+export namespace GetIdentityHandlesOutput {
+  /**
+   * @internal
+   */
+  export const filterSensitiveLog = (obj: GetIdentityHandlesOutput): any => ({
+    ...obj,
+    ...(obj.identities && { identities:
+      obj.identities.map(
+        item =>
+        IdentityHandle.filterSensitiveLog(item)
+      )
     }),
   })
 }
@@ -2950,6 +3030,123 @@ export namespace GetIdentitySelfProfileOutput {
     ...obj,
     ...(obj.identity && { identity:
       IdentityProfile.filterSensitiveLog(obj.identity)
+    }),
+  })
+}
+
+export interface GetIdentitySummariesInput {
+  /**
+   * A list of identity IDs.
+   */
+  identityIds: (string)[] | undefined;
+}
+
+export namespace GetIdentitySummariesInput {
+  /**
+   * @internal
+   */
+  export const filterSensitiveLog = (obj: GetIdentitySummariesInput): any => ({
+    ...obj,
+  })
+}
+
+/**
+ * An identity summary.
+ */
+export interface IdentitySummary {
+  /**
+   * A universally unique identifier.
+   */
+  identityId: string | undefined;
+
+  /**
+   * Represent a resource's readable display name.
+   */
+  displayName: string | undefined;
+
+  /**
+   * Identity profile account number (#1234).
+   *
+   * These are assigned in addition to an identity's display name in order to
+   * allow multiple identities to have the same display name while still
+   * providing a unique handle.
+   *
+   * These are unique to each display name; you can have multiple accounts with
+   * different display names and the same account number.
+   */
+  accountNumber: number | undefined;
+
+  /**
+   * The URL of this identity's avatar image.
+   */
+  avatarUrl: string | undefined;
+
+  /**
+   * Information about the identity's current status, party, and active game.
+   */
+  presence?: IdentityPresence;
+
+  /**
+   * A party handle.
+   */
+  party?: PartyHandle;
+
+  /**
+   * Whether or not this identity is registered with a linked account.
+   */
+  isRegistered: boolean | undefined;
+
+  /**
+   * External links for an identity.
+   */
+  external: IdentityExternalLinks | undefined;
+
+  /**
+   * Whether or not the requestee's identity is following this identity.
+   */
+  following: boolean | undefined;
+
+  /**
+   * Whether or not this identity following the requestee's identity.
+   */
+  isFollowingMe: boolean | undefined;
+
+  /**
+   * Whether or not this identity is both followng and is followed by the requestee's identity.
+   */
+  isMutualFollowing: boolean | undefined;
+}
+
+export namespace IdentitySummary {
+  /**
+   * @internal
+   */
+  export const filterSensitiveLog = (obj: IdentitySummary): any => ({
+    ...obj,
+    ...(obj.party && { party:
+      PartyHandle.filterSensitiveLog(obj.party)
+    }),
+  })
+}
+
+export interface GetIdentitySummariesOutput {
+  /**
+   * A list of identity summaries.
+   */
+  identities: (IdentitySummary)[] | undefined;
+}
+
+export namespace GetIdentitySummariesOutput {
+  /**
+   * @internal
+   */
+  export const filterSensitiveLog = (obj: GetIdentitySummariesOutput): any => ({
+    ...obj,
+    ...(obj.identities && { identities:
+      obj.identities.map(
+        item =>
+        IdentitySummary.filterSensitiveLog(item)
+      )
     }),
   })
 }
@@ -3182,6 +3379,36 @@ export namespace RemoveIdentityGameActivityOutput {
   })
 }
 
+export interface ReportIdentityInput {
+  /**
+   * A universally unique identifier.
+   */
+  identityId: string | undefined;
+
+  reason?: string;
+}
+
+export namespace ReportIdentityInput {
+  /**
+   * @internal
+   */
+  export const filterSensitiveLog = (obj: ReportIdentityInput): any => ({
+    ...obj,
+  })
+}
+
+export interface ReportIdentityOutput {
+}
+
+export namespace ReportIdentityOutput {
+  /**
+   * @internal
+   */
+  export const filterSensitiveLog = (obj: ReportIdentityOutput): any => ({
+    ...obj,
+  })
+}
+
 export interface SearchIdentitiesInput {
   /**
    * The query to match identity display names and account numbers against.
@@ -3251,9 +3478,9 @@ export interface UpdateIdentityGameActivity {
   publicMetadata?: __DocumentType;
 
   /**
-   * JSON data seen only by the given identity and their friends.
+   * JSON data seen only by the given identity and their mutual followers.
    */
-  friendMetadata?: __DocumentType;
+  mutualMetadata?: __DocumentType;
 }
 
 export namespace UpdateIdentityGameActivity {
@@ -3346,6 +3573,11 @@ export interface SetupIdentityOutput {
    * Information about the identity that was just authenticated.
    */
   identity: IdentityProfile | undefined;
+
+  /**
+   * A universally unique identifier.
+   */
+  gameId: string | undefined;
 }
 
 export namespace SetupIdentityOutput {

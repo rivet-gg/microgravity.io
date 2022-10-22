@@ -300,7 +300,7 @@ class GameClient extends Game {
 
 		// Remove game activity on unload
 		window.addEventListener('unload', () => {
-			if (this.identity?.presence?.gameActivity?.game.gameId == 'TODO') {
+			if (this.identity?.presence?.gameActivity?.game.gameId == this.identityManager.gameId) {
 				this.identityManager.service.removeIdentityGameActivity({});
 			}
 		});
@@ -582,7 +582,7 @@ class GameClient extends Game {
 
 			data: {
 				// Utils
-				// game: game,
+				game: game,
 				assets: assets,
 				utils: utils,
 				config: config,
@@ -714,11 +714,8 @@ class GameClient extends Game {
 				async friendParty(friend) {
 					// TODO:
 				},
-				async friendOpenChat(friend) {
-					window.open(`https://rivet.gg/identities/${friend.id}/chat`, '_blank');
-				},
 				async friendJoin(friend) {
-					game.findLobby(friend.presence.gameActivity.friendMetadata['lobbyId']);
+					game.findLobby(friend.presence.gameActivity.mutualMetadata['lobbyId']);
 				},
 
 				// Build
@@ -1719,18 +1716,15 @@ class GameClient extends Game {
 		);
 		let shakenViewportX = this.viewportX + (Math.random() - 0.5) * shakeMagnitude;
 		let shakenViewportY = this.viewportY + (Math.random() - 0.5) * shakeMagnitude;
-
 		// Translate drawing to center of viewport and scale to have a static height
 		let s = this.worldScale;
 		ctx.translate(this.width / 2, this.height / 2);
 		ctx.scale(s, s);
 		ctx.translate(-shakenViewportX, -shakenViewportY);
-
 		// Draw star field
 		if (settings.stars) {
 			this.starField.render(ctx, dt, this.viewWidth, this.viewHeight, this.viewportX, this.viewportY);
 		}
-
 		// Draw the entities
 		let layers = Object.keys(this.renderLayers)
 			.map(l => parseFloat(l))
@@ -1746,7 +1740,6 @@ class GameClient extends Game {
 				ctx.restore();
 			}
 		}
-
 		// Draw border; we use just a portion of an arc, since the border is huge, to save render calls
 		let arcSize = Math.PI * 0.08;
 		let viewAngle = Math.atan2(this.viewportY, this.viewportX);
@@ -1756,32 +1749,26 @@ class GameClient extends Game {
 		ctx.arc(0, 0, config.mapSize / 2, viewAngle - arcSize / 2, viewAngle + arcSize / 2);
 		ctx.stroke();
 		ctx.restore();
-
 		// Draw explosions
 		ctx.save();
 		this.explosionManager.render(ctx, dt);
 		ctx.restore();
-
 		// Draw text
 		ctx.save();
 		this.textPopupManager.render(ctx, dt);
 		ctx.restore();
-
 		// Draw chat messages
 		ctx.save();
 		let fontSize = 40;
 		ctx.font = utils.generateFont(fontSize);
 		for (let entityId in this.chatMessages) {
 			let entity = this.entityForId(entityId);
-
 			let [text, clientId, username, msgX, msgY, sendTime] = this.chatMessages[entityId];
-
 			// Check if message should be removed
 			if ((Date.now() - sendTime) / 1000 > this.chatShowTime) {
 				delete this.chatMessages[entityId];
 				continue;
 			}
-
 			// Determine if the entity is visible
 			let entityVisible = false;
 			if (entity) {
@@ -1795,24 +1782,20 @@ class GameClient extends Game {
 					y > this.viewportY - viewHeight / 2 &&
 					y < this.viewportY + viewHeight / 2;
 			}
-
 			// Add username to message if entity not visible
 			if (!entityVisible) {
 				text = `${username}: ${text}`;
 			}
-
 			// Text properties
 			let paddingX = 30;
 			let paddingY = 10;
 			let messageWidth = ctx.measureText(text).width;
 			let messageHeight = fontSize;
-
 			// Render the message
 			if (entityVisible) {
 				// Render in place
 				let x = entity.x;
 				let y = -entity.y + entity.radius + fontSize;
-
 				// Draw background
 				ctx.save();
 				ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
@@ -1823,7 +1806,6 @@ class GameClient extends Game {
 					messageHeight + paddingY
 				);
 				ctx.restore();
-
 				// Draw text
 				ctx.save();
 				ctx.fillStyle = 'white';
@@ -1839,7 +1821,6 @@ class GameClient extends Game {
 				let messageDistance = (config.viewportHeight * this.viewDistanceMultiplier) / 2 - 200;
 				let x = this.viewportX + Math.cos(messageAngle) * messageDistance;
 				let y = this.viewportY + Math.sin(messageAngle) * messageDistance;
-
 				// Draw triangle
 				let baseSize = 36;
 				let height = 27;
@@ -1852,10 +1833,8 @@ class GameClient extends Game {
 				ctx.lineTo(height / 2, 0);
 				ctx.fill();
 				ctx.restore();
-
 				// Offset text
 				y += fontSize * 2;
-
 				// Draw background
 				ctx.save();
 				ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
@@ -1866,7 +1845,6 @@ class GameClient extends Game {
 					messageHeight + paddingY
 				);
 				ctx.restore();
-
 				// Draw text
 				ctx.save();
 				ctx.fillStyle = 'white';
@@ -1875,18 +1853,15 @@ class GameClient extends Game {
 			}
 		}
 		ctx.restore();
-
 		// Draw the debug layer
 		if (config.debugLayer) {
 			// Set style
 			ctx.strokeStyle = 'red';
 			ctx.fillStyle = 'red';
 			ctx.lineWidth = 1;
-
 			// Draw entities
 			for (let entityId in this.entities) {
 				let entity = this.entities[entityId];
-
 				// Move to entity position and render
 				ctx.save();
 				ctx.translate(entity.x, -entity.y);
@@ -1894,7 +1869,6 @@ class GameClient extends Game {
 				entity.debugRender(ctx);
 				ctx.restore();
 			}
-
 			// Draw view box
 			ctx.save();
 			ctx.translate(this.viewportX, this.viewportY);
@@ -1906,7 +1880,6 @@ class GameClient extends Game {
 			);
 			ctx.restore();
 		}
-
 		// Update control panel
 		if (this.updateIndex % 10 === 0) {
 			this.updateControlPanel();
