@@ -114,7 +114,7 @@ jobs:
       - name: Create Version
         id: create_version
         run: |
-          VERSION_ID="$(rivet --cloud-token "${{ secrets.RIVET_CLOUD_TOKEN }}" version create --display-name "${{ steps.consts.outputs.git_branch }} (${{ steps.consts.outputs.git_sha_short }})" -o "cdn.site=\"${{ needs.push_site.outputs.site_id }}\"" -o "matchmaker.docker.build=\"${{ needs.push_build.outputs.build_id }}\"" --format json | jq -r '.version_id')"
+          VERSION_ID="$(rivet --cloud-token "${{ secrets.RIVET_CLOUD_TOKEN }}" version create --namespace "${{ steps.consts.outputs.git_branch }}" --display-name "${{ steps.consts.outputs.git_branch }} (${{ steps.consts.outputs.git_sha_short }})" -o "cdn.site=\"${{ needs.push_site.outputs.site_id }}\"" -o "matchmaker.docker.build=\"${{ needs.push_build.outputs.build_id }}\"" --format json | jq -r '.version_id')"
           echo "::set-output name=version_id::$VERSION_ID"
 
       - name: Create Namespace
