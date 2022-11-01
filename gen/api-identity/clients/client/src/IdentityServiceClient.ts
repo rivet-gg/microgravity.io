@@ -1,5 +1,9 @@
 // smithy-typescript generated code
 import {
+  CancelGameLinkCommandInput,
+  CancelGameLinkCommandOutput,
+} from "./commands/CancelGameLinkCommand";
+import {
   CompleteGameLinkCommandInput,
   CompleteGameLinkCommandOutput,
 } from "./commands/CompleteGameLinkCommand";
@@ -16,6 +20,10 @@ import {
   GetGameLinkCommandOutput,
 } from "./commands/GetGameLinkCommand";
 import {
+  GetIdentityHandlesCommandInput,
+  GetIdentityHandlesCommandOutput,
+} from "./commands/GetIdentityHandlesCommand";
+import {
   GetIdentityProfileCommandInput,
   GetIdentityProfileCommandOutput,
 } from "./commands/GetIdentityProfileCommand";
@@ -23,6 +31,10 @@ import {
   GetIdentitySelfProfileCommandInput,
   GetIdentitySelfProfileCommandOutput,
 } from "./commands/GetIdentitySelfProfileCommand";
+import {
+  GetIdentitySummariesCommandInput,
+  GetIdentitySummariesCommandOutput,
+} from "./commands/GetIdentitySummariesCommand";
 import {
   ListActivitiesCommandInput,
   ListActivitiesCommandOutput,
@@ -51,6 +63,10 @@ import {
   RemoveIdentityGameActivityCommandInput,
   RemoveIdentityGameActivityCommandOutput,
 } from "./commands/RemoveIdentityGameActivityCommand";
+import {
+  ReportIdentityCommandInput,
+  ReportIdentityCommandOutput,
+} from "./commands/ReportIdentityCommand";
 import {
   SearchIdentitiesCommandInput,
   SearchIdentitiesCommandOutput,
@@ -138,12 +154,15 @@ import {
 import { middleware as __middleware } from "@rivet-gg/common";
 
 export type ServiceInputTypes =
+  | CancelGameLinkCommandInput
   | CompleteGameLinkCommandInput
   | CompleteIdentityAvatarUploadCommandInput
   | FollowIdentityCommandInput
   | GetGameLinkCommandInput
+  | GetIdentityHandlesCommandInput
   | GetIdentityProfileCommandInput
   | GetIdentitySelfProfileCommandInput
+  | GetIdentitySummariesCommandInput
   | ListActivitiesCommandInput
   | ListFollowersCommandInput
   | ListFollowingCommandInput
@@ -151,6 +170,7 @@ export type ServiceInputTypes =
   | PrepareGameLinkCommandInput
   | PrepareIdentityAvatarUploadCommandInput
   | RemoveIdentityGameActivityCommandInput
+  | ReportIdentityCommandInput
   | SearchIdentitiesCommandInput
   | SetIdentityGameActivityCommandInput
   | SetupIdentityCommandInput
@@ -162,12 +182,15 @@ export type ServiceInputTypes =
   | WatchEventsCommandInput;
 
 export type ServiceOutputTypes =
+  | CancelGameLinkCommandOutput
   | CompleteGameLinkCommandOutput
   | CompleteIdentityAvatarUploadCommandOutput
   | FollowIdentityCommandOutput
   | GetGameLinkCommandOutput
+  | GetIdentityHandlesCommandOutput
   | GetIdentityProfileCommandOutput
   | GetIdentitySelfProfileCommandOutput
+  | GetIdentitySummariesCommandOutput
   | ListActivitiesCommandOutput
   | ListFollowersCommandOutput
   | ListFollowingCommandOutput
@@ -175,6 +198,7 @@ export type ServiceOutputTypes =
   | PrepareGameLinkCommandOutput
   | PrepareIdentityAvatarUploadCommandOutput
   | RemoveIdentityGameActivityCommandOutput
+  | ReportIdentityCommandOutput
   | SearchIdentitiesCommandOutput
   | SetIdentityGameActivityCommandOutput
   | SetupIdentityCommandOutput

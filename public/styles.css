@@ -284,6 +284,7 @@ select {
 
 .friendItem .friendActions .action {
 	color: white;
+	padding: 4px;
 	background: none;
 }
 

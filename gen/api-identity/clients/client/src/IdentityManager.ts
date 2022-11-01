@@ -98,17 +98,21 @@ export class IdentityManagerBuilder {
 	}
 
 	async build(): Promise<IdentityManager> {
+		let gameId: string | undefined;
+
 		if (typeof this.config.service === "undefined") {
 			let initService = new IdentityService({
 				endpoint: this.config.endpoint,
 				token: this.config.token,
 			});
 
-			let { identityToken } = await initService.setupIdentity({
-				existingIdentityToken: this.config.token ?? fetchToken(),
-			});
+			let { identityToken, gameId: resGameId } =
+				await initService.setupIdentity({
+					existingIdentityToken: fetchToken(),
+				});
 			saveToken(identityToken!);
 			this.config.token = identityToken;
+			gameId = resGameId;
 
 			this.config.service = new IdentityService({
 				endpoint: this.config.endpoint,
@@ -116,7 +120,7 @@ export class IdentityManagerBuilder {
 			});
 		}
 
-		let manager = new IdentityManager(this.config);
+		let manager = new IdentityManager(this.config, gameId);
 		manager.initiate();
 
 		return manager;
@@ -127,6 +131,7 @@ export class IdentityManager {
 	service: IdentityService;
 	token?: string;
 	endpoint?: string;
+	gameId?: string;
 
 	private identityUpdateHandler?: IdentityManagerConfig["identityUpdateHandler"];
 	private chatMessageHandler?: IdentityManagerConfig["chatMessageHandler"];
@@ -138,10 +143,11 @@ export class IdentityManager {
 	private gameLinkStream?: RepeatingRequest<GetGameLinkCommandOutput>;
 	private eventStream?: RepeatingRequest<WatchEventsCommandOutput>;
 
-	constructor(opts: IdentityManagerConfig) {
+	constructor(opts: IdentityManagerConfig, gameId?: string) {
 		this.service = opts.service!;
 		this.token = opts.token;
 		this.endpoint = opts.endpoint;
+		this.gameId = gameId;
 
 		this.identityUpdateHandler = opts.identityUpdateHandler;
 		this.chatMessageHandler = opts.chatMessageHandler;
@@ -229,6 +235,10 @@ export class IdentityManager {
 		this.initiate();
 	}
 
+	logout() {
+		deleteToken();
+	}
+
 	async startGameLink(
 		completeCb: (res: GetGameLinkCommandOutput) => void
 	): Promise<PrepareGameLinkCommandOutput | undefined> {
@@ -258,9 +268,9 @@ export class IdentityManager {
 		this.gameLinkStream.onMessage((res) => {
 			if (
 				res.status == GameLinkStatus.COMPLETE ||
-				res.status == GameLinkStatus.REVOKED
+				res.status == GameLinkStatus.CANCELLED
 			) {
-				// Cancel stream when complete or revoked
+				// Cancel stream when complete or cancelled
 				this.gameLinkStream!.cancel();
 
 				if (res.status == GameLinkStatus.COMPLETE) {
@@ -296,4 +306,10 @@ function saveToken(token: string) {
 	if (typeof window === "undefined") return;
 
 	window.localStorage.setItem("rivet:token", token);
+}
+
+function deleteToken() {
+	if (typeof window === "undefined") return;
+
+	window.localStorage.removeItem("rivet:token");
 }
