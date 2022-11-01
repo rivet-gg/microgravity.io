@@ -50,7 +50,7 @@ export interface CreatePartyPublicityConfig {
   /**
    * Defaults to `rivet.party#PartyPublicityLevel$JOIN`.
    */
-  friends?: PartyPublicityLevel | string;
+  mutualFollowers?: PartyPublicityLevel | string;
 
   /**
    * Defaults to `rivet.party#PartyPublicityLevel$VIEW`.
@@ -528,9 +528,9 @@ export interface IdentityGameActivity {
   publicMetadata?: __DocumentType;
 
   /**
-   * JSON data seen only by the given identity and their friends.
+   * JSON data seen only by the given identity and their mutual followers.
    */
-  friendMetadata?: __DocumentType;
+  mutualMetadata?: __DocumentType;
 }
 
 export namespace IdentityGameActivity {
@@ -851,7 +851,7 @@ export namespace PartyMemberSummary {
 
 export interface PartyPublicity {
   public: PartyPublicityLevel | string | undefined;
-  friends: PartyPublicityLevel | string | undefined;
+  mutualFollowers: PartyPublicityLevel | string | undefined;
   groups: PartyPublicityLevel | string | undefined;
 }
 
@@ -1525,7 +1525,7 @@ export interface SetPartyPublicityInput {
   /**
    * Defaults to `rivet.party#PartyPublicityLevel$JOIN`.
    */
-  friends?: PartyPublicityLevel | string;
+  mutualFollowers?: PartyPublicityLevel | string;
 
   /**
    * Defaults to `rivet.party#PartyPublicityLevel$VIEW`.
