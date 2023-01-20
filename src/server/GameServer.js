@@ -217,7 +217,7 @@ class GameServer extends Game {
 			.map(client => {
 				return [
 					client.id,
-					client.identity ? client.identity.id : null,
+					client.identity ? client.identity.identityId : null,
 					client.alliance ? client.alliance.id : null,
 					client.identity ? client.identity.displayName : client.username,
 					client.score

@@ -255,41 +255,95 @@ select {
 	opacity: 0.65;
 }
 
-.friendItem {
+.identityHandle {
+	position: relative;
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
 	align-items: center;
 	margin-bottom: 8px;
+
+	padding: 5px 6px 5px 5px;
+	border-radius: 5px;
+	background-color: rgba(255, 255, 255, 0.09);
+
+	transition: background-color 0.25s, transform 0.25s;
 }
 
-.friendItem .friendUsername {
+.identityHandle.vertical {
+	flex-direction: column;
+	justify-content: unset;
+	align-items: unset;
+}
+
+.identityHandle:hover {
+	background-color: rgba(255, 255, 255, 0.09);
+	transform: translateY(-1px);
+}
+
+.identityHandle .identityLink {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 2;
+}
+
+.identityHandle .identityContent {
+	min-width: 0;
+	position: relative;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	max-width: 100%;
+}
+
+.identityHandle .identityContent img {
+	width: 30px;
+	height: 30px;
+	border-radius: 4px;
+	margin-right: 6px;
+}
+
+.identityHandle .identityContent .identityUsername {
+	position: relative;
+	margin: 0;
 	font-size: 22px;
 	text-overflow: ellipsis;
 	overflow: hidden;
 	white-space: nowrap;
+	z-index: 1;
 }
 
-.friendItem .friendUsername:hover {
-	text-decoration: underline;
+.identityHandle .identityContent .identityUsername span {
+	opacity: 0.6;
 }
 
-.friendItem .friendActions {
+.identityHandle .identityActions {
+	position: relative;
 	display: flex;
 	flex-direction: row;
 	align-items: center;
+	justify-content: center;
+	z-index: 2;
+	margin-left: 4px;
 
 	font-size: 24px;
 }
 
-.friendItem .friendActions .action {
+.identityHandle .identityActions.smaller {
+	font-size: 18px;
+}
+
+.identityHandle .identityActions .action {
 	color: white;
 	padding: 4px;
 	background: none;
 }
 
-.friendItem .friendActions .action:not(:last-child) {
-	margin-right: 11px;
+.identityHandle .identityActions .action:not(:last-child) {
+	margin: 0 11px 0 0;
 }
 
 #account {
@@ -1261,14 +1315,14 @@ select {
 }
 
 #partyOverlay {
+	display: none;
 	box-sizing: border-box;
 	position: absolute;
 	left: 10px;
 	top: 10px;
-	width: 220px;
+	width: 250px;
 	padding: 10px;
 
-	display: flex;
 	flex-direction: column;
 
 	background: rgba(0, 0, 0, 0.5);
@@ -1276,39 +1330,7 @@ select {
 
 .inGame #partyOverlay {
 	left: 160px;
-}
-
-#partyMembers {
-	margin-bottom: 10px;
-
-	display: flex;
-	flex-direction: column;
-}
-
-.partyMember {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-
-	height: 25px;
-}
-
-.partyMemberName {
-	flex: 1;
-	pointer-events: all;
-	font-size: 16px;
-}
-
-.partyMember .button {
-	font-size: 12px;
-}
-
-.partyMember .button:not(:first-child) {
-	margin-left: 5px;
-}
-
-.partyMemberName:hover {
-	text-decoration: underline;
+	width: 240px;
 }
 
 #partyActions {

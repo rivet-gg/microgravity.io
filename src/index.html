@@ -320,11 +320,15 @@
 						<div style="margin-top: 10px">&copy; 2022 Rivet Gaming, LLC</div>
 					</div>
 					<div id="friends" v-show="activeMenu == config.activeMenu.FRIENDS">
-						<div v-for="item in friends" class="friendItem">
-							<a class="friendUsername" :href="item.external.profile" target="_blank"
-								>{{ item.displayName }}</a
-							>
-							<div class="friendActions">
+						<div v-for="item in friends" class="identityHandle">
+							<a class="identityLink" :href="item.external.profile" target="_blank"></a>
+							<div class="identityContent">
+								<img :src="item.avatarUrl" />
+								<h2 class="identityUsername">
+									{{ item.displayName }}<span>#{{ item.accountNumber }}</span>
+								</h2>
+							</div>
+							<div class="identityActions">
 								<div class="button action matIcon" @click="friendParty(item)">
 									celebration
 								</div>
@@ -348,18 +352,21 @@
 						></div>
 					</div>
 					<div id="account" v-show="activeMenu == config.activeMenu.ACCOUNT" v-if="!!identity">
-						<a
-							id="viewAccountButton"
-							class="button translate"
-							target="_blank"
-							v-t="'view-account-title'"
-							:href="identity.external.profile"
-						></a>
-						<div class="translate">
+						<div class="identityHandle">
+							<a class="identityLink" :href="identity.external.profile" target="_blank"></a>
+							<div class="identityContent">
+								<img :src="identity.avatarUrl" />
+								<h2 class="identityUsername">
+									{{ identity.displayName }}<span>#{{ identity.accountNumber }}</span>
+								</h2>
+							</div>
+						</div>
+						<div class="translate" v-if="!identity.isRegistered">
 							<div v-t="'link-account'"></div>
 						</div>
 						<button
 							id="linkAccountButton"
+							v-if="!identity.isRegistered"
 							class="button translate"
 							v-t="'link-account-title'"
 							@click="startGameLink()"
@@ -417,7 +424,7 @@
 							class="leaderboardItem"
 							:class="{
 								isMine: item.isMine,
-								isFriend: item.identity?.isMyFriend && item.identity?.isTheirFriend,
+								isFriend: item.identity?.isMutualFollowing,
 							}"
 						>
 							<div class="leaderboardRank">{{ item.rank }}</div>
@@ -441,13 +448,13 @@
 								@click="friendAction(item)"
 							>
 								<h3
-									v-if="!item.identity?.isMyFriend"
+									v-if="!item.identity?.following"
 									class="translate"
 									v-t="'add-friend'"
 								></h3>
 								<h3 v-else class="translate" v-t="'remove-friend'"></h3>
 								<div class="matIcon">
-									{{item.identity?.isMyFriend ? 'person_remove' : 'person_add'}}
+									{{item.identity?.following ? 'person_remove' : 'person_add'}}
 								</div>
 							</div>
 						</div>
@@ -604,37 +611,42 @@
 			</div>
 
 			<div id="partyOverlay">
-				<div v-if="party != null" id="partyMembers">
-					<div v-for="member in party.members" class="partyMember">
-						<a
-							class="partyMemberName"
-							target="_blank"
-							:href="`https://rivet.gg/identities/${member.id}`"
-							>{{member.identity.displayName}} [{{Object.keys(member.state)[0]}}]</a
-						>
-						<div
-							v-if="isPartyLeader && !member.isLeader"
-							class="translate button compact"
-							v-t="'kick-party-member'"
-							@click="kickPartyMember(member)"
-						></div>
-						<div
-							v-if="isPartyLeader && !member.isLeader"
-							class="translate button compact"
-							v-t="'transfer-party-member'"
-							@click="transferParty(member)"
-						></div>
+				<div v-if="identity?.party != null" id="partyMembers">
+					<div v-for="member in identity.party.members" class="identityHandle vertical">
+						<a class="identityLink" :href="member.identity.external.profile" target="_blank"></a>
+						<div class="identityContent">
+							<img :src="member.identity.avatarUrl" />
+							<h2 class="identityUsername">
+								{{ member.identity.displayName }}<span
+									>#{{ member.identity.accountNumber }}</span
+								>
+							</h2>
+						</div>
+						<div class="identityActions smaller">
+							<div
+								v-if="isPartyLeader && !member.isLeader"
+								class="translate button action"
+								v-t="'kick-party-member'"
+								@click="kickPartyMember(member)"
+							></div>
+							<div
+								v-if="isPartyLeader && !member.isLeader"
+								class="translate button action"
+								v-t="'transfer-party-member'"
+								@click="transferParty(member)"
+							></div>
+						</div>
 					</div>
 				</div>
 				<div id="partyActions">
 					<div
-						v-if="party == null"
+						v-if="identity?.party == null"
 						class="translate button compact"
 						v-t="'create-party'"
 						@click="createParty()"
 					></div>
 					<div
-						v-if="party != null"
+						v-if="identity?.party != null"
 						class="translate button compact"
 						v-t="'leave-party'"
 						@click="leaveParty()"

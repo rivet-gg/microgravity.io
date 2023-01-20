@@ -195,6 +195,7 @@ class GameClient extends Game {
 		/** @type {Map<string, identity.IdentityProfile>} */ this.identities = new Map();
 		/** @type {Set<string>} */ this.fetchedIdentities = new Set();
 		/** @type {identity.IdentityHandle[]} */ this.friends = [];
+		/** @type {party.CreatedInvite[]} */ this.partyInvites = [];
 
 		this.recognition = null;
 
@@ -285,8 +286,14 @@ class GameClient extends Game {
 
 					this.identity = identity;
 					this.vue.identity = this.identity;
-					this.fetchedIdentities.add(this.identity.id);
-					this.identities.set(this.identity.id, this.identity);
+					this.fetchedIdentities.add(this.identity.identityId);
+					this.identities.set(this.identity.identityId, this.identity);
+				})
+				.onPartyUpdate(party => {
+					if (this.identity) this.identity.party = party;
+
+					// Clear party invites
+					if (!party) this.partyInvites = [];
 				})
 				.onNotification((notification, eventKind) => {
 					if (eventKind.chatMessage) {
@@ -347,6 +354,9 @@ class GameClient extends Game {
 				});
 		}
 
+		// Fetch party invites
+		this.fetchPartyInvites();
+
 		// Join lobby
 		this.findLobby(this.autoJoinLobbyId);
 		this.autoJoinLobbyId = null;
@@ -358,7 +368,7 @@ class GameClient extends Game {
 		let gameModes = [settings.getString('gameMode', 'classic')];
 		let regions = settings.has('region') ? [settings.getString('region')] : null;
 
-		if (this.party) {
+		if (this.identity?.party) {
 			if (lobbyId) {
 				console.log('Joining party lobby', lobbyId);
 
@@ -590,6 +600,7 @@ class GameClient extends Game {
 				identityApi: this.identityApi,
 				identity: this.identity,
 				identities: this.identities,
+				fetchedIdentities: this.fetchedIdentities,
 				friends: this.friends,
 
 				// Languages
@@ -645,10 +656,7 @@ class GameClient extends Game {
 				showingBuildGroup: null,
 
 				// Notifications
-				notifications: [],
-
-				// Party
-				party: null
+				notifications: []
 			},
 
 			methods: {
@@ -688,24 +696,21 @@ class GameClient extends Game {
 				},
 				async friendAction(leaderboardItem) {
 					try {
-						if (this.identities.has(leaderboardItem.identity.id)) {
-							let identity = this.identities.get(leaderboardItem.identity.id);
+						if (this.identities.has(leaderboardItem.identity.identityId)) {
+							let identity = this.identities.get(leaderboardItem.identity.identityId);
 
-							if (!identity.isMyFriend) {
+							if (!identity.following) {
 								await game.identityManager.service.followIdentity({
-									identityId: leaderboardItem.identity.id
+									identityId: leaderboardItem.identity.identityId
 								});
 							} else {
 								await game.identityManager.service.unfollowIdentity({
-									identityId: leaderboardItem.identity.id
+									identityId: leaderboardItem.identity.identityId
 								});
 							}
 
 							// Update identity
-							let res = await game.identityManager.service.getIdentityProfile({
-								identityId: leaderboardItem.identity.id
-							});
-							this.identities.set(res.identity.id, res.identity);
+							this.fetchedIdentities.delete(leaderboardItem.identity.identityId);
 						}
 					} catch (err) {
 						console.error(err);
@@ -885,19 +890,20 @@ class GameClient extends Game {
 				},
 				transferParty(member) {
 					game.partyApi.transferPartyOwnership({
-						identityId: member.identity.id
+						identityId: member.identity.identityId
 					});
 				},
 				kickPartyMember(member) {
 					game.partyApi.kickMember({
-						identityId: member.identity.id
+						identityId: member.identity.identityId
 					});
 				},
-				createParty() {
-					game.partyApi.createParty({
+				async createParty() {
+					await game.partyApi.createParty({
 						partySize: 8,
 						invites: [{ alias: utils.generateRandomCode() }]
 					});
+					game.fetchPartyInvites();
 				},
 				leaveParty() {
 					game.partyApi.leaveParty({});
@@ -959,8 +965,11 @@ class GameClient extends Game {
 
 				// Party
 				isPartyLeader() {
-					if (this.party)
-						return this.party.members.find(x => x.isLeader)?.identity.id == this.identity?.id;
+					if (this.identity?.party)
+						return (
+							this.identity.party.members.find(x => x.isLeader)?.identity.identityId ==
+							this.identity?.identityId
+						);
 					else return false;
 				}
 			},
@@ -1000,14 +1009,14 @@ class GameClient extends Game {
 
 		// Share link button
 		new ClipboardJS('#shareLobby', {
-			text: () => `${location.origin}/?l=${lobby.lobbyId}`
+			text: () => `${location.origin}/?l=${this.lobby.lobbyId}`
 		});
 		new ClipboardJS('#shareParty', {
 			text: () => {
-				if (this.party) {
-					let alias = this.party.invites.find(x => !!x.alias.alias);
+				if (this.identity?.party) {
+					let alias = this.partyInvites.find(x => !!x.alias.alias);
 					return `${location.origin}/?p=${alias.alias.alias}`;
-				}
+				} else console.warn('no party');
 			}
 		});
 
@@ -1186,17 +1195,25 @@ class GameClient extends Game {
 		}
 	}
 
-	async fetchIdentity(identityId) {
-		this.fetchedIdentities.add(identityId);
+	async fetchIdentities(identityIds) {
+		if (!identityIds.length || !this.identity) return;
+
+		identityIds.forEach(id => this.fetchedIdentities.add(id));
 
 		try {
-			let res = await this.identityManager.service.getIdentityProfile({
-				identityId: identityId
+			let res = await this.identityManager.service.getIdentitySummaries({
+				identityIds
 			});
-			this.identities.set(res.identity.id, res.identity);
+
+			res.identities.forEach(identity => this.identities.set(identity.identityId, identity));
 		} catch (err) {
 			console.error(err);
 		}
+	}
+
+	async fetchPartyInvites() {
+		let res = await this.partyApi.getPartySelfProfile({});
+		if (res.party) this.partyInvites = res.party.invites;
 	}
 
 	sendPing(pingValidation) {
@@ -2513,7 +2530,7 @@ class GameClient extends Game {
 			let [clientId, identityId, allianceId, username, score] = item;
 
 			// Fetch new player data
-			if (identityId && this.identity && !this.fetchedIdentities.has(identityId)) {
+			if (identityId && !this.fetchedIdentities.has(identityId)) {
 				newPlayers.push(identityId);
 			}
 
@@ -2529,13 +2546,13 @@ class GameClient extends Game {
 				allianceName: allianceData ? allianceData[2] : null,
 				allianceColor: allianceData ? utils.getAllianceColor(allianceData[0]) : null,
 				isMine: clientId === this.clientId,
-				isMyIdentity: this.identity ? identityId == this.identity.id : false,
+				isMyIdentity: this.identity ? identityId == this.identity.identityId : false,
 				identity: this.identities.get(identityId)
 			});
 		}
 
 		// Fetch all new identities
-		newPlayers.forEach(identityId => this.fetchIdentity(identityId));
+		this.fetchIdentities(newPlayers);
 
 		// Save data to Vue
 		this.vue.leaderboardItems = leaderboardItems;
@@ -2872,6 +2889,7 @@ class GameClient extends Game {
 		// Show/hide menu
 		let showingLoading = (!this.socketOpen || !this.initiated) && !this.socketClosed;
 		document.getElementById('loadingScreen').style.display = showingLoading ? 'flex' : 'none';
+		document.getElementById('partyOverlay').style.display = showingLoading ? 'none' : 'flex';
 		let showingDisconnect = this.socketClosed;
 		document.getElementById('disconnectScreen').style.display = showingDisconnect ? 'flex' : 'none';
 		document.getElementById('mainMenu').style.display =
@@ -3375,18 +3393,18 @@ class GameClient extends Game {
 		if (chatMessage.body.chatCreate) return;
 
 		// Don't show notification from self
-		if (chatMessage.body.text && chatMessage.body.text.sender.id == this.identity.id) {
+		if (chatMessage.body.text && chatMessage.body.text.sender.identityId == this.identity.identityId) {
 			return;
 		}
 
 		let timeoutId = window.setTimeout(
-			() => this.vue.dismissNotification(chatMessage.id),
+			() => this.vue.dismissNotification(chatMessage.chatMessageId),
 			NOTIFICATION_LIFESPAN
 		);
 
 		// Insert notification
 		this.vue.notifications.unshift({
-			id: chatMessage.id,
+			id: chatMessage.chatMessageId,
 			notification,
 			timeoutId: timeoutId,
 			isFading: false
