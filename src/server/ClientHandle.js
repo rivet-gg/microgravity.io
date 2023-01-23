@@ -76,6 +76,8 @@ class ClientHandle {
 		/** @type {boolean} */ this.isAdmin = !config.isProd; // Default to admin on dev
 
 		/** @type {?Player} */ this.player = null;
+		/** @type {number} */ this.shipIndex = null;
+		/** @type {string} */ this.shipFill = null;
 
 		/** @type {?Player} */ this.spectating = null;
 
@@ -427,6 +429,10 @@ class ClientHandle {
 		this.send(config.serverMessages.LEADERBOARD, [leaderboard.slice(0, 10), playerRank, playerItem]);
 	}
 
+	sendShips(ships) {
+		this.send(config.serverMessages.SHIPS, ships);
+	}
+
 	sendMinimap() {
 		// Get minimap structures
 		let minimapItems = [];
@@ -625,7 +631,7 @@ class ClientHandle {
 		let shipIndex = config.shipIndexForId(selectedShip);
 		if (shipIndex === -1) shipIndex = 0; // Invalid ship index
 
-		// // Save username
+		// Save username
 		this.username = this.identity.displayName;
 
 		// Create new player
@@ -634,6 +640,8 @@ class ClientHandle {
 		this.player.username = this.username;
 		this.player.shipIndex = shipIndex;
 		this.player.shipFill = selectedFill;
+		this.shipIndex = shipIndex;
+		this.shipFill = selectedFill;
 
 		// Find a launch pad to spawn on or choose a random position
 		let foundSpawnPosition = false;

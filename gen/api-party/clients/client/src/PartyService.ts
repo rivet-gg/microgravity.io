@@ -61,10 +61,10 @@ import {
   LeavePartyCommandOutput,
 } from "./commands/LeavePartyCommand";
 import {
-  RequestMatchmakerPlayerCommand,
-  RequestMatchmakerPlayerCommandInput,
-  RequestMatchmakerPlayerCommandOutput,
-} from "./commands/RequestMatchmakerPlayerCommand";
+  MatchmakerSelfReadyCommand,
+  MatchmakerSelfReadyCommandInput,
+  MatchmakerSelfReadyCommandOutput,
+} from "./commands/MatchmakerSelfReadyCommand";
 import {
   RevokePartyInviteCommand,
   RevokePartyInviteCommandInput,
@@ -85,6 +85,11 @@ import {
   SetPartyToIdleCommandInput,
   SetPartyToIdleCommandOutput,
 } from "./commands/SetPartyToIdleCommand";
+import {
+  SetSelfInactiveCommand,
+  SetSelfInactiveCommandInput,
+  SetSelfInactiveCommandOutput,
+} from "./commands/SetSelfInactiveCommand";
 import {
   TransferPartyOwnershipCommand,
   TransferPartyOwnershipCommandInput,
@@ -680,25 +685,25 @@ export class PartyService extends PartyServiceClient {
    * disconnected, their matchmaker player will be removed. Use this endpoint to
    * create a new matchmaker player.
    */
-  public requestMatchmakerPlayer(
-    args: RequestMatchmakerPlayerCommandInput,
+  public matchmakerSelfReady(
+    args: MatchmakerSelfReadyCommandInput,
     options?: __HttpHandlerOptions,
-  ): Promise<RequestMatchmakerPlayerCommandOutput>;
-  public requestMatchmakerPlayer(
-    args: RequestMatchmakerPlayerCommandInput,
-    cb: (err: any, data?: RequestMatchmakerPlayerCommandOutput) => void
+  ): Promise<MatchmakerSelfReadyCommandOutput>;
+  public matchmakerSelfReady(
+    args: MatchmakerSelfReadyCommandInput,
+    cb: (err: any, data?: MatchmakerSelfReadyCommandOutput) => void
   ): void;
-  public requestMatchmakerPlayer(
-    args: RequestMatchmakerPlayerCommandInput,
+  public matchmakerSelfReady(
+    args: MatchmakerSelfReadyCommandInput,
     options: __HttpHandlerOptions,
-    cb: (err: any, data?: RequestMatchmakerPlayerCommandOutput) => void
+    cb: (err: any, data?: MatchmakerSelfReadyCommandOutput) => void
   ): void;
-  public requestMatchmakerPlayer(
-    args: RequestMatchmakerPlayerCommandInput,
-    optionsOrCb?: __HttpHandlerOptions | ((err: any, data?: RequestMatchmakerPlayerCommandOutput) => void),
-    cb?: (err: any, data?: RequestMatchmakerPlayerCommandOutput) => void
-  ): Promise<RequestMatchmakerPlayerCommandOutput> | void {
-    const command = new RequestMatchmakerPlayerCommand(args);
+  public matchmakerSelfReady(
+    args: MatchmakerSelfReadyCommandInput,
+    optionsOrCb?: __HttpHandlerOptions | ((err: any, data?: MatchmakerSelfReadyCommandOutput) => void),
+    cb?: (err: any, data?: MatchmakerSelfReadyCommandOutput) => void
+  ): Promise<MatchmakerSelfReadyCommandOutput> | void {
+    const command = new MatchmakerSelfReadyCommand(args);
     if (typeof optionsOrCb === "function") {
       this.send(command, optionsOrCb)
     } else if (typeof cb === "function") {
@@ -734,6 +739,36 @@ export class PartyService extends PartyServiceClient {
     cb?: (err: any, data?: SetPartyToIdleCommandOutput) => void
   ): Promise<SetPartyToIdleCommandOutput> | void {
     const command = new SetPartyToIdleCommand(args);
+    if (typeof optionsOrCb === "function") {
+      this.send(command, optionsOrCb)
+    } else if (typeof cb === "function") {
+      if (typeof optionsOrCb !== "object")
+        throw new Error(`Expect http options but get ${typeof optionsOrCb}`)
+      this.send(command, optionsOrCb || {}, cb)
+    } else {
+      return this.send(command, optionsOrCb);
+    }
+  }
+
+  public setSelfInactive(
+    args: SetSelfInactiveCommandInput,
+    options?: __HttpHandlerOptions,
+  ): Promise<SetSelfInactiveCommandOutput>;
+  public setSelfInactive(
+    args: SetSelfInactiveCommandInput,
+    cb: (err: any, data?: SetSelfInactiveCommandOutput) => void
+  ): void;
+  public setSelfInactive(
+    args: SetSelfInactiveCommandInput,
+    options: __HttpHandlerOptions,
+    cb: (err: any, data?: SetSelfInactiveCommandOutput) => void
+  ): void;
+  public setSelfInactive(
+    args: SetSelfInactiveCommandInput,
+    optionsOrCb?: __HttpHandlerOptions | ((err: any, data?: SetSelfInactiveCommandOutput) => void),
+    cb?: (err: any, data?: SetSelfInactiveCommandOutput) => void
+  ): Promise<SetSelfInactiveCommandOutput> | void {
+    const command = new SetSelfInactiveCommand(args);
     if (typeof optionsOrCb === "function") {
       this.send(command, optionsOrCb)
     } else if (typeof cb === "function") {

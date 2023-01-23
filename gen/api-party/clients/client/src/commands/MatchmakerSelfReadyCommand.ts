@@ -5,12 +5,12 @@ import {
   ServiceOutputTypes,
 } from "../PartyServiceClient";
 import {
-  RequestMatchmakerPlayerInput,
-  RequestMatchmakerPlayerOutput,
+  MatchmakerSelfReadyInput,
+  MatchmakerSelfReadyOutput,
 } from "../models/models_0";
 import {
-  deserializeAws_restJson1RequestMatchmakerPlayerCommand,
-  serializeAws_restJson1RequestMatchmakerPlayerCommand,
+  deserializeAws_restJson1MatchmakerSelfReadyCommand,
+  serializeAws_restJson1MatchmakerSelfReadyCommand,
 } from "../protocols/Aws_restJson1";
 import { getSerdePlugin } from "@aws-sdk/middleware-serde";
 import {
@@ -28,8 +28,8 @@ import {
   SerdeContext as __SerdeContext,
 } from "@aws-sdk/types";
 
-export interface RequestMatchmakerPlayerCommandInput extends RequestMatchmakerPlayerInput {}
-export interface RequestMatchmakerPlayerCommandOutput extends RequestMatchmakerPlayerOutput, __MetadataBearer {}
+export interface MatchmakerSelfReadyCommandInput extends MatchmakerSelfReadyInput {}
+export interface MatchmakerSelfReadyCommandOutput extends MatchmakerSelfReadyOutput, __MetadataBearer {}
 
 /**
  * Attempts to create a new matchmaker player for the current identity.
@@ -60,23 +60,23 @@ export interface RequestMatchmakerPlayerCommandOutput extends RequestMatchmakerP
  * @example
  * Use a bare-bones client and the command you need to make an API call.
  * ```javascript
- * import { PartyServiceClient, RequestMatchmakerPlayerCommand } from "@rivet-gg/party"; // ES Modules import
- * // const { PartyServiceClient, RequestMatchmakerPlayerCommand } = require("@rivet-gg/party"); // CommonJS import
+ * import { PartyServiceClient, MatchmakerSelfReadyCommand } from "@rivet-gg/party"; // ES Modules import
+ * // const { PartyServiceClient, MatchmakerSelfReadyCommand } = require("@rivet-gg/party"); // CommonJS import
  * const client = new PartyServiceClient(config);
- * const command = new RequestMatchmakerPlayerCommand(input);
+ * const command = new MatchmakerSelfReadyCommand(input);
  * const response = await client.send(command);
  * ```
  *
- * @see {@link RequestMatchmakerPlayerCommandInput} for command's `input` shape.
- * @see {@link RequestMatchmakerPlayerCommandOutput} for command's `response` shape.
+ * @see {@link MatchmakerSelfReadyCommandInput} for command's `input` shape.
+ * @see {@link MatchmakerSelfReadyCommandOutput} for command's `response` shape.
  * @see {@link PartyServiceClientResolvedConfig | config} for PartyServiceClient's `config` shape.
  *
  */
-export class RequestMatchmakerPlayerCommand extends $Command<RequestMatchmakerPlayerCommandInput, RequestMatchmakerPlayerCommandOutput, PartyServiceClientResolvedConfig> {
+export class MatchmakerSelfReadyCommand extends $Command<MatchmakerSelfReadyCommandInput, MatchmakerSelfReadyCommandOutput, PartyServiceClientResolvedConfig> {
   // Start section: command_properties
   // End section: command_properties
 
-  constructor(readonly input: RequestMatchmakerPlayerCommandInput) {
+  constructor(readonly input: MatchmakerSelfReadyCommandInput) {
     // Start section: command_constructor
     super();
     // End section: command_constructor
@@ -89,22 +89,22 @@ export class RequestMatchmakerPlayerCommand extends $Command<RequestMatchmakerPl
     clientStack: MiddlewareStack<ServiceInputTypes, ServiceOutputTypes>,
     configuration: PartyServiceClientResolvedConfig,
     options?: __HttpHandlerOptions
-  ): Handler<RequestMatchmakerPlayerCommandInput, RequestMatchmakerPlayerCommandOutput> {
+  ): Handler<MatchmakerSelfReadyCommandInput, MatchmakerSelfReadyCommandOutput> {
     this.middlewareStack.use(getSerdePlugin(configuration, this.serialize, this.deserialize));
 
     const stack = clientStack.concat(this.middlewareStack);
 
     const { logger } = configuration;
     const clientName = "PartyServiceClient";
-    const commandName = "RequestMatchmakerPlayerCommand";
+    const commandName = "MatchmakerSelfReadyCommand";
     const handlerExecutionContext: HandlerExecutionContext = {
       logger,
       clientName,
       commandName,
       inputFilterSensitiveLog:
-        RequestMatchmakerPlayerInput.filterSensitiveLog,
+        MatchmakerSelfReadyInput.filterSensitiveLog,
       outputFilterSensitiveLog:
-        RequestMatchmakerPlayerOutput.filterSensitiveLog,
+        MatchmakerSelfReadyOutput.filterSensitiveLog,
     }
     const { requestHandler } = configuration;
     return stack.resolve(
@@ -115,17 +115,17 @@ export class RequestMatchmakerPlayerCommand extends $Command<RequestMatchmakerPl
   }
 
   private serialize(
-    input: RequestMatchmakerPlayerCommandInput,
+    input: MatchmakerSelfReadyCommandInput,
     context: __SerdeContext
   ): Promise<__HttpRequest> {
-    return serializeAws_restJson1RequestMatchmakerPlayerCommand(input, context);
+    return serializeAws_restJson1MatchmakerSelfReadyCommand(input, context);
   }
 
   private deserialize(
     output: __HttpResponse,
     context: __SerdeContext
-  ): Promise<RequestMatchmakerPlayerCommandOutput> {
-    return deserializeAws_restJson1RequestMatchmakerPlayerCommand(output, context);
+  ): Promise<MatchmakerSelfReadyCommandOutput> {
+    return deserializeAws_restJson1MatchmakerSelfReadyCommand(output, context);
   }
 
   // Start section: command_body_extra

@@ -1,7 +1,7 @@
 {
     "name": "@rivet-gg/party",
     "description": "Rivet service enabling identities to play together in real time across games",
-    "version": "0.0.5",
+    "version": "0.0.7",
     "scripts": {
         "build": "concurrently 'yarn:build:cjs' 'yarn:build:es' 'yarn:build:types'",
         "build:cjs": "tsc -p tsconfig.cjs.json",

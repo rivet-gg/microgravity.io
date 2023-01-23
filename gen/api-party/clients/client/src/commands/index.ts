@@ -15,5 +15,6 @@ export * from "./SetPartyPublicityCommand";
 export * from "./TransferPartyOwnershipCommand";
 export * from "./FindMatchmakerLobbyForPartyCommand";
 export * from "./JoinMatchmakerLobbyForPartyCommand";
-export * from "./RequestMatchmakerPlayerCommand";
+export * from "./MatchmakerSelfReadyCommand";
 export * from "./SetPartyToIdleCommand";
+export * from "./SetSelfInactiveCommand";

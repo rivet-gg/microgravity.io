@@ -52,6 +52,18 @@ import {
   ListFriendsCommandOutput,
 } from "./commands/ListFriendsCommand";
 import {
+  ListMutualFriendsCommandInput,
+  ListMutualFriendsCommandOutput,
+} from "./commands/ListMutualFriendsCommand";
+import {
+  ListRecentFollowersCommandInput,
+  ListRecentFollowersCommandOutput,
+} from "./commands/ListRecentFollowersCommand";
+import {
+  MarkDeletionCommandInput,
+  MarkDeletionCommandOutput,
+} from "./commands/MarkDeletionCommand";
+import {
   PrepareGameLinkCommandInput,
   PrepareGameLinkCommandOutput,
 } from "./commands/PrepareGameLinkCommand";
@@ -59,6 +71,10 @@ import {
   PrepareIdentityAvatarUploadCommandInput,
   PrepareIdentityAvatarUploadCommandOutput,
 } from "./commands/PrepareIdentityAvatarUploadCommand";
+import {
+  RecentFollowerIgnoreCommandInput,
+  RecentFollowerIgnoreCommandOutput,
+} from "./commands/RecentFollowerIgnoreCommand";
 import {
   RemoveIdentityGameActivityCommandInput,
   RemoveIdentityGameActivityCommandOutput,
@@ -87,6 +103,10 @@ import {
   UnfollowIdentityCommandInput,
   UnfollowIdentityCommandOutput,
 } from "./commands/UnfollowIdentityCommand";
+import {
+  UnmarkDeletionCommandInput,
+  UnmarkDeletionCommandOutput,
+} from "./commands/UnmarkDeletionCommand";
 import {
   UpdateIdentityProfileCommandInput,
   UpdateIdentityProfileCommandOutput,
@@ -167,8 +187,12 @@ export type ServiceInputTypes =
   | ListFollowersCommandInput
   | ListFollowingCommandInput
   | ListFriendsCommandInput
+  | ListMutualFriendsCommandInput
+  | ListRecentFollowersCommandInput
+  | MarkDeletionCommandInput
   | PrepareGameLinkCommandInput
   | PrepareIdentityAvatarUploadCommandInput
+  | RecentFollowerIgnoreCommandInput
   | RemoveIdentityGameActivityCommandInput
   | ReportIdentityCommandInput
   | SearchIdentitiesCommandInput
@@ -176,6 +200,7 @@ export type ServiceInputTypes =
   | SetupIdentityCommandInput
   | SignupForBetaCommandInput
   | UnfollowIdentityCommandInput
+  | UnmarkDeletionCommandInput
   | UpdateIdentityProfileCommandInput
   | UpdateIdentityStatusCommandInput
   | ValidateIdentityProfileCommandInput
@@ -195,8 +220,12 @@ export type ServiceOutputTypes =
   | ListFollowersCommandOutput
   | ListFollowingCommandOutput
   | ListFriendsCommandOutput
+  | ListMutualFriendsCommandOutput
+  | ListRecentFollowersCommandOutput
+  | MarkDeletionCommandOutput
   | PrepareGameLinkCommandOutput
   | PrepareIdentityAvatarUploadCommandOutput
+  | RecentFollowerIgnoreCommandOutput
   | RemoveIdentityGameActivityCommandOutput
   | ReportIdentityCommandOutput
   | SearchIdentitiesCommandOutput
@@ -204,6 +233,7 @@ export type ServiceOutputTypes =
   | SetupIdentityCommandOutput
   | SignupForBetaCommandOutput
   | UnfollowIdentityCommandOutput
+  | UnmarkDeletionCommandOutput
   | UpdateIdentityProfileCommandOutput
   | UpdateIdentityStatusCommandOutput
   | ValidateIdentityProfileCommandOutput

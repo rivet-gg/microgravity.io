@@ -48,9 +48,9 @@ import {
   LeavePartyCommandOutput,
 } from "../commands/LeavePartyCommand";
 import {
-  RequestMatchmakerPlayerCommandInput,
-  RequestMatchmakerPlayerCommandOutput,
-} from "../commands/RequestMatchmakerPlayerCommand";
+  MatchmakerSelfReadyCommandInput,
+  MatchmakerSelfReadyCommandOutput,
+} from "../commands/MatchmakerSelfReadyCommand";
 import {
   RevokePartyInviteCommandInput,
   RevokePartyInviteCommandOutput,
@@ -68,12 +68,19 @@ import {
   SetPartyToIdleCommandOutput,
 } from "../commands/SetPartyToIdleCommand";
 import {
+  SetSelfInactiveCommandInput,
+  SetSelfInactiveCommandOutput,
+} from "../commands/SetSelfInactiveCommand";
+import {
   TransferPartyOwnershipCommandInput,
   TransferPartyOwnershipCommandOutput,
 } from "../commands/TransferPartyOwnershipCommand";
 import { PartyServiceServiceException as __BaseException } from "../models/PartyServiceServiceException";
 import {
   BadRequestError,
+  CaptchaConfig,
+  CaptchaConfigHcaptcha,
+  CaptchaConfigTurnstile,
   CreatePartyInviteConfig,
   CreatePartyPublicityConfig,
   CreatedInvite,
@@ -97,10 +104,10 @@ import {
   PartyInviteExternalLinks,
   PartyMatchmakerLobby,
   PartyMemberState,
-  PartyMemberStateIdle,
+  PartyMemberStateInactive,
   PartyMemberStateMatchmakerFindingLobby,
   PartyMemberStateMatchmakerLobby,
-  PartyMemberStateMatchmakerPending,
+  PartyMemberStateMatchmakerReady,
   PartyMemberSummary,
   PartyProfile,
   PartyPublicity,
@@ -334,6 +341,7 @@ export const serializeAws_restJson1JoinPartyCommand = async(
   body = JSON.stringify({
     ...(input.invite !== undefined && input.invite !== null &&{ "invite": serializeAws_restJson1JoinPartyInvite(input.invite, context) }),
     ...(input.matchmakerAutoJoinLobby !== undefined && input.matchmakerAutoJoinLobby !== null &&{ "matchmaker_auto_join_lobby": input.matchmakerAutoJoinLobby }),
+    ...(input.matchmakerCurrentPlayerToken !== undefined && input.matchmakerCurrentPlayerToken !== null &&{ "matchmaker_current_player_token": input.matchmakerCurrentPlayerToken }),
   });
   return new __HttpRequest({
     protocol,
@@ -522,6 +530,7 @@ export const serializeAws_restJson1FindMatchmakerLobbyForPartyCommand = async(
   let resolvedPath = `${basePath?.endsWith('/') ? basePath.slice(0, -1) : (basePath || '')}` + "/parties/self/activity/matchmaker/lobbies/find";
   let body: any;
   body = JSON.stringify({
+    ...(input.captcha !== undefined && input.captcha !== null &&{ "captcha": serializeAws_restJson1CaptchaConfig(input.captcha, context) }),
     ...(input.gameModes !== undefined && input.gameModes !== null &&{ "game_modes": serializeAws_restJson1FindGameModes(input.gameModes, context) }),
     ...(input.preventAutoCreateLobby !== undefined && input.preventAutoCreateLobby !== null &&{ "prevent_auto_create_lobby": input.preventAutoCreateLobby }),
     ...(input.regions !== undefined && input.regions !== null &&{ "regions": serializeAws_restJson1FindRegions(input.regions, context) }),
@@ -548,6 +557,7 @@ export const serializeAws_restJson1JoinMatchmakerLobbyForPartyCommand = async(
   let resolvedPath = `${basePath?.endsWith('/') ? basePath.slice(0, -1) : (basePath || '')}` + "/parties/self/activity/matchmaker/lobbies/join";
   let body: any;
   body = JSON.stringify({
+    ...(input.captcha !== undefined && input.captcha !== null &&{ "captcha": serializeAws_restJson1CaptchaConfig(input.captcha, context) }),
     ...(input.lobbyId !== undefined && input.lobbyId !== null &&{ "lobby_id": input.lobbyId }),
   });
   return new __HttpRequest({
@@ -561,15 +571,15 @@ export const serializeAws_restJson1JoinMatchmakerLobbyForPartyCommand = async(
   });
 }
 
-export const serializeAws_restJson1RequestMatchmakerPlayerCommand = async(
-  input: RequestMatchmakerPlayerCommandInput,
+export const serializeAws_restJson1MatchmakerSelfReadyCommand = async(
+  input: MatchmakerSelfReadyCommandInput,
   context: __SerdeContext
 ): Promise<__HttpRequest> => {
   const {hostname, protocol = "https", port, path: basePath} = await context.endpoint();
   const headers: any = {
     'content-type': "application/json",
   };
-  let resolvedPath = `${basePath?.endsWith('/') ? basePath.slice(0, -1) : (basePath || '')}` + "/parties/self/members/self/matchmaker/request-player";
+  let resolvedPath = `${basePath?.endsWith('/') ? basePath.slice(0, -1) : (basePath || '')}` + "/parties/self/members/self/matchmaker/ready";
   let body: any;
   body = "";
   return new __HttpRequest({
@@ -592,6 +602,28 @@ export const serializeAws_restJson1SetPartyToIdleCommand = async(
     'content-type': "application/json",
   };
   let resolvedPath = `${basePath?.endsWith('/') ? basePath.slice(0, -1) : (basePath || '')}` + "/parties/self/activity";
+  let body: any;
+  body = "";
+  return new __HttpRequest({
+    protocol,
+    hostname,
+    port,
+    method: "DELETE",
+    headers,
+    path: resolvedPath,
+    body,
+  });
+}
+
+export const serializeAws_restJson1SetSelfInactiveCommand = async(
+  input: SetSelfInactiveCommandInput,
+  context: __SerdeContext
+): Promise<__HttpRequest> => {
+  const {hostname, protocol = "https", port, path: basePath} = await context.endpoint();
+  const headers: any = {
+    'content-type': "application/json",
+  };
+  let resolvedPath = `${basePath?.endsWith('/') ? basePath.slice(0, -1) : (basePath || '')}` + "/parties/self/members/self/inactive";
   let body: any;
   body = "";
   return new __HttpRequest({
@@ -1537,24 +1569,24 @@ const deserializeAws_restJson1CreatePartyCommandError = async(
                                   }
                                 }
 
-                                export const deserializeAws_restJson1RequestMatchmakerPlayerCommand = async(
+                                export const deserializeAws_restJson1MatchmakerSelfReadyCommand = async(
                                   output: __HttpResponse,
                                   context: __SerdeContext
-                                ): Promise<RequestMatchmakerPlayerCommandOutput> => {
+                                ): Promise<MatchmakerSelfReadyCommandOutput> => {
                                   if (output.statusCode !== 200 && output.statusCode >= 300) {
-                                    return deserializeAws_restJson1RequestMatchmakerPlayerCommandError(output, context);
+                                    return deserializeAws_restJson1MatchmakerSelfReadyCommandError(output, context);
                                   }
-                                  const contents: RequestMatchmakerPlayerCommandOutput = {
+                                  const contents: MatchmakerSelfReadyCommandOutput = {
                                     $metadata: deserializeMetadata(output),
                                   };
                                   await collectBody(output.body, context);
                                   return Promise.resolve(contents);
                                 }
 
-                                const deserializeAws_restJson1RequestMatchmakerPlayerCommandError = async(
+                                const deserializeAws_restJson1MatchmakerSelfReadyCommandError = async(
                                   output: __HttpResponse,
                                   context: __SerdeContext,
-                                ): Promise<RequestMatchmakerPlayerCommandOutput> => {
+                                ): Promise<MatchmakerSelfReadyCommandOutput> => {
                                   const parsedOutput: any = {
                                     ...output,
                                     body: await parseBody(output.body, context)
@@ -1647,623 +1679,708 @@ const deserializeAws_restJson1CreatePartyCommandError = async(
                                       }
                                     }
 
-                                    const deserializeAws_restJson1BadRequestErrorResponse = async (
-                                      parsedOutput: any,
+                                    export const deserializeAws_restJson1SetSelfInactiveCommand = async(
+                                      output: __HttpResponse,
                                       context: __SerdeContext
-                                    ): Promise<BadRequestError> => {
-                                      const contents: any = {};
-                                      const data: any = parsedOutput.body;
-                                      if (data.code !== undefined && data.code !== null) {
-                                        contents.code = __expectString(data.code);
+                                    ): Promise<SetSelfInactiveCommandOutput> => {
+                                      if (output.statusCode !== 200 && output.statusCode >= 300) {
+                                        return deserializeAws_restJson1SetSelfInactiveCommandError(output, context);
                                       }
-                                      if (data.message !== undefined && data.message !== null) {
-                                        contents.message = __expectString(data.message);
-                                      }
-                                      if (data.metadata !== undefined && data.metadata !== null) {
-                                        contents.metadata = deserializeAws_restJson1ErrorMetadata(data.metadata, context);
-                                      }
-                                      const exception = new BadRequestError({
-                                        $metadata: deserializeMetadata(parsedOutput),
-                                        ...contents
-                                      });
-                                      return __decorateServiceException(exception, parsedOutput.body);
-                                    };
-
-                                    const deserializeAws_restJson1ForbiddenErrorResponse = async (
-                                      parsedOutput: any,
-                                      context: __SerdeContext
-                                    ): Promise<ForbiddenError> => {
-                                      const contents: any = {};
-                                      const data: any = parsedOutput.body;
-                                      if (data.code !== undefined && data.code !== null) {
-                                        contents.code = __expectString(data.code);
-                                      }
-                                      if (data.message !== undefined && data.message !== null) {
-                                        contents.message = __expectString(data.message);
-                                      }
-                                      if (data.metadata !== undefined && data.metadata !== null) {
-                                        contents.metadata = deserializeAws_restJson1ErrorMetadata(data.metadata, context);
-                                      }
-                                      const exception = new ForbiddenError({
-                                        $metadata: deserializeMetadata(parsedOutput),
-                                        ...contents
-                                      });
-                                      return __decorateServiceException(exception, parsedOutput.body);
-                                    };
-
-                                    const deserializeAws_restJson1InternalErrorResponse = async (
-                                      parsedOutput: any,
-                                      context: __SerdeContext
-                                    ): Promise<InternalError> => {
-                                      const contents: any = {};
-                                      const data: any = parsedOutput.body;
-                                      if (data.code !== undefined && data.code !== null) {
-                                        contents.code = __expectString(data.code);
-                                      }
-                                      if (data.message !== undefined && data.message !== null) {
-                                        contents.message = __expectString(data.message);
-                                      }
-                                      if (data.metadata !== undefined && data.metadata !== null) {
-                                        contents.metadata = deserializeAws_restJson1ErrorMetadata(data.metadata, context);
-                                      }
-                                      const exception = new InternalError({
-                                        $metadata: deserializeMetadata(parsedOutput),
-                                        ...contents
-                                      });
-                                      return __decorateServiceException(exception, parsedOutput.body);
-                                    };
-
-                                    const deserializeAws_restJson1NotFoundErrorResponse = async (
-                                      parsedOutput: any,
-                                      context: __SerdeContext
-                                    ): Promise<NotFoundError> => {
-                                      const contents: any = {};
-                                      const data: any = parsedOutput.body;
-                                      if (data.code !== undefined && data.code !== null) {
-                                        contents.code = __expectString(data.code);
-                                      }
-                                      if (data.message !== undefined && data.message !== null) {
-                                        contents.message = __expectString(data.message);
-                                      }
-                                      if (data.metadata !== undefined && data.metadata !== null) {
-                                        contents.metadata = deserializeAws_restJson1ErrorMetadata(data.metadata, context);
-                                      }
-                                      const exception = new NotFoundError({
-                                        $metadata: deserializeMetadata(parsedOutput),
-                                        ...contents
-                                      });
-                                      return __decorateServiceException(exception, parsedOutput.body);
-                                    };
-
-                                    const deserializeAws_restJson1RateLimitErrorResponse = async (
-                                      parsedOutput: any,
-                                      context: __SerdeContext
-                                    ): Promise<RateLimitError> => {
-                                      const contents: any = {};
-                                      const data: any = parsedOutput.body;
-                                      if (data.code !== undefined && data.code !== null) {
-                                        contents.code = __expectString(data.code);
-                                      }
-                                      if (data.message !== undefined && data.message !== null) {
-                                        contents.message = __expectString(data.message);
-                                      }
-                                      if (data.metadata !== undefined && data.metadata !== null) {
-                                        contents.metadata = deserializeAws_restJson1ErrorMetadata(data.metadata, context);
-                                      }
-                                      const exception = new RateLimitError({
-                                        $metadata: deserializeMetadata(parsedOutput),
-                                        ...contents
-                                      });
-                                      return __decorateServiceException(exception, parsedOutput.body);
-                                    };
-
-                                    const deserializeAws_restJson1UnauthorizedErrorResponse = async (
-                                      parsedOutput: any,
-                                      context: __SerdeContext
-                                    ): Promise<UnauthorizedError> => {
-                                      const contents: any = {};
-                                      const data: any = parsedOutput.body;
-                                      if (data.code !== undefined && data.code !== null) {
-                                        contents.code = __expectString(data.code);
-                                      }
-                                      if (data.message !== undefined && data.message !== null) {
-                                        contents.message = __expectString(data.message);
-                                      }
-                                      if (data.metadata !== undefined && data.metadata !== null) {
-                                        contents.metadata = deserializeAws_restJson1ErrorMetadata(data.metadata, context);
-                                      }
-                                      const exception = new UnauthorizedError({
-                                        $metadata: deserializeMetadata(parsedOutput),
-                                        ...contents
-                                      });
-                                      return __decorateServiceException(exception, parsedOutput.body);
-                                    };
-
-                                    const serializeAws_restJson1CreatePartyInviteConfig = (
-                                      input: CreatePartyInviteConfig,
-                                      context: __SerdeContext
-                                    ): any => {
-                                      return {
-                                        ...(input.alias !== undefined && input.alias !== null && { "alias": input.alias }),
+                                      const contents: SetSelfInactiveCommandOutput = {
+                                        $metadata: deserializeMetadata(output),
                                       };
+                                      await collectBody(output.body, context);
+                                      return Promise.resolve(contents);
                                     }
 
-                                    const serializeAws_restJson1CreatePartyInviteConfigs = (
-                                      input: (CreatePartyInviteConfig)[],
-                                      context: __SerdeContext
-                                    ): any => {
-                                      return input.filter((e: any) => e != null).map(entry => {
-                                        if (entry === null) { return null as any; }
-                                        return serializeAws_restJson1CreatePartyInviteConfig(entry, context);
-                                      });
-                                    }
-
-                                    const serializeAws_restJson1CreatePartyPublicityConfig = (
-                                      input: CreatePartyPublicityConfig,
-                                      context: __SerdeContext
-                                    ): any => {
-                                      return {
-                                        ...(input.groups !== undefined && input.groups !== null && { "groups": input.groups }),
-                                        ...(input.mutualFollowers !== undefined && input.mutualFollowers !== null && { "mutual_followers": input.mutualFollowers }),
-                                        ...(input.public !== undefined && input.public !== null && { "public": input.public }),
+                                    const deserializeAws_restJson1SetSelfInactiveCommandError = async(
+                                      output: __HttpResponse,
+                                      context: __SerdeContext,
+                                    ): Promise<SetSelfInactiveCommandOutput> => {
+                                      const parsedOutput: any = {
+                                        ...output,
+                                        body: await parseBody(output.body, context)
                                       };
-                                    }
-
-                                    const serializeAws_restJson1JoinPartyInvite = (
-                                      input: JoinPartyInvite,
-                                      context: __SerdeContext
-                                    ): any => {
-                                      return JoinPartyInvite.visit(input, {
-                                        alias: value => ({ "alias": value }),
-                                        partyId: value => ({ "party_id": value }),
-                                        token: value => ({ "token": value }),
-                                        _: (name, value) => ({ name: value } as any)
-                                      });
-                                    }
-
-                                    const serializeAws_restJson1FindGameModes = (
-                                      input: (string)[],
-                                      context: __SerdeContext
-                                    ): any => {
-                                      return input.filter((e: any) => e != null).map(entry => {
-                                        if (entry === null) { return null as any; }
-                                        return entry;
-                                      });
-                                    }
-
-                                    const serializeAws_restJson1FindRegions = (
-                                      input: (string)[],
-                                      context: __SerdeContext
-                                    ): any => {
-                                      return input.filter((e: any) => e != null).map(entry => {
-                                        if (entry === null) { return null as any; }
-                                        return entry;
-                                      });
-                                    }
-
-                                    const deserializeAws_restJson1CreatedInvite = (
-                                      output: any,
-                                      context: __SerdeContext
-                                    ): CreatedInvite => {
-                                      return {
-                                        token: __expectString(output.token),
-                                      } as any;
-                                    }
-
-                                    const deserializeAws_restJson1CreatedInvites = (
-                                      output: any,
-                                      context: __SerdeContext
-                                    ): (CreatedInvite)[] => {
-                                      const retVal = (output || []).filter((e: any) => e != null).map((entry: any) => {
-                                        if (entry === null) {
-                                          return null as any;
+                                      let response: __BaseException;
+                                      let errorCode: string = "UnknownError";
+                                      errorCode = loadRestJsonErrorCode(output, parsedOutput.body);
+                                      switch (errorCode) {
+                                        case "BadRequestError":
+                                        case "rivet.error#BadRequestError":
+                                          throw await deserializeAws_restJson1BadRequestErrorResponse(parsedOutput, context);
+                                        case "ForbiddenError":
+                                        case "rivet.error#ForbiddenError":
+                                          throw await deserializeAws_restJson1ForbiddenErrorResponse(parsedOutput, context);
+                                        case "InternalError":
+                                        case "rivet.error#InternalError":
+                                          throw await deserializeAws_restJson1InternalErrorResponse(parsedOutput, context);
+                                        case "NotFoundError":
+                                        case "rivet.error#NotFoundError":
+                                          throw await deserializeAws_restJson1NotFoundErrorResponse(parsedOutput, context);
+                                        case "RateLimitError":
+                                        case "rivet.error#RateLimitError":
+                                          throw await deserializeAws_restJson1RateLimitErrorResponse(parsedOutput, context);
+                                        case "UnauthorizedError":
+                                        case "rivet.error#UnauthorizedError":
+                                          throw await deserializeAws_restJson1UnauthorizedErrorResponse(parsedOutput, context);
+                                        default:
+                                          const parsedBody = parsedOutput.body;
+                                          response = new __BaseException({
+                                            name: parsedBody.code || parsedBody.Code || errorCode,
+                                            $fault: "client",
+                                            $metadata: deserializeMetadata(output)
+                                          });
+                                          throw __decorateServiceException(response, parsedBody);
                                         }
-                                        return deserializeAws_restJson1CreatedInvite(entry, context);
-                                      });
-                                      return retVal;
-                                    }
-
-                                    const deserializeAws_restJson1WatchResponse = (
-                                      output: any,
-                                      context: __SerdeContext
-                                    ): WatchResponse => {
-                                      return {
-                                        index: __expectString(output.index),
-                                      } as any;
-                                    }
-
-                                    const deserializeAws_restJson1ErrorMetadata = (
-                                      output: any,
-                                      context: __SerdeContext
-                                    ): __DocumentType => {
-                                      return output;
-                                    }
-
-                                    const deserializeAws_restJson1GameHandle = (
-                                      output: any,
-                                      context: __SerdeContext
-                                    ): GameHandle => {
-                                      return {
-                                        bannerUrl: __expectString(output.banner_url),
-                                        displayName: __expectString(output.display_name),
-                                        gameId: __expectString(output.game_id),
-                                        logoUrl: __expectString(output.logo_url),
-                                        nameId: __expectString(output.name_id),
-                                      } as any;
-                                    }
-
-                                    const deserializeAws_restJson1IdentityExternalLinks = (
-                                      output: any,
-                                      context: __SerdeContext
-                                    ): IdentityExternalLinks => {
-                                      return {
-                                        chat: __expectString(output.chat),
-                                        profile: __expectString(output.profile),
-                                        settings: __expectString(output.settings),
-                                      } as any;
-                                    }
-
-                                    const deserializeAws_restJson1IdentityGameActivity = (
-                                      output: any,
-                                      context: __SerdeContext
-                                    ): IdentityGameActivity => {
-                                      return {
-                                        game: (output.game !== undefined && output.game !== null) ? deserializeAws_restJson1GameHandle(output.game, context): undefined,
-                                        message: __expectString(output.message),
-                                        mutualMetadata: (output.mutual_metadata !== undefined && output.mutual_metadata !== null) ? deserializeAws_restJson1Document(output.mutual_metadata, context): undefined,
-                                        publicMetadata: (output.public_metadata !== undefined && output.public_metadata !== null) ? deserializeAws_restJson1Document(output.public_metadata, context): undefined,
-                                      } as any;
-                                    }
-
-                                    const deserializeAws_restJson1IdentityHandle = (
-                                      output: any,
-                                      context: __SerdeContext
-                                    ): IdentityHandle => {
-                                      return {
-                                        accountNumber: __expectInt32(output.account_number),
-                                        avatarUrl: __expectString(output.avatar_url),
-                                        displayName: __expectString(output.display_name),
-                                        external: (output.external !== undefined && output.external !== null) ? deserializeAws_restJson1IdentityExternalLinks(output.external, context): undefined,
-                                        identityId: __expectString(output.identity_id),
-                                        isRegistered: __expectBoolean(output.is_registered),
-                                        party: (output.party !== undefined && output.party !== null) ? deserializeAws_restJson1PartyHandle(output.party, context): undefined,
-                                        presence: (output.presence !== undefined && output.presence !== null) ? deserializeAws_restJson1IdentityPresence(output.presence, context): undefined,
-                                      } as any;
-                                    }
-
-                                    const deserializeAws_restJson1IdentityPresence = (
-                                      output: any,
-                                      context: __SerdeContext
-                                    ): IdentityPresence => {
-                                      return {
-                                        gameActivity: (output.game_activity !== undefined && output.game_activity !== null) ? deserializeAws_restJson1IdentityGameActivity(output.game_activity, context): undefined,
-                                        status: __expectString(output.status),
-                                        updateTs: (output.update_ts !== undefined && output.update_ts !== null) ? __expectNonNull(__parseRfc3339DateTime(output.update_ts)): undefined,
-                                      } as any;
-                                    }
-
-                                    const deserializeAws_restJson1PartyActivity = (
-                                      output: any,
-                                      context: __SerdeContext
-                                    ): PartyActivity => {
-                                      if (output.idle !== undefined && output.idle !== null) {
-                                        return {
-                                          idle: deserializeAws_restJson1PartyActivityIdle(output.idle, context)
-                                        };
                                       }
-                                      if (output.matchmaker_finding_lobby !== undefined && output.matchmaker_finding_lobby !== null) {
-                                        return {
-                                          matchmakerFindingLobby: deserializeAws_restJson1PartyActivityMatchmakerFindingLobby(output.matchmaker_finding_lobby, context)
-                                        };
-                                      }
-                                      if (output.matchmaker_lobby !== undefined && output.matchmaker_lobby !== null) {
-                                        return {
-                                          matchmakerLobby: deserializeAws_restJson1PartyActivityMatchmakerLobby(output.matchmaker_lobby, context)
-                                        };
-                                      }
-                                      return { $unknown: Object.entries(output)[0] };
-                                    }
 
-                                    const deserializeAws_restJson1PartyActivityIdle = (
-                                      output: any,
-                                      context: __SerdeContext
-                                    ): PartyActivityIdle => {
-                                      return {
-                                      } as any;
-                                    }
-
-                                    const deserializeAws_restJson1PartyActivityMatchmakerFindingLobby = (
-                                      output: any,
-                                      context: __SerdeContext
-                                    ): PartyActivityMatchmakerFindingLobby => {
-                                      return {
-                                        game: (output.game !== undefined && output.game !== null) ? deserializeAws_restJson1GameHandle(output.game, context): undefined,
-                                      } as any;
-                                    }
-
-                                    const deserializeAws_restJson1PartyActivityMatchmakerLobby = (
-                                      output: any,
-                                      context: __SerdeContext
-                                    ): PartyActivityMatchmakerLobby => {
-                                      return {
-                                        game: (output.game !== undefined && output.game !== null) ? deserializeAws_restJson1GameHandle(output.game, context): undefined,
-                                        lobby: (output.lobby !== undefined && output.lobby !== null) ? deserializeAws_restJson1PartyMatchmakerLobby(output.lobby, context): undefined,
-                                      } as any;
-                                    }
-
-                                    const deserializeAws_restJson1PartyExternalLinks = (
-                                      output: any,
-                                      context: __SerdeContext
-                                    ): PartyExternalLinks => {
-                                      return {
-                                        chat: __expectString(output.chat),
-                                      } as any;
-                                    }
-
-                                    const deserializeAws_restJson1PartyHandle = (
-                                      output: any,
-                                      context: __SerdeContext
-                                    ): PartyHandle => {
-                                      return {
-                                        activity: (output.activity !== undefined && output.activity !== null) ? deserializeAws_restJson1PartyActivity(__expectUnion(output.activity), context): undefined,
-                                        createTs: (output.create_ts !== undefined && output.create_ts !== null) ? __expectNonNull(__parseRfc3339DateTime(output.create_ts)): undefined,
-                                        external: (output.external !== undefined && output.external !== null) ? deserializeAws_restJson1PartyExternalLinks(output.external, context): undefined,
-                                        partyId: __expectString(output.party_id),
-                                      } as any;
-                                    }
-
-                                    const deserializeAws_restJson1PartyInvite = (
-                                      output: any,
-                                      context: __SerdeContext
-                                    ): PartyInvite => {
-                                      return {
-                                        alias: (output.alias !== undefined && output.alias !== null) ? deserializeAws_restJson1PartyInviteAlias(output.alias, context): undefined,
-                                        createTs: (output.create_ts !== undefined && output.create_ts !== null) ? __expectNonNull(__parseRfc3339DateTime(output.create_ts)): undefined,
-                                        external: (output.external !== undefined && output.external !== null) ? deserializeAws_restJson1PartyInviteExternalLinks(output.external, context): undefined,
-                                        inviteId: __expectString(output.invite_id),
-                                        token: __expectString(output.token),
-                                      } as any;
-                                    }
-
-                                    const deserializeAws_restJson1PartyInviteAlias = (
-                                      output: any,
-                                      context: __SerdeContext
-                                    ): PartyInviteAlias => {
-                                      return {
-                                        alias: __expectString(output.alias),
-                                        namespaceId: __expectString(output.namespace_id),
-                                      } as any;
-                                    }
-
-                                    const deserializeAws_restJson1PartyInviteExternalLinks = (
-                                      output: any,
-                                      context: __SerdeContext
-                                    ): PartyInviteExternalLinks => {
-                                      return {
-                                        invite: __expectString(output.invite),
-                                      } as any;
-                                    }
-
-                                    const deserializeAws_restJson1PartyInvites = (
-                                      output: any,
-                                      context: __SerdeContext
-                                    ): (PartyInvite)[] => {
-                                      const retVal = (output || []).filter((e: any) => e != null).map((entry: any) => {
-                                        if (entry === null) {
-                                          return null as any;
+                                      const deserializeAws_restJson1BadRequestErrorResponse = async (
+                                        parsedOutput: any,
+                                        context: __SerdeContext
+                                      ): Promise<BadRequestError> => {
+                                        const contents: any = {};
+                                        const data: any = parsedOutput.body;
+                                        if (data.code !== undefined && data.code !== null) {
+                                          contents.code = __expectString(data.code);
                                         }
-                                        return deserializeAws_restJson1PartyInvite(entry, context);
-                                      });
-                                      return retVal;
-                                    }
-
-                                    const deserializeAws_restJson1PartyMatchmakerLobby = (
-                                      output: any,
-                                      context: __SerdeContext
-                                    ): PartyMatchmakerLobby => {
-                                      return {
-                                        lobbyId: __expectString(output.lobby_id),
-                                      } as any;
-                                    }
-
-                                    const deserializeAws_restJson1PartyMemberState = (
-                                      output: any,
-                                      context: __SerdeContext
-                                    ): PartyMemberState => {
-                                      if (output.idle !== undefined && output.idle !== null) {
-                                        return {
-                                          idle: deserializeAws_restJson1PartyMemberStateIdle(output.idle, context)
-                                        };
-                                      }
-                                      if (output.matchmaker_finding_lobby !== undefined && output.matchmaker_finding_lobby !== null) {
-                                        return {
-                                          matchmakerFindingLobby: deserializeAws_restJson1PartyMemberStateMatchmakerFindingLobby(output.matchmaker_finding_lobby, context)
-                                        };
-                                      }
-                                      if (output.matchmaker_lobby !== undefined && output.matchmaker_lobby !== null) {
-                                        return {
-                                          matchmakerLobby: deserializeAws_restJson1PartyMemberStateMatchmakerLobby(output.matchmaker_lobby, context)
-                                        };
-                                      }
-                                      if (output.matchmaker_pending !== undefined && output.matchmaker_pending !== null) {
-                                        return {
-                                          matchmakerPending: deserializeAws_restJson1PartyMemberStateMatchmakerPending(output.matchmaker_pending, context)
-                                        };
-                                      }
-                                      return { $unknown: Object.entries(output)[0] };
-                                    }
-
-                                    const deserializeAws_restJson1PartyMemberStateIdle = (
-                                      output: any,
-                                      context: __SerdeContext
-                                    ): PartyMemberStateIdle => {
-                                      return {
-                                      } as any;
-                                    }
-
-                                    const deserializeAws_restJson1PartyMemberStateMatchmakerFindingLobby = (
-                                      output: any,
-                                      context: __SerdeContext
-                                    ): PartyMemberStateMatchmakerFindingLobby => {
-                                      return {
-                                      } as any;
-                                    }
-
-                                    const deserializeAws_restJson1PartyMemberStateMatchmakerLobby = (
-                                      output: any,
-                                      context: __SerdeContext
-                                    ): PartyMemberStateMatchmakerLobby => {
-                                      return {
-                                        playerId: __expectString(output.player_id),
-                                      } as any;
-                                    }
-
-                                    const deserializeAws_restJson1PartyMemberStateMatchmakerPending = (
-                                      output: any,
-                                      context: __SerdeContext
-                                    ): PartyMemberStateMatchmakerPending => {
-                                      return {
-                                      } as any;
-                                    }
-
-                                    const deserializeAws_restJson1PartyMemberSummaries = (
-                                      output: any,
-                                      context: __SerdeContext
-                                    ): (PartyMemberSummary)[] => {
-                                      const retVal = (output || []).filter((e: any) => e != null).map((entry: any) => {
-                                        if (entry === null) {
-                                          return null as any;
+                                        if (data.message !== undefined && data.message !== null) {
+                                          contents.message = __expectString(data.message);
                                         }
-                                        return deserializeAws_restJson1PartyMemberSummary(entry, context);
-                                      });
-                                      return retVal;
-                                    }
-
-                                    const deserializeAws_restJson1PartyMemberSummary = (
-                                      output: any,
-                                      context: __SerdeContext
-                                    ): PartyMemberSummary => {
-                                      return {
-                                        identity: (output.identity !== undefined && output.identity !== null) ? deserializeAws_restJson1IdentityHandle(output.identity, context): undefined,
-                                        isLeader: __expectBoolean(output.is_leader),
-                                        joinTs: (output.join_ts !== undefined && output.join_ts !== null) ? __expectNonNull(__parseRfc3339DateTime(output.join_ts)): undefined,
-                                        state: (output.state !== undefined && output.state !== null) ? deserializeAws_restJson1PartyMemberState(__expectUnion(output.state), context): undefined,
-                                      } as any;
-                                    }
-
-                                    const deserializeAws_restJson1PartyProfile = (
-                                      output: any,
-                                      context: __SerdeContext
-                                    ): PartyProfile => {
-                                      return {
-                                        activity: (output.activity !== undefined && output.activity !== null) ? deserializeAws_restJson1PartyActivity(__expectUnion(output.activity), context): undefined,
-                                        createTs: (output.create_ts !== undefined && output.create_ts !== null) ? __expectNonNull(__parseRfc3339DateTime(output.create_ts)): undefined,
-                                        external: (output.external !== undefined && output.external !== null) ? deserializeAws_restJson1PartyExternalLinks(output.external, context): undefined,
-                                        invites: (output.invites !== undefined && output.invites !== null) ? deserializeAws_restJson1PartyInvites(output.invites, context): undefined,
-                                        members: (output.members !== undefined && output.members !== null) ? deserializeAws_restJson1PartyMemberSummaries(output.members, context): undefined,
-                                        partyId: __expectString(output.party_id),
-                                        partySize: __expectInt32(output.party_size),
-                                        publicity: (output.publicity !== undefined && output.publicity !== null) ? deserializeAws_restJson1PartyPublicity(output.publicity, context): undefined,
-                                        threadId: __expectString(output.thread_id),
-                                      } as any;
-                                    }
-
-                                    const deserializeAws_restJson1PartyPublicity = (
-                                      output: any,
-                                      context: __SerdeContext
-                                    ): PartyPublicity => {
-                                      return {
-                                        groups: __expectString(output.groups),
-                                        mutualFollowers: __expectString(output.mutual_followers),
-                                        public: __expectString(output.public),
-                                      } as any;
-                                    }
-
-                                    const deserializeAws_restJson1PartySummary = (
-                                      output: any,
-                                      context: __SerdeContext
-                                    ): PartySummary => {
-                                      return {
-                                        activity: (output.activity !== undefined && output.activity !== null) ? deserializeAws_restJson1PartyActivity(__expectUnion(output.activity), context): undefined,
-                                        createTs: (output.create_ts !== undefined && output.create_ts !== null) ? __expectNonNull(__parseRfc3339DateTime(output.create_ts)): undefined,
-                                        external: (output.external !== undefined && output.external !== null) ? deserializeAws_restJson1PartyExternalLinks(output.external, context): undefined,
-                                        members: (output.members !== undefined && output.members !== null) ? deserializeAws_restJson1PartyMemberSummaries(output.members, context): undefined,
-                                        partyId: __expectString(output.party_id),
-                                        partySize: __expectInt32(output.party_size),
-                                        publicity: (output.publicity !== undefined && output.publicity !== null) ? deserializeAws_restJson1PartyPublicity(output.publicity, context): undefined,
-                                        threadId: __expectString(output.thread_id),
-                                      } as any;
-                                    }
-
-                                    const deserializeAws_restJson1Document = (
-                                      output: any,
-                                      context: __SerdeContext
-                                    ): __DocumentType => {
-                                      return output;
-                                    }
-
-                                    const deserializeMetadata = (output: __HttpResponse): __ResponseMetadata => ({
-                                      httpStatusCode: output.statusCode,
-                                      requestId: output.headers["x-amzn-requestid"] ?? output.headers["x-amzn-request-id"],
-                                      extendedRequestId: output.headers["x-amz-id-2"],
-                                      cfId: output.headers["x-amz-cf-id"],
-                                    });
-
-                                    // Collect low-level response body stream to Uint8Array.
-                                    const collectBody = (streamBody: any = new Uint8Array(), context: __SerdeContext): Promise<Uint8Array> => {
-                                      if (streamBody instanceof Uint8Array) {
-                                        return Promise.resolve(streamBody);
-                                      }
-                                      return context.streamCollector(streamBody) || Promise.resolve(new Uint8Array());
-                                    };
-
-                                    // Encode Uint8Array data into string with utf-8.
-                                    const collectBodyString = (streamBody: any, context: __SerdeContext): Promise<string> => collectBody(streamBody, context).then(body => context.utf8Encoder(body))
-
-                                    const isSerializableHeaderValue = (value: any): boolean =>
-                                      value !== undefined &&
-                                      value !== null &&
-                                      value !== "" &&
-                                      (!Object.getOwnPropertyNames(value).includes("length") ||
-                                        value.length != 0) &&
-                                      (!Object.getOwnPropertyNames(value).includes("size") || value.size != 0);
-
-                                    const parseBody = (streamBody: any, context: __SerdeContext): any => collectBodyString(streamBody, context).then(encoded => {
-                                      if (encoded.length) {
-                                        return JSON.parse(encoded);
-                                      }
-                                      return {};
-                                    });
-
-                                    /**
-                                     * Load an error code for the aws.rest-json-1.1 protocol.
-                                     */
-                                    const loadRestJsonErrorCode = (output: __HttpResponse, data: any): string => {
-                                      const findKey = (object: any, key: string) => Object.keys(object).find((k) => k.toLowerCase() === key.toLowerCase());
-
-                                      const sanitizeErrorCode = (rawValue: string): string => {
-                                        let cleanValue = rawValue;
-                                        if (cleanValue.indexOf(":") >= 0) {
-                                          cleanValue = cleanValue.split(":")[0];
+                                        if (data.metadata !== undefined && data.metadata !== null) {
+                                          contents.metadata = deserializeAws_restJson1ErrorMetadata(data.metadata, context);
                                         }
-                                        if (cleanValue.indexOf("#") >= 0) {
-                                          cleanValue = cleanValue.split("#")[1];
-                                        }
-                                        return cleanValue;
+                                        const exception = new BadRequestError({
+                                          $metadata: deserializeMetadata(parsedOutput),
+                                          ...contents
+                                        });
+                                        return __decorateServiceException(exception, parsedOutput.body);
                                       };
 
-                                      const headerKey = findKey(output.headers, "x-amzn-errortype");
-                                      if (headerKey !== undefined) {
-                                        return sanitizeErrorCode(output.headers[headerKey]);
+                                      const deserializeAws_restJson1ForbiddenErrorResponse = async (
+                                        parsedOutput: any,
+                                        context: __SerdeContext
+                                      ): Promise<ForbiddenError> => {
+                                        const contents: any = {};
+                                        const data: any = parsedOutput.body;
+                                        if (data.code !== undefined && data.code !== null) {
+                                          contents.code = __expectString(data.code);
+                                        }
+                                        if (data.message !== undefined && data.message !== null) {
+                                          contents.message = __expectString(data.message);
+                                        }
+                                        if (data.metadata !== undefined && data.metadata !== null) {
+                                          contents.metadata = deserializeAws_restJson1ErrorMetadata(data.metadata, context);
+                                        }
+                                        const exception = new ForbiddenError({
+                                          $metadata: deserializeMetadata(parsedOutput),
+                                          ...contents
+                                        });
+                                        return __decorateServiceException(exception, parsedOutput.body);
+                                      };
+
+                                      const deserializeAws_restJson1InternalErrorResponse = async (
+                                        parsedOutput: any,
+                                        context: __SerdeContext
+                                      ): Promise<InternalError> => {
+                                        const contents: any = {};
+                                        const data: any = parsedOutput.body;
+                                        if (data.code !== undefined && data.code !== null) {
+                                          contents.code = __expectString(data.code);
+                                        }
+                                        if (data.message !== undefined && data.message !== null) {
+                                          contents.message = __expectString(data.message);
+                                        }
+                                        if (data.metadata !== undefined && data.metadata !== null) {
+                                          contents.metadata = deserializeAws_restJson1ErrorMetadata(data.metadata, context);
+                                        }
+                                        const exception = new InternalError({
+                                          $metadata: deserializeMetadata(parsedOutput),
+                                          ...contents
+                                        });
+                                        return __decorateServiceException(exception, parsedOutput.body);
+                                      };
+
+                                      const deserializeAws_restJson1NotFoundErrorResponse = async (
+                                        parsedOutput: any,
+                                        context: __SerdeContext
+                                      ): Promise<NotFoundError> => {
+                                        const contents: any = {};
+                                        const data: any = parsedOutput.body;
+                                        if (data.code !== undefined && data.code !== null) {
+                                          contents.code = __expectString(data.code);
+                                        }
+                                        if (data.message !== undefined && data.message !== null) {
+                                          contents.message = __expectString(data.message);
+                                        }
+                                        if (data.metadata !== undefined && data.metadata !== null) {
+                                          contents.metadata = deserializeAws_restJson1ErrorMetadata(data.metadata, context);
+                                        }
+                                        const exception = new NotFoundError({
+                                          $metadata: deserializeMetadata(parsedOutput),
+                                          ...contents
+                                        });
+                                        return __decorateServiceException(exception, parsedOutput.body);
+                                      };
+
+                                      const deserializeAws_restJson1RateLimitErrorResponse = async (
+                                        parsedOutput: any,
+                                        context: __SerdeContext
+                                      ): Promise<RateLimitError> => {
+                                        const contents: any = {};
+                                        const data: any = parsedOutput.body;
+                                        if (data.code !== undefined && data.code !== null) {
+                                          contents.code = __expectString(data.code);
+                                        }
+                                        if (data.message !== undefined && data.message !== null) {
+                                          contents.message = __expectString(data.message);
+                                        }
+                                        if (data.metadata !== undefined && data.metadata !== null) {
+                                          contents.metadata = deserializeAws_restJson1ErrorMetadata(data.metadata, context);
+                                        }
+                                        const exception = new RateLimitError({
+                                          $metadata: deserializeMetadata(parsedOutput),
+                                          ...contents
+                                        });
+                                        return __decorateServiceException(exception, parsedOutput.body);
+                                      };
+
+                                      const deserializeAws_restJson1UnauthorizedErrorResponse = async (
+                                        parsedOutput: any,
+                                        context: __SerdeContext
+                                      ): Promise<UnauthorizedError> => {
+                                        const contents: any = {};
+                                        const data: any = parsedOutput.body;
+                                        if (data.code !== undefined && data.code !== null) {
+                                          contents.code = __expectString(data.code);
+                                        }
+                                        if (data.message !== undefined && data.message !== null) {
+                                          contents.message = __expectString(data.message);
+                                        }
+                                        if (data.metadata !== undefined && data.metadata !== null) {
+                                          contents.metadata = deserializeAws_restJson1ErrorMetadata(data.metadata, context);
+                                        }
+                                        const exception = new UnauthorizedError({
+                                          $metadata: deserializeMetadata(parsedOutput),
+                                          ...contents
+                                        });
+                                        return __decorateServiceException(exception, parsedOutput.body);
+                                      };
+
+                                      const serializeAws_restJson1CreatePartyInviteConfig = (
+                                        input: CreatePartyInviteConfig,
+                                        context: __SerdeContext
+                                      ): any => {
+                                        return {
+                                          ...(input.alias !== undefined && input.alias !== null && { "alias": input.alias }),
+                                        };
                                       }
 
-                                      if (data.code !== undefined) {
-                                        return sanitizeErrorCode(data.code);
+                                      const serializeAws_restJson1CreatePartyInviteConfigs = (
+                                        input: (CreatePartyInviteConfig)[],
+                                        context: __SerdeContext
+                                      ): any => {
+                                        return input.filter((e: any) => e != null).map(entry => {
+                                          if (entry === null) { return null as any; }
+                                          return serializeAws_restJson1CreatePartyInviteConfig(entry, context);
+                                        });
                                       }
 
-                                      if (data["__type"] !== undefined) {
-                                        return sanitizeErrorCode(data["__type"]);
+                                      const serializeAws_restJson1CreatePartyPublicityConfig = (
+                                        input: CreatePartyPublicityConfig,
+                                        context: __SerdeContext
+                                      ): any => {
+                                        return {
+                                          ...(input.groups !== undefined && input.groups !== null && { "groups": input.groups }),
+                                          ...(input.mutualFollowers !== undefined && input.mutualFollowers !== null && { "mutual_followers": input.mutualFollowers }),
+                                          ...(input.public !== undefined && input.public !== null && { "public": input.public }),
+                                        };
                                       }
 
-                                      return "";
-                                    };
+                                      const serializeAws_restJson1JoinPartyInvite = (
+                                        input: JoinPartyInvite,
+                                        context: __SerdeContext
+                                      ): any => {
+                                        return JoinPartyInvite.visit(input, {
+                                          alias: value => ({ "alias": value }),
+                                          partyId: value => ({ "party_id": value }),
+                                          token: value => ({ "token": value }),
+                                          _: (name, value) => ({ name: value } as any)
+                                        });
+                                      }
+
+                                      const serializeAws_restJson1CaptchaConfig = (
+                                        input: CaptchaConfig,
+                                        context: __SerdeContext
+                                      ): any => {
+                                        return CaptchaConfig.visit(input, {
+                                          hcaptcha: value => ({ "hcaptcha": serializeAws_restJson1CaptchaConfigHcaptcha(value, context) }),
+                                          turnstile: value => ({ "turnstile": serializeAws_restJson1CaptchaConfigTurnstile(value, context) }),
+                                          _: (name, value) => ({ name: value } as any)
+                                        });
+                                      }
+
+                                      const serializeAws_restJson1CaptchaConfigHcaptcha = (
+                                        input: CaptchaConfigHcaptcha,
+                                        context: __SerdeContext
+                                      ): any => {
+                                        return {
+                                          ...(input.clientResponse !== undefined && input.clientResponse !== null && { "client_response": input.clientResponse }),
+                                        };
+                                      }
+
+                                      const serializeAws_restJson1CaptchaConfigTurnstile = (
+                                        input: CaptchaConfigTurnstile,
+                                        context: __SerdeContext
+                                      ): any => {
+                                        return {
+                                          ...(input.clientResponse !== undefined && input.clientResponse !== null && { "client_response": input.clientResponse }),
+                                        };
+                                      }
+
+                                      const serializeAws_restJson1FindGameModes = (
+                                        input: (string)[],
+                                        context: __SerdeContext
+                                      ): any => {
+                                        return input.filter((e: any) => e != null).map(entry => {
+                                          if (entry === null) { return null as any; }
+                                          return entry;
+                                        });
+                                      }
+
+                                      const serializeAws_restJson1FindRegions = (
+                                        input: (string)[],
+                                        context: __SerdeContext
+                                      ): any => {
+                                        return input.filter((e: any) => e != null).map(entry => {
+                                          if (entry === null) { return null as any; }
+                                          return entry;
+                                        });
+                                      }
+
+                                      const deserializeAws_restJson1CreatedInvite = (
+                                        output: any,
+                                        context: __SerdeContext
+                                      ): CreatedInvite => {
+                                        return {
+                                          alias: __expectString(output.alias),
+                                          token: __expectString(output.token),
+                                        } as any;
+                                      }
+
+                                      const deserializeAws_restJson1CreatedInvites = (
+                                        output: any,
+                                        context: __SerdeContext
+                                      ): (CreatedInvite)[] => {
+                                        const retVal = (output || []).filter((e: any) => e != null).map((entry: any) => {
+                                          if (entry === null) {
+                                            return null as any;
+                                          }
+                                          return deserializeAws_restJson1CreatedInvite(entry, context);
+                                        });
+                                        return retVal;
+                                      }
+
+                                      const deserializeAws_restJson1WatchResponse = (
+                                        output: any,
+                                        context: __SerdeContext
+                                      ): WatchResponse => {
+                                        return {
+                                          index: __expectString(output.index),
+                                        } as any;
+                                      }
+
+                                      const deserializeAws_restJson1ErrorMetadata = (
+                                        output: any,
+                                        context: __SerdeContext
+                                      ): __DocumentType => {
+                                        return output;
+                                      }
+
+                                      const deserializeAws_restJson1GameHandle = (
+                                        output: any,
+                                        context: __SerdeContext
+                                      ): GameHandle => {
+                                        return {
+                                          bannerUrl: __expectString(output.banner_url),
+                                          displayName: __expectString(output.display_name),
+                                          gameId: __expectString(output.game_id),
+                                          logoUrl: __expectString(output.logo_url),
+                                          nameId: __expectString(output.name_id),
+                                        } as any;
+                                      }
+
+                                      const deserializeAws_restJson1IdentityExternalLinks = (
+                                        output: any,
+                                        context: __SerdeContext
+                                      ): IdentityExternalLinks => {
+                                        return {
+                                          chat: __expectString(output.chat),
+                                          profile: __expectString(output.profile),
+                                          settings: __expectString(output.settings),
+                                        } as any;
+                                      }
+
+                                      const deserializeAws_restJson1IdentityGameActivity = (
+                                        output: any,
+                                        context: __SerdeContext
+                                      ): IdentityGameActivity => {
+                                        return {
+                                          game: (output.game !== undefined && output.game !== null) ? deserializeAws_restJson1GameHandle(output.game, context): undefined,
+                                          message: __expectString(output.message),
+                                          mutualMetadata: (output.mutual_metadata !== undefined && output.mutual_metadata !== null) ? deserializeAws_restJson1Document(output.mutual_metadata, context): undefined,
+                                          publicMetadata: (output.public_metadata !== undefined && output.public_metadata !== null) ? deserializeAws_restJson1Document(output.public_metadata, context): undefined,
+                                        } as any;
+                                      }
+
+                                      const deserializeAws_restJson1IdentityHandle = (
+                                        output: any,
+                                        context: __SerdeContext
+                                      ): IdentityHandle => {
+                                        return {
+                                          accountNumber: __expectInt32(output.account_number),
+                                          avatarUrl: __expectString(output.avatar_url),
+                                          displayName: __expectString(output.display_name),
+                                          external: (output.external !== undefined && output.external !== null) ? deserializeAws_restJson1IdentityExternalLinks(output.external, context): undefined,
+                                          identityId: __expectString(output.identity_id),
+                                          isRegistered: __expectBoolean(output.is_registered),
+                                          party: (output.party !== undefined && output.party !== null) ? deserializeAws_restJson1PartyHandle(output.party, context): undefined,
+                                          presence: (output.presence !== undefined && output.presence !== null) ? deserializeAws_restJson1IdentityPresence(output.presence, context): undefined,
+                                        } as any;
+                                      }
+
+                                      const deserializeAws_restJson1IdentityPresence = (
+                                        output: any,
+                                        context: __SerdeContext
+                                      ): IdentityPresence => {
+                                        return {
+                                          gameActivity: (output.game_activity !== undefined && output.game_activity !== null) ? deserializeAws_restJson1IdentityGameActivity(output.game_activity, context): undefined,
+                                          status: __expectString(output.status),
+                                          updateTs: (output.update_ts !== undefined && output.update_ts !== null) ? __expectNonNull(__parseRfc3339DateTime(output.update_ts)): undefined,
+                                        } as any;
+                                      }
+
+                                      const deserializeAws_restJson1PartyActivity = (
+                                        output: any,
+                                        context: __SerdeContext
+                                      ): PartyActivity => {
+                                        if (output.idle !== undefined && output.idle !== null) {
+                                          return {
+                                            idle: deserializeAws_restJson1PartyActivityIdle(output.idle, context)
+                                          };
+                                        }
+                                        if (output.matchmaker_finding_lobby !== undefined && output.matchmaker_finding_lobby !== null) {
+                                          return {
+                                            matchmakerFindingLobby: deserializeAws_restJson1PartyActivityMatchmakerFindingLobby(output.matchmaker_finding_lobby, context)
+                                          };
+                                        }
+                                        if (output.matchmaker_lobby !== undefined && output.matchmaker_lobby !== null) {
+                                          return {
+                                            matchmakerLobby: deserializeAws_restJson1PartyActivityMatchmakerLobby(output.matchmaker_lobby, context)
+                                          };
+                                        }
+                                        return { $unknown: Object.entries(output)[0] };
+                                      }
+
+                                      const deserializeAws_restJson1PartyActivityIdle = (
+                                        output: any,
+                                        context: __SerdeContext
+                                      ): PartyActivityIdle => {
+                                        return {
+                                        } as any;
+                                      }
+
+                                      const deserializeAws_restJson1PartyActivityMatchmakerFindingLobby = (
+                                        output: any,
+                                        context: __SerdeContext
+                                      ): PartyActivityMatchmakerFindingLobby => {
+                                        return {
+                                          game: (output.game !== undefined && output.game !== null) ? deserializeAws_restJson1GameHandle(output.game, context): undefined,
+                                        } as any;
+                                      }
+
+                                      const deserializeAws_restJson1PartyActivityMatchmakerLobby = (
+                                        output: any,
+                                        context: __SerdeContext
+                                      ): PartyActivityMatchmakerLobby => {
+                                        return {
+                                          game: (output.game !== undefined && output.game !== null) ? deserializeAws_restJson1GameHandle(output.game, context): undefined,
+                                          lobby: (output.lobby !== undefined && output.lobby !== null) ? deserializeAws_restJson1PartyMatchmakerLobby(output.lobby, context): undefined,
+                                        } as any;
+                                      }
+
+                                      const deserializeAws_restJson1PartyExternalLinks = (
+                                        output: any,
+                                        context: __SerdeContext
+                                      ): PartyExternalLinks => {
+                                        return {
+                                          chat: __expectString(output.chat),
+                                        } as any;
+                                      }
+
+                                      const deserializeAws_restJson1PartyHandle = (
+                                        output: any,
+                                        context: __SerdeContext
+                                      ): PartyHandle => {
+                                        return {
+                                          activity: (output.activity !== undefined && output.activity !== null) ? deserializeAws_restJson1PartyActivity(__expectUnion(output.activity), context): undefined,
+                                          createTs: (output.create_ts !== undefined && output.create_ts !== null) ? __expectNonNull(__parseRfc3339DateTime(output.create_ts)): undefined,
+                                          external: (output.external !== undefined && output.external !== null) ? deserializeAws_restJson1PartyExternalLinks(output.external, context): undefined,
+                                          partyId: __expectString(output.party_id),
+                                        } as any;
+                                      }
+
+                                      const deserializeAws_restJson1PartyInvite = (
+                                        output: any,
+                                        context: __SerdeContext
+                                      ): PartyInvite => {
+                                        return {
+                                          alias: (output.alias !== undefined && output.alias !== null) ? deserializeAws_restJson1PartyInviteAlias(output.alias, context): undefined,
+                                          createTs: (output.create_ts !== undefined && output.create_ts !== null) ? __expectNonNull(__parseRfc3339DateTime(output.create_ts)): undefined,
+                                          external: (output.external !== undefined && output.external !== null) ? deserializeAws_restJson1PartyInviteExternalLinks(output.external, context): undefined,
+                                          inviteId: __expectString(output.invite_id),
+                                          token: __expectString(output.token),
+                                        } as any;
+                                      }
+
+                                      const deserializeAws_restJson1PartyInviteAlias = (
+                                        output: any,
+                                        context: __SerdeContext
+                                      ): PartyInviteAlias => {
+                                        return {
+                                          alias: __expectString(output.alias),
+                                          namespaceId: __expectString(output.namespace_id),
+                                        } as any;
+                                      }
+
+                                      const deserializeAws_restJson1PartyInviteExternalLinks = (
+                                        output: any,
+                                        context: __SerdeContext
+                                      ): PartyInviteExternalLinks => {
+                                        return {
+                                          invite: __expectString(output.invite),
+                                        } as any;
+                                      }
+
+                                      const deserializeAws_restJson1PartyInvites = (
+                                        output: any,
+                                        context: __SerdeContext
+                                      ): (PartyInvite)[] => {
+                                        const retVal = (output || []).filter((e: any) => e != null).map((entry: any) => {
+                                          if (entry === null) {
+                                            return null as any;
+                                          }
+                                          return deserializeAws_restJson1PartyInvite(entry, context);
+                                        });
+                                        return retVal;
+                                      }
+
+                                      const deserializeAws_restJson1PartyMatchmakerLobby = (
+                                        output: any,
+                                        context: __SerdeContext
+                                      ): PartyMatchmakerLobby => {
+                                        return {
+                                          lobbyId: __expectString(output.lobby_id),
+                                        } as any;
+                                      }
+
+                                      const deserializeAws_restJson1PartyMemberState = (
+                                        output: any,
+                                        context: __SerdeContext
+                                      ): PartyMemberState => {
+                                        if (output.inactive !== undefined && output.inactive !== null) {
+                                          return {
+                                            inactive: deserializeAws_restJson1PartyMemberStateInactive(output.inactive, context)
+                                          };
+                                        }
+                                        if (output.matchmaker_finding_lobby !== undefined && output.matchmaker_finding_lobby !== null) {
+                                          return {
+                                            matchmakerFindingLobby: deserializeAws_restJson1PartyMemberStateMatchmakerFindingLobby(output.matchmaker_finding_lobby, context)
+                                          };
+                                        }
+                                        if (output.matchmaker_lobby !== undefined && output.matchmaker_lobby !== null) {
+                                          return {
+                                            matchmakerLobby: deserializeAws_restJson1PartyMemberStateMatchmakerLobby(output.matchmaker_lobby, context)
+                                          };
+                                        }
+                                        if (output.matchmaker_ready !== undefined && output.matchmaker_ready !== null) {
+                                          return {
+                                            matchmakerReady: deserializeAws_restJson1PartyMemberStateMatchmakerReady(output.matchmaker_ready, context)
+                                          };
+                                        }
+                                        return { $unknown: Object.entries(output)[0] };
+                                      }
+
+                                      const deserializeAws_restJson1PartyMemberStateInactive = (
+                                        output: any,
+                                        context: __SerdeContext
+                                      ): PartyMemberStateInactive => {
+                                        return {
+                                        } as any;
+                                      }
+
+                                      const deserializeAws_restJson1PartyMemberStateMatchmakerFindingLobby = (
+                                        output: any,
+                                        context: __SerdeContext
+                                      ): PartyMemberStateMatchmakerFindingLobby => {
+                                        return {
+                                        } as any;
+                                      }
+
+                                      const deserializeAws_restJson1PartyMemberStateMatchmakerLobby = (
+                                        output: any,
+                                        context: __SerdeContext
+                                      ): PartyMemberStateMatchmakerLobby => {
+                                        return {
+                                          playerId: __expectString(output.player_id),
+                                        } as any;
+                                      }
+
+                                      const deserializeAws_restJson1PartyMemberStateMatchmakerReady = (
+                                        output: any,
+                                        context: __SerdeContext
+                                      ): PartyMemberStateMatchmakerReady => {
+                                        return {
+                                        } as any;
+                                      }
+
+                                      const deserializeAws_restJson1PartyMemberSummaries = (
+                                        output: any,
+                                        context: __SerdeContext
+                                      ): (PartyMemberSummary)[] => {
+                                        const retVal = (output || []).filter((e: any) => e != null).map((entry: any) => {
+                                          if (entry === null) {
+                                            return null as any;
+                                          }
+                                          return deserializeAws_restJson1PartyMemberSummary(entry, context);
+                                        });
+                                        return retVal;
+                                      }
+
+                                      const deserializeAws_restJson1PartyMemberSummary = (
+                                        output: any,
+                                        context: __SerdeContext
+                                      ): PartyMemberSummary => {
+                                        return {
+                                          identity: (output.identity !== undefined && output.identity !== null) ? deserializeAws_restJson1IdentityHandle(output.identity, context): undefined,
+                                          isLeader: __expectBoolean(output.is_leader),
+                                          joinTs: (output.join_ts !== undefined && output.join_ts !== null) ? __expectNonNull(__parseRfc3339DateTime(output.join_ts)): undefined,
+                                          state: (output.state !== undefined && output.state !== null) ? deserializeAws_restJson1PartyMemberState(__expectUnion(output.state), context): undefined,
+                                        } as any;
+                                      }
+
+                                      const deserializeAws_restJson1PartyProfile = (
+                                        output: any,
+                                        context: __SerdeContext
+                                      ): PartyProfile => {
+                                        return {
+                                          activity: (output.activity !== undefined && output.activity !== null) ? deserializeAws_restJson1PartyActivity(__expectUnion(output.activity), context): undefined,
+                                          createTs: (output.create_ts !== undefined && output.create_ts !== null) ? __expectNonNull(__parseRfc3339DateTime(output.create_ts)): undefined,
+                                          external: (output.external !== undefined && output.external !== null) ? deserializeAws_restJson1PartyExternalLinks(output.external, context): undefined,
+                                          invites: (output.invites !== undefined && output.invites !== null) ? deserializeAws_restJson1PartyInvites(output.invites, context): undefined,
+                                          members: (output.members !== undefined && output.members !== null) ? deserializeAws_restJson1PartyMemberSummaries(output.members, context): undefined,
+                                          partyId: __expectString(output.party_id),
+                                          partySize: __expectInt32(output.party_size),
+                                          publicity: (output.publicity !== undefined && output.publicity !== null) ? deserializeAws_restJson1PartyPublicity(output.publicity, context): undefined,
+                                          threadId: __expectString(output.thread_id),
+                                        } as any;
+                                      }
+
+                                      const deserializeAws_restJson1PartyPublicity = (
+                                        output: any,
+                                        context: __SerdeContext
+                                      ): PartyPublicity => {
+                                        return {
+                                          groups: __expectString(output.groups),
+                                          mutualFollowers: __expectString(output.mutual_followers),
+                                          public: __expectString(output.public),
+                                        } as any;
+                                      }
+
+                                      const deserializeAws_restJson1PartySummary = (
+                                        output: any,
+                                        context: __SerdeContext
+                                      ): PartySummary => {
+                                        return {
+                                          activity: (output.activity !== undefined && output.activity !== null) ? deserializeAws_restJson1PartyActivity(__expectUnion(output.activity), context): undefined,
+                                          createTs: (output.create_ts !== undefined && output.create_ts !== null) ? __expectNonNull(__parseRfc3339DateTime(output.create_ts)): undefined,
+                                          external: (output.external !== undefined && output.external !== null) ? deserializeAws_restJson1PartyExternalLinks(output.external, context): undefined,
+                                          members: (output.members !== undefined && output.members !== null) ? deserializeAws_restJson1PartyMemberSummaries(output.members, context): undefined,
+                                          partyId: __expectString(output.party_id),
+                                          partySize: __expectInt32(output.party_size),
+                                          publicity: (output.publicity !== undefined && output.publicity !== null) ? deserializeAws_restJson1PartyPublicity(output.publicity, context): undefined,
+                                          threadId: __expectString(output.thread_id),
+                                        } as any;
+                                      }
+
+                                      const deserializeAws_restJson1Document = (
+                                        output: any,
+                                        context: __SerdeContext
+                                      ): __DocumentType => {
+                                        return output;
+                                      }
+
+                                      const deserializeMetadata = (output: __HttpResponse): __ResponseMetadata => ({
+                                        httpStatusCode: output.statusCode,
+                                        requestId: output.headers["x-amzn-requestid"] ?? output.headers["x-amzn-request-id"],
+                                        extendedRequestId: output.headers["x-amz-id-2"],
+                                        cfId: output.headers["x-amz-cf-id"],
+                                      });
+
+                                      // Collect low-level response body stream to Uint8Array.
+                                      const collectBody = (streamBody: any = new Uint8Array(), context: __SerdeContext): Promise<Uint8Array> => {
+                                        if (streamBody instanceof Uint8Array) {
+                                          return Promise.resolve(streamBody);
+                                        }
+                                        return context.streamCollector(streamBody) || Promise.resolve(new Uint8Array());
+                                      };
+
+                                      // Encode Uint8Array data into string with utf-8.
+                                      const collectBodyString = (streamBody: any, context: __SerdeContext): Promise<string> => collectBody(streamBody, context).then(body => context.utf8Encoder(body))
+
+                                      const isSerializableHeaderValue = (value: any): boolean =>
+                                        value !== undefined &&
+                                        value !== null &&
+                                        value !== "" &&
+                                        (!Object.getOwnPropertyNames(value).includes("length") ||
+                                          value.length != 0) &&
+                                        (!Object.getOwnPropertyNames(value).includes("size") || value.size != 0);
+
+                                      const parseBody = (streamBody: any, context: __SerdeContext): any => collectBodyString(streamBody, context).then(encoded => {
+                                        if (encoded.length) {
+                                          return JSON.parse(encoded);
+                                        }
+                                        return {};
+                                      });
+
+                                      /**
+                                       * Load an error code for the aws.rest-json-1.1 protocol.
+                                       */
+                                      const loadRestJsonErrorCode = (output: __HttpResponse, data: any): string => {
+                                        const findKey = (object: any, key: string) => Object.keys(object).find((k) => k.toLowerCase() === key.toLowerCase());
+
+                                        const sanitizeErrorCode = (rawValue: string): string => {
+                                          let cleanValue = rawValue;
+                                          if (cleanValue.indexOf(":") >= 0) {
+                                            cleanValue = cleanValue.split(":")[0];
+                                          }
+                                          if (cleanValue.indexOf("#") >= 0) {
+                                            cleanValue = cleanValue.split("#")[1];
+                                          }
+                                          return cleanValue;
+                                        };
+
+                                        const headerKey = findKey(output.headers, "x-amzn-errortype");
+                                        if (headerKey !== undefined) {
+                                          return sanitizeErrorCode(output.headers[headerKey]);
+                                        }
+
+                                        if (data.code !== undefined) {
+                                          return sanitizeErrorCode(data.code);
+                                        }
+
+                                        if (data["__type"] !== undefined) {
+                                          return sanitizeErrorCode(data["__type"]);
+                                        }
+
+                                        return "";
+                                      };

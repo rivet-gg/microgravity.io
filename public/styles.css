@@ -262,6 +262,7 @@ select {
 	justify-content: space-between;
 	align-items: center;
 	margin-bottom: 8px;
+	pointer-events: all;
 
 	padding: 5px 6px 5px 5px;
 	border-radius: 5px;
@@ -318,6 +319,21 @@ select {
 
 .identityHandle .identityContent .identityUsername span {
 	opacity: 0.6;
+}
+
+.identityHandle .identityContent .shipPreview {
+	flex: 0 0 auto;
+	width: 30px;
+	height: 30px;
+	margin: 2px 4px -2px -2px;
+	border: none;
+}
+.identityHandle .identityContent .shipPreview .shipPreviewMask,
+.identityHandle .identityContent .shipPreview .shipPreviewOverlay {
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
 }
 
 .identityHandle .identityActions {

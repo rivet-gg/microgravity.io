@@ -23,9 +23,69 @@ export namespace ListActivitiesInput {
 }
 
 /**
- * A game handle.
+ * External links for this group.
  */
-export interface GameHandle {
+export interface GroupExternalLinks {
+  /**
+   * A link to this group's profile page.
+   */
+  profile: string | undefined;
+
+  /**
+   * A link to this group's chat page.
+   */
+  chat: string | undefined;
+}
+
+export namespace GroupExternalLinks {
+  /**
+   * @internal
+   */
+  export const filterSensitiveLog = (obj: GroupExternalLinks): any => ({
+    ...obj,
+  })
+}
+
+/**
+ * A group handle.
+ */
+export interface GroupHandle {
+  /**
+   * A universally unique identifier.
+   */
+  groupId: string | undefined;
+
+  /**
+   * Represent a resource's readable display name.
+   */
+  displayName: string | undefined;
+
+  /**
+   * The URL of this group's avatar image.
+   */
+  avatarUrl?: string;
+
+  /**
+   * External links for this group.
+   */
+  external: GroupExternalLinks | undefined;
+
+  /**
+   * Whether or not this group is a developer group.
+   */
+  isDeveloper?: boolean;
+}
+
+export namespace GroupHandle {
+  /**
+   * @internal
+   */
+  export const filterSensitiveLog = (obj: GroupHandle): any => ({
+    ...obj,
+  })
+}
+
+export interface GameSummary {
   /**
    * A universally unique identifier.
    */
@@ -55,13 +115,28 @@ export interface GameHandle {
    * The URL of this game's banner image.
    */
   bannerUrl?: string;
+
+  /**
+   * The URL to this game's website.
+   */
+  url: string | undefined;
+
+  /**
+   * A group handle.
+   */
+  developer: GroupHandle | undefined;
+
+  /**
+   * A list of game tags.
+   */
+  tags: (string)[] | undefined;
 }
 
-export namespace GameHandle {
+export namespace GameSummary {
   /**
    * @internal
    */
-  export const filterSensitiveLog = (obj: GameHandle): any => ({
+  export const filterSensitiveLog = (obj: GameSummary): any => ({
     ...obj,
   })
 }
@@ -106,6 +181,50 @@ export namespace PartyActivityIdle {
    * @internal
    */
   export const filterSensitiveLog = (obj: PartyActivityIdle): any => ({
+    ...obj,
+  })
+}
+
+/**
+ * A game handle.
+ */
+export interface GameHandle {
+  /**
+   * A universally unique identifier.
+   */
+  gameId: string | undefined;
+
+  /**
+   * A human readable short identifier used to references resources.
+   *
+   * Different than a `rivet.common#Uuid` because this is intended to be human readable.
+   *
+   * Different than `rivet.common#DisplayName` because this should not include special
+   * characters and be short.
+   */
+  nameId: string | undefined;
+
+  /**
+   * Represent a resource's readable display name.
+   */
+  displayName: string | undefined;
+
+  /**
+   * The URL of this game's logo image.
+   */
+  logoUrl?: string;
+
+  /**
+   * The URL of this game's banner image.
+   */
+  bannerUrl?: string;
+}
+
+export namespace GameHandle {
+  /**
+   * @internal
+   */
+  export const filterSensitiveLog = (obj: GameHandle): any => ({
     ...obj,
   })
 }
@@ -174,6 +293,9 @@ export namespace PartyActivityMatchmakerLobby {
 
 /**
  * A union representing the activity of a given party.
+ * -   `Idle`: The party is not doing anything. For example, the leader is sitting in the game menu or the players are hanging out on the hub.
+ * -   `MatchmakerFindingLobby`: There is a find request in progress for the lobby. If the find request fails, it will go back to `Idle`. If the find request succeeds, it will go to `MatchmakerLobby`.
+ * -   `MatchmakerLobby`: The party is in a lobby. This does not mean that all of the party members are in the lobby, see the member-specific states.
  */
 export type PartyActivity =
   | PartyActivity.IdleMember
@@ -289,6 +411,9 @@ export interface PartyHandle {
 
   /**
    * A union representing the activity of a given party.
+   * -   `Idle`: The party is not doing anything. For example, the leader is sitting in the game menu or the players are hanging out on the hub.
+   * -   `MatchmakerFindingLobby`: There is a find request in progress for the lobby. If the find request fails, it will go back to `Idle`. If the find request succeeds, it will go to `MatchmakerLobby`.
+   * -   `MatchmakerLobby`: The party is in a lobby. This does not mean that all of the party members are in the lobby, see the member-specific states.
    */
   activity: PartyActivity | undefined;
 
@@ -445,16 +570,16 @@ export namespace IdentityHandle {
 }
 
 /**
- * A party member state denoting that the member is idle.
+ * A party member state denoting that the member is inactive.
  */
-export interface PartyMemberStateIdle {
+export interface PartyMemberStateInactive {
 }
 
-export namespace PartyMemberStateIdle {
+export namespace PartyMemberStateInactive {
   /**
    * @internal
    */
-  export const filterSensitiveLog = (obj: PartyMemberStateIdle): any => ({
+  export const filterSensitiveLog = (obj: PartyMemberStateInactive): any => ({
     ...obj,
   })
 }
@@ -496,36 +621,43 @@ export namespace PartyMemberStateMatchmakerLobby {
 /**
  * A party member state denoting that the member is currently waiting to start matchmaking.
  */
-export interface PartyMemberStateMatchmakerPending {
+export interface PartyMemberStateMatchmakerReady {
 }
 
-export namespace PartyMemberStateMatchmakerPending {
+export namespace PartyMemberStateMatchmakerReady {
   /**
    * @internal
    */
-  export const filterSensitiveLog = (obj: PartyMemberStateMatchmakerPending): any => ({
+  export const filterSensitiveLog = (obj: PartyMemberStateMatchmakerReady): any => ({
     ...obj,
   })
 }
 
 /**
  * A union representing the current state of a party member.
+ * -   `Inactive`: The player is not doing anything. For example, the player can be sitting in the game menu or hanging out on the hub.
+ *     -   It's possible for the member to be in an inactive state while the party is in a lobby; this means the player is simply observing/interacting with others in the party and not part of the matchmaking process.
+ * -   `MatchmakerReady`: This means the member wants a player created for them.
+ *     -   Members can be in the ready state while the party is in an idle state. This means that the player will get a player created for them.
+ *     -   Members can be in the ready state while the party is in a lobby. This means that the player could not join the lobby because it was full or the player left the lobby unintentionally.
+ * -   `MatchmakerFindingLobby`: A find request is in progress for the member.
+ * -   `MatchmakerLobby`: The member is in a lobby.
  */
 export type PartyMemberState =
-  | PartyMemberState.IdleMember
+  | PartyMemberState.InactiveMember
   | PartyMemberState.MatchmakerFindingLobbyMember
   | PartyMemberState.MatchmakerLobbyMember
-  | PartyMemberState.MatchmakerPendingMember
+  | PartyMemberState.MatchmakerReadyMember
   | PartyMemberState.$UnknownMember
 
 export namespace PartyMemberState {
 
   /**
-   * A party member state denoting that the member is idle.
+   * A party member state denoting that the member is inactive.
    */
-  export interface IdleMember {
-    idle: PartyMemberStateIdle;
-    matchmakerPending?: never;
+  export interface InactiveMember {
+    inactive: PartyMemberStateInactive;
+    matchmakerReady?: never;
     matchmakerFindingLobby?: never;
     matchmakerLobby?: never;
     $unknown?: never;
@@ -534,9 +666,9 @@ export namespace PartyMemberState {
   /**
    * A party member state denoting that the member is currently waiting to start matchmaking.
    */
-  export interface MatchmakerPendingMember {
-    idle?: never;
-    matchmakerPending: PartyMemberStateMatchmakerPending;
+  export interface MatchmakerReadyMember {
+    inactive?: never;
+    matchmakerReady: PartyMemberStateMatchmakerReady;
     matchmakerFindingLobby?: never;
     matchmakerLobby?: never;
     $unknown?: never;
@@ -546,8 +678,8 @@ export namespace PartyMemberState {
    * A party member state denoting that the member is currently searching for a lobby.
    */
   export interface MatchmakerFindingLobbyMember {
-    idle?: never;
-    matchmakerPending?: never;
+    inactive?: never;
+    matchmakerReady?: never;
     matchmakerFindingLobby: PartyMemberStateMatchmakerFindingLobby;
     matchmakerLobby?: never;
     $unknown?: never;
@@ -557,24 +689,24 @@ export namespace PartyMemberState {
    * A party member state denoting that the member is in a lobby.
    */
   export interface MatchmakerLobbyMember {
-    idle?: never;
-    matchmakerPending?: never;
+    inactive?: never;
+    matchmakerReady?: never;
     matchmakerFindingLobby?: never;
     matchmakerLobby: PartyMemberStateMatchmakerLobby;
     $unknown?: never;
   }
 
   export interface $UnknownMember {
-    idle?: never;
-    matchmakerPending?: never;
+    inactive?: never;
+    matchmakerReady?: never;
     matchmakerFindingLobby?: never;
     matchmakerLobby?: never;
     $unknown: [string, any];
   }
 
   export interface Visitor<T> {
-    idle: (value: PartyMemberStateIdle) => T;
-    matchmakerPending: (value: PartyMemberStateMatchmakerPending) => T;
+    inactive: (value: PartyMemberStateInactive) => T;
+    matchmakerReady: (value: PartyMemberStateMatchmakerReady) => T;
     matchmakerFindingLobby: (value: PartyMemberStateMatchmakerFindingLobby) => T;
     matchmakerLobby: (value: PartyMemberStateMatchmakerLobby) => T;
     _: (name: string, value: any) => T;
@@ -584,8 +716,8 @@ export namespace PartyMemberState {
     value: PartyMemberState,
     visitor: Visitor<T>
   ): T => {
-    if (value.idle !== undefined) return visitor.idle(value.idle);
-    if (value.matchmakerPending !== undefined) return visitor.matchmakerPending(value.matchmakerPending);
+    if (value.inactive !== undefined) return visitor.inactive(value.inactive);
+    if (value.matchmakerReady !== undefined) return visitor.matchmakerReady(value.matchmakerReady);
     if (value.matchmakerFindingLobby !== undefined) return visitor.matchmakerFindingLobby(value.matchmakerFindingLobby);
     if (value.matchmakerLobby !== undefined) return visitor.matchmakerLobby(value.matchmakerLobby);
     return visitor._(value.$unknown[0], value.$unknown[1]);
@@ -595,11 +727,11 @@ export namespace PartyMemberState {
    * @internal
    */
   export const filterSensitiveLog = (obj: PartyMemberState): any => {
-    if (obj.idle !== undefined) return {idle:
-      PartyMemberStateIdle.filterSensitiveLog(obj.idle)
+    if (obj.inactive !== undefined) return {inactive:
+      PartyMemberStateInactive.filterSensitiveLog(obj.inactive)
     };
-    if (obj.matchmakerPending !== undefined) return {matchmakerPending:
-      PartyMemberStateMatchmakerPending.filterSensitiveLog(obj.matchmakerPending)
+    if (obj.matchmakerReady !== undefined) return {matchmakerReady:
+      PartyMemberStateMatchmakerReady.filterSensitiveLog(obj.matchmakerReady)
     };
     if (obj.matchmakerFindingLobby !== undefined) return {matchmakerFindingLobby:
       PartyMemberStateMatchmakerFindingLobby.filterSensitiveLog(obj.matchmakerFindingLobby)
@@ -632,6 +764,13 @@ export interface PartyMemberSummary {
 
   /**
    * A union representing the current state of a party member.
+   * -   `Inactive`: The player is not doing anything. For example, the player can be sitting in the game menu or hanging out on the hub.
+   *     -   It's possible for the member to be in an inactive state while the party is in a lobby; this means the player is simply observing/interacting with others in the party and not part of the matchmaking process.
+   * -   `MatchmakerReady`: This means the member wants a player created for them.
+   *     -   Members can be in the ready state while the party is in an idle state. This means that the player will get a player created for them.
+   *     -   Members can be in the ready state while the party is in a lobby. This means that the player could not join the lobby because it was full or the player left the lobby unintentionally.
+   * -   `MatchmakerFindingLobby`: A find request is in progress for the member.
+   * -   `MatchmakerLobby`: The member is in a lobby.
    */
   state: PartyMemberState | undefined;
 }
@@ -688,6 +827,9 @@ export interface PartySummary {
 
   /**
    * A union representing the activity of a given party.
+   * -   `Idle`: The party is not doing anything. For example, the leader is sitting in the game menu or the players are hanging out on the hub.
+   * -   `MatchmakerFindingLobby`: There is a find request in progress for the lobby. If the find request fails, it will go back to `Idle`. If the find request succeeds, it will go to `MatchmakerLobby`.
+   * -   `MatchmakerLobby`: The party is in a lobby. This does not mean that all of the party members are in the lobby, see the member-specific states.
    */
   activity: PartyActivity | undefined;
 
@@ -728,30 +870,6 @@ export namespace PartySummary {
         PartyMemberSummary.filterSensitiveLog(item)
       )
     }),
-  })
-}
-
-/**
- * External links for this group.
- */
-export interface GroupExternalLinks {
-  /**
-   * A link to this group's profile page.
-   */
-  profile: string | undefined;
-
-  /**
-   * A link to this group's chat page.
-   */
-  chat: string | undefined;
-}
-
-export namespace GroupExternalLinks {
-  /**
-   * @internal
-   */
-  export const filterSensitiveLog = (obj: GroupExternalLinks): any => ({
-    ...obj,
   })
 }
 
@@ -847,9 +965,9 @@ export interface ListActivitiesOutput {
   identities: (IdentityHandle)[] | undefined;
 
   /**
-   * A list of game handles.
+   * A list of game summaries.
    */
-  games: (GameHandle)[] | undefined;
+  games: (GameSummary)[] | undefined;
 
   /**
    * A list of party summaries.
@@ -1046,6 +1164,28 @@ export namespace ChatMessageBodyChatCreate {
 }
 
 /**
+ * `rivet.chat#ChatMessageBody` variant for deleted messages.
+ */
+export interface ChatMessageBodyDeleted {
+  /**
+   * An identity handle.
+   */
+  sender: IdentityHandle | undefined;
+}
+
+export namespace ChatMessageBodyDeleted {
+  /**
+   * @internal
+   */
+  export const filterSensitiveLog = (obj: ChatMessageBodyDeleted): any => ({
+    ...obj,
+    ...(obj.sender && { sender:
+      IdentityHandle.filterSensitiveLog(obj.sender)
+    }),
+  })
+}
+
+/**
  * `rivet.chat#ChatMessageBody` variant for indicating an identity joined the group.
  */
 export interface ChatMessageBodyGroupJoin {
@@ -1090,6 +1230,28 @@ export namespace ChatMessageBodyGroupLeave {
 }
 
 /**
+ * `rivet.chat#ChatMessageBody` variant for indicating an identity has been kicked from the group.
+ */
+export interface ChatMessageBodyGroupMemberKick {
+  /**
+   * An identity handle.
+   */
+  identity: IdentityHandle | undefined;
+}
+
+export namespace ChatMessageBodyGroupMemberKick {
+  /**
+   * @internal
+   */
+  export const filterSensitiveLog = (obj: ChatMessageBodyGroupMemberKick): any => ({
+    ...obj,
+    ...(obj.identity && { identity:
+      IdentityHandle.filterSensitiveLog(obj.identity)
+    }),
+  })
+}
+
+/**
  * `rivet.chat#ChatMessageBody` variant for indicating an identity followed the identity.
  */
 export interface ChatMessageBodyIdentityFollow {
@@ -1109,6 +1271,13 @@ export namespace ChatMessageBodyIdentityFollow {
  * activity.
  */
 export interface ChatMessageBodyPartyActivityChange {
+  /**
+   * A union representing the activity of a given party.
+   * -   `Idle`: The party is not doing anything. For example, the leader is sitting in the game menu or the players are hanging out on the hub.
+   * -   `MatchmakerFindingLobby`: There is a find request in progress for the lobby. If the find request fails, it will go back to `Idle`. If the find request succeeds, it will go to `MatchmakerLobby`.
+   * -   `MatchmakerLobby`: The party is in a lobby. This does not mean that all of the party members are in the lobby, see the member-specific states.
+   */
+  activity: PartyActivity | undefined;
 }
 
 export namespace ChatMessageBodyPartyActivityChange {
@@ -1117,6 +1286,9 @@ export namespace ChatMessageBodyPartyActivityChange {
    */
   export const filterSensitiveLog = (obj: ChatMessageBodyPartyActivityChange): any => ({
     ...obj,
+    ...(obj.activity && { activity:
+      PartyActivity.filterSensitiveLog(obj.activity)
+    }),
   })
 }
 
@@ -1260,8 +1432,10 @@ export namespace ChatMessageBodyText {
  */
 export type ChatMessageBody =
   | ChatMessageBody.ChatCreateMember
+  | ChatMessageBody.DeletedMember
   | ChatMessageBody.GroupJoinMember
   | ChatMessageBody.GroupLeaveMember
+  | ChatMessageBody.GroupMemberKickMember
   | ChatMessageBody.IdentityFollowMember
   | ChatMessageBody.PartyActivityChangeMember
   | ChatMessageBody.PartyInviteMember
@@ -1281,9 +1455,11 @@ export namespace ChatMessageBody {
   export interface TextMember {
     text: ChatMessageBodyText;
     chatCreate?: never;
+    deleted?: never;
     identityFollow?: never;
     groupJoin?: never;
     groupLeave?: never;
+    groupMemberKick?: never;
     partyInvite?: never;
     partyJoinRequest?: never;
     partyJoin?: never;
@@ -1298,9 +1474,30 @@ export namespace ChatMessageBody {
   export interface ChatCreateMember {
     text?: never;
     chatCreate: ChatMessageBodyChatCreate;
+    deleted?: never;
     identityFollow?: never;
     groupJoin?: never;
     groupLeave?: never;
+    groupMemberKick?: never;
+    partyInvite?: never;
+    partyJoinRequest?: never;
+    partyJoin?: never;
+    partyLeave?: never;
+    partyActivityChange?: never;
+    $unknown?: never;
+  }
+
+  /**
+   * `rivet.chat#ChatMessageBody` variant for deleted messages.
+   */
+  export interface DeletedMember {
+    text?: never;
+    chatCreate?: never;
+    deleted: ChatMessageBodyDeleted;
+    identityFollow?: never;
+    groupJoin?: never;
+    groupLeave?: never;
+    groupMemberKick?: never;
     partyInvite?: never;
     partyJoinRequest?: never;
     partyJoin?: never;
@@ -1315,9 +1512,11 @@ export namespace ChatMessageBody {
   export interface IdentityFollowMember {
     text?: never;
     chatCreate?: never;
+    deleted?: never;
     identityFollow: ChatMessageBodyIdentityFollow;
     groupJoin?: never;
     groupLeave?: never;
+    groupMemberKick?: never;
     partyInvite?: never;
     partyJoinRequest?: never;
     partyJoin?: never;
@@ -1332,9 +1531,11 @@ export namespace ChatMessageBody {
   export interface GroupJoinMember {
     text?: never;
     chatCreate?: never;
+    deleted?: never;
     identityFollow?: never;
     groupJoin: ChatMessageBodyGroupJoin;
     groupLeave?: never;
+    groupMemberKick?: never;
     partyInvite?: never;
     partyJoinRequest?: never;
     partyJoin?: never;
@@ -1349,9 +1550,30 @@ export namespace ChatMessageBody {
   export interface GroupLeaveMember {
     text?: never;
     chatCreate?: never;
+    deleted?: never;
     identityFollow?: never;
     groupJoin?: never;
     groupLeave: ChatMessageBodyGroupLeave;
+    groupMemberKick?: never;
+    partyInvite?: never;
+    partyJoinRequest?: never;
+    partyJoin?: never;
+    partyLeave?: never;
+    partyActivityChange?: never;
+    $unknown?: never;
+  }
+
+  /**
+   * `rivet.chat#ChatMessageBody` variant for indicating an identity has been kicked from the group.
+   */
+  export interface GroupMemberKickMember {
+    text?: never;
+    chatCreate?: never;
+    deleted?: never;
+    identityFollow?: never;
+    groupJoin?: never;
+    groupLeave?: never;
+    groupMemberKick: ChatMessageBodyGroupMemberKick;
     partyInvite?: never;
     partyJoinRequest?: never;
     partyJoin?: never;
@@ -1366,9 +1588,11 @@ export namespace ChatMessageBody {
   export interface PartyInviteMember {
     text?: never;
     chatCreate?: never;
+    deleted?: never;
     identityFollow?: never;
     groupJoin?: never;
     groupLeave?: never;
+    groupMemberKick?: never;
     partyInvite: ChatMessageBodyPartyInvite;
     partyJoinRequest?: never;
     partyJoin?: never;
@@ -1383,9 +1607,11 @@ export namespace ChatMessageBody {
   export interface PartyJoinRequestMember {
     text?: never;
     chatCreate?: never;
+    deleted?: never;
     identityFollow?: never;
     groupJoin?: never;
     groupLeave?: never;
+    groupMemberKick?: never;
     partyInvite?: never;
     partyJoinRequest: ChatMessageBodyPartyJoinRequest;
     partyJoin?: never;
@@ -1400,9 +1626,11 @@ export namespace ChatMessageBody {
   export interface PartyJoinMember {
     text?: never;
     chatCreate?: never;
+    deleted?: never;
     identityFollow?: never;
     groupJoin?: never;
     groupLeave?: never;
+    groupMemberKick?: never;
     partyInvite?: never;
     partyJoinRequest?: never;
     partyJoin: ChatMessageBodyPartyJoin;
@@ -1417,9 +1645,11 @@ export namespace ChatMessageBody {
   export interface PartyLeaveMember {
     text?: never;
     chatCreate?: never;
+    deleted?: never;
     identityFollow?: never;
     groupJoin?: never;
     groupLeave?: never;
+    groupMemberKick?: never;
     partyInvite?: never;
     partyJoinRequest?: never;
     partyJoin?: never;
@@ -1435,9 +1665,11 @@ export namespace ChatMessageBody {
   export interface PartyActivityChangeMember {
     text?: never;
     chatCreate?: never;
+    deleted?: never;
     identityFollow?: never;
     groupJoin?: never;
     groupLeave?: never;
+    groupMemberKick?: never;
     partyInvite?: never;
     partyJoinRequest?: never;
     partyJoin?: never;
@@ -1449,9 +1681,11 @@ export namespace ChatMessageBody {
   export interface $UnknownMember {
     text?: never;
     chatCreate?: never;
+    deleted?: never;
     identityFollow?: never;
     groupJoin?: never;
     groupLeave?: never;
+    groupMemberKick?: never;
     partyInvite?: never;
     partyJoinRequest?: never;
     partyJoin?: never;
@@ -1463,9 +1697,11 @@ export namespace ChatMessageBody {
   export interface Visitor<T> {
     text: (value: ChatMessageBodyText) => T;
     chatCreate: (value: ChatMessageBodyChatCreate) => T;
+    deleted: (value: ChatMessageBodyDeleted) => T;
     identityFollow: (value: ChatMessageBodyIdentityFollow) => T;
     groupJoin: (value: ChatMessageBodyGroupJoin) => T;
     groupLeave: (value: ChatMessageBodyGroupLeave) => T;
+    groupMemberKick: (value: ChatMessageBodyGroupMemberKick) => T;
     partyInvite: (value: ChatMessageBodyPartyInvite) => T;
     partyJoinRequest: (value: ChatMessageBodyPartyJoinRequest) => T;
     partyJoin: (value: ChatMessageBodyPartyJoin) => T;
@@ -1480,9 +1716,11 @@ export namespace ChatMessageBody {
   ): T => {
     if (value.text !== undefined) return visitor.text(value.text);
     if (value.chatCreate !== undefined) return visitor.chatCreate(value.chatCreate);
+    if (value.deleted !== undefined) return visitor.deleted(value.deleted);
     if (value.identityFollow !== undefined) return visitor.identityFollow(value.identityFollow);
     if (value.groupJoin !== undefined) return visitor.groupJoin(value.groupJoin);
     if (value.groupLeave !== undefined) return visitor.groupLeave(value.groupLeave);
+    if (value.groupMemberKick !== undefined) return visitor.groupMemberKick(value.groupMemberKick);
     if (value.partyInvite !== undefined) return visitor.partyInvite(value.partyInvite);
     if (value.partyJoinRequest !== undefined) return visitor.partyJoinRequest(value.partyJoinRequest);
     if (value.partyJoin !== undefined) return visitor.partyJoin(value.partyJoin);
@@ -1501,6 +1739,9 @@ export namespace ChatMessageBody {
     if (obj.chatCreate !== undefined) return {chatCreate:
       ChatMessageBodyChatCreate.filterSensitiveLog(obj.chatCreate)
     };
+    if (obj.deleted !== undefined) return {deleted:
+      ChatMessageBodyDeleted.filterSensitiveLog(obj.deleted)
+    };
     if (obj.identityFollow !== undefined) return {identityFollow:
       ChatMessageBodyIdentityFollow.filterSensitiveLog(obj.identityFollow)
     };
@@ -1509,6 +1750,9 @@ export namespace ChatMessageBody {
     };
     if (obj.groupLeave !== undefined) return {groupLeave:
       ChatMessageBodyGroupLeave.filterSensitiveLog(obj.groupLeave)
+    };
+    if (obj.groupMemberKick !== undefined) return {groupMemberKick:
+      ChatMessageBodyGroupMemberKick.filterSensitiveLog(obj.groupMemberKick)
     };
     if (obj.partyInvite !== undefined) return {partyInvite:
       ChatMessageBodyPartyInvite.filterSensitiveLog(obj.partyInvite)
@@ -1593,45 +1837,6 @@ export namespace ChatTopicDirect {
     ...(obj.identityB && { identityB:
       IdentityHandle.filterSensitiveLog(obj.identityB)
     }),
-  })
-}
-
-/**
- * A group handle.
- */
-export interface GroupHandle {
-  /**
-   * A universally unique identifier.
-   */
-  groupId: string | undefined;
-
-  /**
-   * Represent a resource's readable display name.
-   */
-  displayName: string | undefined;
-
-  /**
-   * The URL of this group's avatar image.
-   */
-  avatarUrl?: string;
-
-  /**
-   * External links for this group.
-   */
-  external: GroupExternalLinks | undefined;
-
-  /**
-   * Whether or not this group is a developer group.
-   */
-  isDeveloper?: boolean;
-}
-
-export namespace GroupHandle {
-  /**
-   * @internal
-   */
-  export const filterSensitiveLog = (obj: GroupHandle): any => ({
-    ...obj,
   })
 }
 
@@ -1860,6 +2065,27 @@ export namespace GlobalEventChatRead {
    * @internal
    */
   export const filterSensitiveLog = (obj: GlobalEventChatRead): any => ({
+    ...obj,
+  })
+}
+
+/**
+ * `rivet.api.identity.common#GlobalEventKind` variant for a chat thread being removed.
+ *
+ * Received any time the current identity is no longer able to access the given thread. This can happen if
+ */
+export interface GlobalEventChatThreadRemove {
+  /**
+   * A universally unique identifier.
+   */
+  threadId: string | undefined;
+}
+
+export namespace GlobalEventChatThreadRemove {
+  /**
+   * @internal
+   */
+  export const filterSensitiveLog = (obj: GlobalEventChatThreadRemove): any => ({
     ...obj,
   })
 }
@@ -2203,12 +2429,12 @@ export interface IdentityProfile {
   devState?: IdentityDevState | string;
 
   /**
-   * Unsigned 32 bit integer.
+   * Unsigned 64 bit integer.
    */
   followerCount: number | undefined;
 
   /**
-   * Unsigned 32 bit integer.
+   * Unsigned 64 bit integer.
    */
   followingCount: number | undefined;
 
@@ -2251,6 +2477,12 @@ export interface IdentityProfile {
    * A list of game statistic summaries.
    */
   games: (GameStatSummary)[] | undefined;
+
+  /**
+   * Whether or not this identity is awaiting account deletion. Only visible to when the requestee is
+   * this identity.
+   */
+  awaitingDeletion?: boolean;
 }
 
 export namespace IdentityProfile {
@@ -2510,6 +2742,7 @@ export namespace GlobalEventPartyUpdate {
 export type GlobalEventKind =
   | GlobalEventKind.ChatMessageMember
   | GlobalEventKind.ChatReadMember
+  | GlobalEventKind.ChatThreadRemoveMember
   | GlobalEventKind.IdentityUpdateMember
   | GlobalEventKind.MatchmakerLobbyJoinMember
   | GlobalEventKind.PartyUpdateMember
@@ -2528,6 +2761,7 @@ export namespace GlobalEventKind {
     partyUpdate?: never;
     identityUpdate?: never;
     matchmakerLobbyJoin?: never;
+    chatThreadRemove?: never;
     $unknown?: never;
   }
 
@@ -2543,6 +2777,7 @@ export namespace GlobalEventKind {
     partyUpdate?: never;
     identityUpdate?: never;
     matchmakerLobbyJoin?: never;
+    chatThreadRemove?: never;
     $unknown?: never;
   }
 
@@ -2558,6 +2793,7 @@ export namespace GlobalEventKind {
     partyUpdate: GlobalEventPartyUpdate;
     identityUpdate?: never;
     matchmakerLobbyJoin?: never;
+    chatThreadRemove?: never;
     $unknown?: never;
   }
 
@@ -2572,6 +2808,7 @@ export namespace GlobalEventKind {
     partyUpdate?: never;
     identityUpdate: GlobalEventIdentityUpdate;
     matchmakerLobbyJoin?: never;
+    chatThreadRemove?: never;
     $unknown?: never;
   }
 
@@ -2589,6 +2826,22 @@ export namespace GlobalEventKind {
     partyUpdate?: never;
     identityUpdate?: never;
     matchmakerLobbyJoin: GlobalEventMatchmakerLobbyJoin;
+    chatThreadRemove?: never;
+    $unknown?: never;
+  }
+
+  /**
+   * `rivet.api.identity.common#GlobalEventKind` variant for a chat thread being removed.
+   *
+   * Received any time the current identity is no longer able to access the given thread. This can happen if
+   */
+  export interface ChatThreadRemoveMember {
+    chatMessage?: never;
+    chatRead?: never;
+    partyUpdate?: never;
+    identityUpdate?: never;
+    matchmakerLobbyJoin?: never;
+    chatThreadRemove: GlobalEventChatThreadRemove;
     $unknown?: never;
   }
 
@@ -2598,6 +2851,7 @@ export namespace GlobalEventKind {
     partyUpdate?: never;
     identityUpdate?: never;
     matchmakerLobbyJoin?: never;
+    chatThreadRemove?: never;
     $unknown: [string, any];
   }
 
@@ -2607,6 +2861,7 @@ export namespace GlobalEventKind {
     partyUpdate: (value: GlobalEventPartyUpdate) => T;
     identityUpdate: (value: GlobalEventIdentityUpdate) => T;
     matchmakerLobbyJoin: (value: GlobalEventMatchmakerLobbyJoin) => T;
+    chatThreadRemove: (value: GlobalEventChatThreadRemove) => T;
     _: (name: string, value: any) => T;
   }
 
@@ -2619,6 +2874,7 @@ export namespace GlobalEventKind {
     if (value.partyUpdate !== undefined) return visitor.partyUpdate(value.partyUpdate);
     if (value.identityUpdate !== undefined) return visitor.identityUpdate(value.identityUpdate);
     if (value.matchmakerLobbyJoin !== undefined) return visitor.matchmakerLobbyJoin(value.matchmakerLobbyJoin);
+    if (value.chatThreadRemove !== undefined) return visitor.chatThreadRemove(value.chatThreadRemove);
     return visitor._(value.$unknown[0], value.$unknown[1]);
   }
 
@@ -2640,6 +2896,9 @@ export namespace GlobalEventKind {
     };
     if (obj.matchmakerLobbyJoin !== undefined) return {matchmakerLobbyJoin:
       GlobalEventMatchmakerLobbyJoin.filterSensitiveLog(obj.matchmakerLobbyJoin)
+    };
+    if (obj.chatThreadRemove !== undefined) return {chatThreadRemove:
+      GlobalEventChatThreadRemove.filterSensitiveLog(obj.chatThreadRemove)
     };
     if (obj.$unknown !== undefined) return {[obj.$unknown[0]]: 'UNKNOWN'};
   }
@@ -3161,7 +3420,12 @@ export interface ListFollowersInput {
   /**
    * Unsigned 32 bit integer.
    */
-  limit?: number;
+  count?: number;
+
+  /**
+   * A query parameter denoting the requests watch index.
+   */
+  watchIndex?: string;
 }
 
 export namespace ListFollowersInput {
@@ -3180,6 +3444,10 @@ export interface ListFollowersOutput {
   identities: (IdentityHandle)[] | undefined;
 
   anchor?: string;
+  /**
+   * Provided by watchable endpoints used in blocking loops.
+   */
+  watch: WatchResponse | undefined;
 }
 
 export namespace ListFollowersOutput {
@@ -3207,7 +3475,12 @@ export interface ListFollowingInput {
   /**
    * Unsigned 32 bit integer.
    */
-  limit?: number;
+  count?: number;
+
+  /**
+   * A query parameter denoting the requests watch index.
+   */
+  watchIndex?: string;
 }
 
 export namespace ListFollowingInput {
@@ -3226,6 +3499,10 @@ export interface ListFollowingOutput {
   identities: (IdentityHandle)[] | undefined;
 
   anchor?: string;
+  /**
+   * Provided by watchable endpoints used in blocking loops.
+   */
+  watch: WatchResponse | undefined;
 }
 
 export namespace ListFollowingOutput {
@@ -3248,7 +3525,12 @@ export interface ListFriendsInput {
   /**
    * Unsigned 32 bit integer.
    */
-  limit?: number;
+  count?: number;
+
+  /**
+   * A query parameter denoting the requests watch index.
+   */
+  watchIndex?: string;
 }
 
 export namespace ListFriendsInput {
@@ -3267,6 +3549,10 @@ export interface ListFriendsOutput {
   identities: (IdentityHandle)[] | undefined;
 
   anchor?: string;
+  /**
+   * Provided by watchable endpoints used in blocking loops.
+   */
+  watch: WatchResponse | undefined;
 }
 
 export namespace ListFriendsOutput {
@@ -3281,6 +3567,126 @@ export namespace ListFriendsOutput {
         IdentityHandle.filterSensitiveLog(item)
       )
     }),
+  })
+}
+
+export interface ListMutualFriendsInput {
+  /**
+   * A universally unique identifier.
+   */
+  identityId: string | undefined;
+
+  anchor?: string;
+  /**
+   * Unsigned 32 bit integer.
+   */
+  count?: number;
+}
+
+export namespace ListMutualFriendsInput {
+  /**
+   * @internal
+   */
+  export const filterSensitiveLog = (obj: ListMutualFriendsInput): any => ({
+    ...obj,
+  })
+}
+
+export interface ListMutualFriendsOutput {
+  /**
+   * A list of identity handles.
+   */
+  identities: (IdentityHandle)[] | undefined;
+
+  anchor?: string;
+}
+
+export namespace ListMutualFriendsOutput {
+  /**
+   * @internal
+   */
+  export const filterSensitiveLog = (obj: ListMutualFriendsOutput): any => ({
+    ...obj,
+    ...(obj.identities && { identities:
+      obj.identities.map(
+        item =>
+        IdentityHandle.filterSensitiveLog(item)
+      )
+    }),
+  })
+}
+
+export interface ListRecentFollowersInput {
+  anchor?: string;
+  /**
+   * Unsigned 32 bit integer.
+   */
+  count?: number;
+
+  /**
+   * A query parameter denoting the requests watch index.
+   */
+  watchIndex?: string;
+}
+
+export namespace ListRecentFollowersInput {
+  /**
+   * @internal
+   */
+  export const filterSensitiveLog = (obj: ListRecentFollowersInput): any => ({
+    ...obj,
+  })
+}
+
+export interface ListRecentFollowersOutput {
+  /**
+   * A list of identity handles.
+   */
+  identities: (IdentityHandle)[] | undefined;
+
+  anchor?: string;
+  /**
+   * Provided by watchable endpoints used in blocking loops.
+   */
+  watch: WatchResponse | undefined;
+}
+
+export namespace ListRecentFollowersOutput {
+  /**
+   * @internal
+   */
+  export const filterSensitiveLog = (obj: ListRecentFollowersOutput): any => ({
+    ...obj,
+    ...(obj.identities && { identities:
+      obj.identities.map(
+        item =>
+        IdentityHandle.filterSensitiveLog(item)
+      )
+    }),
+  })
+}
+
+export interface MarkDeletionInput {
+}
+
+export namespace MarkDeletionInput {
+  /**
+   * @internal
+   */
+  export const filterSensitiveLog = (obj: MarkDeletionInput): any => ({
+    ...obj,
+  })
+}
+
+export interface MarkDeletionOutput {
+}
+
+export namespace MarkDeletionOutput {
+  /**
+   * @internal
+   */
+  export const filterSensitiveLog = (obj: MarkDeletionOutput): any => ({
+    ...obj,
   })
 }
 
@@ -3355,6 +3761,34 @@ export namespace PrepareIdentityAvatarUploadOutput {
   })
 }
 
+export interface RecentFollowerIgnoreInput {
+  /**
+   * A universally unique identifier.
+   */
+  identityId: string | undefined;
+}
+
+export namespace RecentFollowerIgnoreInput {
+  /**
+   * @internal
+   */
+  export const filterSensitiveLog = (obj: RecentFollowerIgnoreInput): any => ({
+    ...obj,
+  })
+}
+
+export interface RecentFollowerIgnoreOutput {
+}
+
+export namespace RecentFollowerIgnoreOutput {
+  /**
+   * @internal
+   */
+  export const filterSensitiveLog = (obj: RecentFollowerIgnoreOutput): any => ({
+    ...obj,
+  })
+}
+
 export interface RemoveIdentityGameActivityInput {
 }
 
@@ -3415,13 +3849,9 @@ export interface SearchIdentitiesInput {
    */
   query: string | undefined;
 
-  /**
-   * How many identities to offset the search by.
-   */
   anchor?: string;
-
   /**
-   * Amount of identities to return.
+   * Unsigned 32 bit integer.
    */
   limit?: number;
 }
@@ -3441,9 +3871,6 @@ export interface SearchIdentitiesOutput {
    */
   identities: (IdentityHandle)[] | undefined;
 
-  /**
-   * The pagination anchor.
-   */
   anchor?: string;
 }
 
@@ -3648,6 +4075,30 @@ export namespace UnfollowIdentityOutput {
    * @internal
    */
   export const filterSensitiveLog = (obj: UnfollowIdentityOutput): any => ({
+    ...obj,
+  })
+}
+
+export interface UnmarkDeletionInput {
+}
+
+export namespace UnmarkDeletionInput {
+  /**
+   * @internal
+   */
+  export const filterSensitiveLog = (obj: UnmarkDeletionInput): any => ({
+    ...obj,
+  })
+}
+
+export interface UnmarkDeletionOutput {
+}
+
+export namespace UnmarkDeletionOutput {
+  /**
+   * @internal
+   */
+  export const filterSensitiveLog = (obj: UnmarkDeletionOutput): any => ({
     ...obj,
   })
 }

@@ -612,10 +612,20 @@
 
 			<div id="partyOverlay">
 				<div v-if="identity?.party != null" id="partyMembers">
-					<div v-for="member in identity.party.members" class="identityHandle vertical">
+					<div v-for="(member, i) in identity.party.members" class="identityHandle vertical">
 						<a class="identityLink" :href="member.identity.external.profile" target="_blank"></a>
 						<div class="identityContent">
 							<img :src="member.identity.avatarUrl" />
+							<div v-if="!!partyShips[i]" class="shipPreview">
+								<div
+									class="shipPreviewMask"
+									:style="{'--ship-img':`url(${assets.shipUrl(`${partyShips[i].shipId}-mask`)})`, backgroundColor:partyShips[i].shipFill}"
+								></div>
+								<div
+									class="shipPreviewOverlay"
+									:style="{backgroundImage:`url(${assets.shipUrl(`${partyShips[i].shipId}-overlay`)})`}"
+								></div>
+							</div>
 							<h2 class="identityUsername">
 								{{ member.identity.displayName }}<span
 									>#{{ member.identity.accountNumber }}</span

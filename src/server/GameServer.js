@@ -230,6 +230,20 @@ class GameServer extends Game {
 		}
 	}
 
+	broadcastShips() {
+		// Sort clients and serialize scores
+		let ships = this.clients
+			.filter(client => client.shipIndex != null && client.shipFill && client.identity)
+			.map(client => {
+				return [client.id, client.identity.identityId, client.shipIndex, client.shipFill];
+			});
+
+		// Send ships
+		for (let client of this.clients) {
+			client.sendShips(ships);
+		}
+	}
+
 	broadcastMinimap() {
 		// Send to each client
 		for (let client of this.clients) {
@@ -265,6 +279,11 @@ class GameServer extends Game {
 		// Broadcast minimap
 		if (this.updateIndex % 30 === 0) {
 			this.broadcastMinimap();
+		}
+
+		// Broadcast ships
+		if (this.updateIndex % 30 === 0) {
+			this.broadcastShips();
 		}
 
 		// Make sure there are enough asteroids

@@ -1,7 +1,7 @@
 {
     "name": "@rivet-gg/matchmaker",
     "description": "Rivet service for matchmaking players and managing lobbies",
-    "version": "0.0.5",
+    "version": "0.0.8",
     "scripts": {
         "build": "concurrently 'yarn:build:cjs' 'yarn:build:es' 'yarn:build:types'",
         "build:cjs": "tsc -p tsconfig.cjs.json",

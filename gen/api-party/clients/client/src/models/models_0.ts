@@ -112,6 +112,16 @@ export namespace CreatePartyInput {
  */
 export interface CreatedInvite {
   /**
+   * An alias used to join a given party.
+   *
+   * This alias must be unique for all invites for your game.
+   *
+   * Pass this alias to `rivet.api.party.common#CreatedInvite$alias` to consume
+   * the invite.
+   */
+  alias?: string;
+
+  /**
    * A JSON Web Token.
    *
    * Slightly modified to include a description prefix and use Protobufs of
@@ -343,6 +353,9 @@ export namespace PartyActivityMatchmakerLobby {
 
 /**
  * A union representing the activity of a given party.
+ * -   `Idle`: The party is not doing anything. For example, the leader is sitting in the game menu or the players are hanging out on the hub.
+ * -   `MatchmakerFindingLobby`: There is a find request in progress for the lobby. If the find request fails, it will go back to `Idle`. If the find request succeeds, it will go to `MatchmakerLobby`.
+ * -   `MatchmakerLobby`: The party is in a lobby. This does not mean that all of the party members are in the lobby, see the member-specific states.
  */
 export type PartyActivity =
   | PartyActivity.IdleMember
@@ -487,6 +500,9 @@ export interface PartyHandle {
 
   /**
    * A union representing the activity of a given party.
+   * -   `Idle`: The party is not doing anything. For example, the leader is sitting in the game menu or the players are hanging out on the hub.
+   * -   `MatchmakerFindingLobby`: There is a find request in progress for the lobby. If the find request fails, it will go back to `Idle`. If the find request succeeds, it will go to `MatchmakerLobby`.
+   * -   `MatchmakerLobby`: The party is in a lobby. This does not mean that all of the party members are in the lobby, see the member-specific states.
    */
   activity: PartyActivity | undefined;
 
@@ -643,16 +659,16 @@ export namespace IdentityHandle {
 }
 
 /**
- * A party member state denoting that the member is idle.
+ * A party member state denoting that the member is inactive.
  */
-export interface PartyMemberStateIdle {
+export interface PartyMemberStateInactive {
 }
 
-export namespace PartyMemberStateIdle {
+export namespace PartyMemberStateInactive {
   /**
    * @internal
    */
-  export const filterSensitiveLog = (obj: PartyMemberStateIdle): any => ({
+  export const filterSensitiveLog = (obj: PartyMemberStateInactive): any => ({
     ...obj,
   })
 }
@@ -694,36 +710,43 @@ export namespace PartyMemberStateMatchmakerLobby {
 /**
  * A party member state denoting that the member is currently waiting to start matchmaking.
  */
-export interface PartyMemberStateMatchmakerPending {
+export interface PartyMemberStateMatchmakerReady {
 }
 
-export namespace PartyMemberStateMatchmakerPending {
+export namespace PartyMemberStateMatchmakerReady {
   /**
    * @internal
    */
-  export const filterSensitiveLog = (obj: PartyMemberStateMatchmakerPending): any => ({
+  export const filterSensitiveLog = (obj: PartyMemberStateMatchmakerReady): any => ({
     ...obj,
   })
 }
 
 /**
  * A union representing the current state of a party member.
+ * -   `Inactive`: The player is not doing anything. For example, the player can be sitting in the game menu or hanging out on the hub.
+ *     -   It's possible for the member to be in an inactive state while the party is in a lobby; this means the player is simply observing/interacting with others in the party and not part of the matchmaking process.
+ * -   `MatchmakerReady`: This means the member wants a player created for them.
+ *     -   Members can be in the ready state while the party is in an idle state. This means that the player will get a player created for them.
+ *     -   Members can be in the ready state while the party is in a lobby. This means that the player could not join the lobby because it was full or the player left the lobby unintentionally.
+ * -   `MatchmakerFindingLobby`: A find request is in progress for the member.
+ * -   `MatchmakerLobby`: The member is in a lobby.
  */
 export type PartyMemberState =
-  | PartyMemberState.IdleMember
+  | PartyMemberState.InactiveMember
   | PartyMemberState.MatchmakerFindingLobbyMember
   | PartyMemberState.MatchmakerLobbyMember
-  | PartyMemberState.MatchmakerPendingMember
+  | PartyMemberState.MatchmakerReadyMember
   | PartyMemberState.$UnknownMember
 
 export namespace PartyMemberState {
 
   /**
-   * A party member state denoting that the member is idle.
+   * A party member state denoting that the member is inactive.
    */
-  export interface IdleMember {
-    idle: PartyMemberStateIdle;
-    matchmakerPending?: never;
+  export interface InactiveMember {
+    inactive: PartyMemberStateInactive;
+    matchmakerReady?: never;
     matchmakerFindingLobby?: never;
     matchmakerLobby?: never;
     $unknown?: never;
@@ -732,9 +755,9 @@ export namespace PartyMemberState {
   /**
    * A party member state denoting that the member is currently waiting to start matchmaking.
    */
-  export interface MatchmakerPendingMember {
-    idle?: never;
-    matchmakerPending: PartyMemberStateMatchmakerPending;
+  export interface MatchmakerReadyMember {
+    inactive?: never;
+    matchmakerReady: PartyMemberStateMatchmakerReady;
     matchmakerFindingLobby?: never;
     matchmakerLobby?: never;
     $unknown?: never;
@@ -744,8 +767,8 @@ export namespace PartyMemberState {
    * A party member state denoting that the member is currently searching for a lobby.
    */
   export interface MatchmakerFindingLobbyMember {
-    idle?: never;
-    matchmakerPending?: never;
+    inactive?: never;
+    matchmakerReady?: never;
     matchmakerFindingLobby: PartyMemberStateMatchmakerFindingLobby;
     matchmakerLobby?: never;
     $unknown?: never;
@@ -755,24 +778,24 @@ export namespace PartyMemberState {
    * A party member state denoting that the member is in a lobby.
    */
   export interface MatchmakerLobbyMember {
-    idle?: never;
-    matchmakerPending?: never;
+    inactive?: never;
+    matchmakerReady?: never;
     matchmakerFindingLobby?: never;
     matchmakerLobby: PartyMemberStateMatchmakerLobby;
     $unknown?: never;
   }
 
   export interface $UnknownMember {
-    idle?: never;
-    matchmakerPending?: never;
+    inactive?: never;
+    matchmakerReady?: never;
     matchmakerFindingLobby?: never;
     matchmakerLobby?: never;
     $unknown: [string, any];
   }
 
   export interface Visitor<T> {
-    idle: (value: PartyMemberStateIdle) => T;
-    matchmakerPending: (value: PartyMemberStateMatchmakerPending) => T;
+    inactive: (value: PartyMemberStateInactive) => T;
+    matchmakerReady: (value: PartyMemberStateMatchmakerReady) => T;
     matchmakerFindingLobby: (value: PartyMemberStateMatchmakerFindingLobby) => T;
     matchmakerLobby: (value: PartyMemberStateMatchmakerLobby) => T;
     _: (name: string, value: any) => T;
@@ -782,8 +805,8 @@ export namespace PartyMemberState {
     value: PartyMemberState,
     visitor: Visitor<T>
   ): T => {
-    if (value.idle !== undefined) return visitor.idle(value.idle);
-    if (value.matchmakerPending !== undefined) return visitor.matchmakerPending(value.matchmakerPending);
+    if (value.inactive !== undefined) return visitor.inactive(value.inactive);
+    if (value.matchmakerReady !== undefined) return visitor.matchmakerReady(value.matchmakerReady);
     if (value.matchmakerFindingLobby !== undefined) return visitor.matchmakerFindingLobby(value.matchmakerFindingLobby);
     if (value.matchmakerLobby !== undefined) return visitor.matchmakerLobby(value.matchmakerLobby);
     return visitor._(value.$unknown[0], value.$unknown[1]);
@@ -793,11 +816,11 @@ export namespace PartyMemberState {
    * @internal
    */
   export const filterSensitiveLog = (obj: PartyMemberState): any => {
-    if (obj.idle !== undefined) return {idle:
-      PartyMemberStateIdle.filterSensitiveLog(obj.idle)
+    if (obj.inactive !== undefined) return {inactive:
+      PartyMemberStateInactive.filterSensitiveLog(obj.inactive)
     };
-    if (obj.matchmakerPending !== undefined) return {matchmakerPending:
-      PartyMemberStateMatchmakerPending.filterSensitiveLog(obj.matchmakerPending)
+    if (obj.matchmakerReady !== undefined) return {matchmakerReady:
+      PartyMemberStateMatchmakerReady.filterSensitiveLog(obj.matchmakerReady)
     };
     if (obj.matchmakerFindingLobby !== undefined) return {matchmakerFindingLobby:
       PartyMemberStateMatchmakerFindingLobby.filterSensitiveLog(obj.matchmakerFindingLobby)
@@ -830,6 +853,13 @@ export interface PartyMemberSummary {
 
   /**
    * A union representing the current state of a party member.
+   * -   `Inactive`: The player is not doing anything. For example, the player can be sitting in the game menu or hanging out on the hub.
+   *     -   It's possible for the member to be in an inactive state while the party is in a lobby; this means the player is simply observing/interacting with others in the party and not part of the matchmaking process.
+   * -   `MatchmakerReady`: This means the member wants a player created for them.
+   *     -   Members can be in the ready state while the party is in an idle state. This means that the player will get a player created for them.
+   *     -   Members can be in the ready state while the party is in a lobby. This means that the player could not join the lobby because it was full or the player left the lobby unintentionally.
+   * -   `MatchmakerFindingLobby`: A find request is in progress for the member.
+   * -   `MatchmakerLobby`: The member is in a lobby.
    */
   state: PartyMemberState | undefined;
 }
@@ -880,6 +910,9 @@ export interface PartySummary {
 
   /**
    * A union representing the activity of a given party.
+   * -   `Idle`: The party is not doing anything. For example, the leader is sitting in the game menu or the players are hanging out on the hub.
+   * -   `MatchmakerFindingLobby`: There is a find request in progress for the lobby. If the find request fails, it will go back to `Idle`. If the find request succeeds, it will go to `MatchmakerLobby`.
+   * -   `MatchmakerLobby`: The party is in a lobby. This does not mean that all of the party members are in the lobby, see the member-specific states.
    */
   activity: PartyActivity | undefined;
 
@@ -1064,6 +1097,9 @@ export interface PartyProfile {
 
   /**
    * A union representing the activity of a given party.
+   * -   `Idle`: The party is not doing anything. For example, the leader is sitting in the game menu or the players are hanging out on the hub.
+   * -   `MatchmakerFindingLobby`: There is a find request in progress for the lobby. If the find request fails, it will go back to `Idle`. If the find request succeeds, it will go to `MatchmakerLobby`.
+   * -   `MatchmakerLobby`: The party is in a lobby. This does not mean that all of the party members are in the lobby, see the member-specific states.
    */
   activity: PartyActivity | undefined;
 
@@ -1378,6 +1414,14 @@ export interface JoinPartyInput {
    * Whether or not to automatically join the game lobby if a party is currently in game.
    */
   matchmakerAutoJoinLobby?: boolean;
+
+  /**
+   * If the player is currently in the lobby, pass the token from
+   * `rivet.matchmaker#MatchmakerLobbyJoinInfoPlayer$token`.
+   *
+   * This will prevent issuing a new player token.
+   */
+  matchmakerCurrentPlayerToken?: string;
 }
 
 export namespace JoinPartyInput {
@@ -1388,6 +1432,9 @@ export namespace JoinPartyInput {
     ...obj,
     ...(obj.invite && { invite:
       JoinPartyInvite.filterSensitiveLog(obj.invite)
+    }),
+    ...(obj.matchmakerCurrentPlayerToken && { matchmakerCurrentPlayerToken:
+      SENSITIVE_STRING
     }),
   })
 }
@@ -1606,6 +1653,125 @@ export namespace SetPartyToIdleOutput {
   })
 }
 
+export interface SetSelfInactiveInput {
+}
+
+export namespace SetSelfInactiveInput {
+  /**
+   * @internal
+   */
+  export const filterSensitiveLog = (obj: SetSelfInactiveInput): any => ({
+    ...obj,
+  })
+}
+
+export interface SetSelfInactiveOutput {
+}
+
+export namespace SetSelfInactiveOutput {
+  /**
+   * @internal
+   */
+  export const filterSensitiveLog = (obj: SetSelfInactiveOutput): any => ({
+    ...obj,
+  })
+}
+
+/**
+ * hCaptcha configuration.
+ */
+export interface CaptchaConfigHcaptcha {
+  clientResponse: string | undefined;
+}
+
+export namespace CaptchaConfigHcaptcha {
+  /**
+   * @internal
+   */
+  export const filterSensitiveLog = (obj: CaptchaConfigHcaptcha): any => ({
+    ...obj,
+  })
+}
+
+/**
+ * Cloudflare Turnstile configuration.
+ */
+export interface CaptchaConfigTurnstile {
+  clientResponse: string | undefined;
+}
+
+export namespace CaptchaConfigTurnstile {
+  /**
+   * @internal
+   */
+  export const filterSensitiveLog = (obj: CaptchaConfigTurnstile): any => ({
+    ...obj,
+  })
+}
+
+/**
+ * Methods to verify a captcha.
+ */
+export type CaptchaConfig =
+  | CaptchaConfig.HcaptchaMember
+  | CaptchaConfig.TurnstileMember
+  | CaptchaConfig.$UnknownMember
+
+export namespace CaptchaConfig {
+
+  /**
+   * hCaptcha configuration.
+   */
+  export interface HcaptchaMember {
+    hcaptcha: CaptchaConfigHcaptcha;
+    turnstile?: never;
+    $unknown?: never;
+  }
+
+  /**
+   * Cloudflare Turnstile configuration.
+   */
+  export interface TurnstileMember {
+    hcaptcha?: never;
+    turnstile: CaptchaConfigTurnstile;
+    $unknown?: never;
+  }
+
+  export interface $UnknownMember {
+    hcaptcha?: never;
+    turnstile?: never;
+    $unknown: [string, any];
+  }
+
+  export interface Visitor<T> {
+    hcaptcha: (value: CaptchaConfigHcaptcha) => T;
+    turnstile: (value: CaptchaConfigTurnstile) => T;
+    _: (name: string, value: any) => T;
+  }
+
+  export const visit = <T>(
+    value: CaptchaConfig,
+    visitor: Visitor<T>
+  ): T => {
+    if (value.hcaptcha !== undefined) return visitor.hcaptcha(value.hcaptcha);
+    if (value.turnstile !== undefined) return visitor.turnstile(value.turnstile);
+    return visitor._(value.$unknown[0], value.$unknown[1]);
+  }
+
+  /**
+   * @internal
+   */
+  export const filterSensitiveLog = (obj: CaptchaConfig): any => {
+    if (obj.hcaptcha !== undefined) return {hcaptcha:
+      CaptchaConfigHcaptcha.filterSensitiveLog(obj.hcaptcha)
+    };
+    if (obj.turnstile !== undefined) return {turnstile:
+      CaptchaConfigTurnstile.filterSensitiveLog(obj.turnstile)
+    };
+    if (obj.$unknown !== undefined) return {[obj.$unknown[0]]: 'UNKNOWN'};
+  }
+}
+
 export interface FindMatchmakerLobbyForPartyInput {
   /**
    * Game modes to match lobbies against.
@@ -1624,6 +1790,11 @@ export interface FindMatchmakerLobbyForPartyInput {
    */
   preventAutoCreateLobby?: boolean;
 
+  /**
+   * Methods to verify a captcha.
+   */
+  captcha?: CaptchaConfig;
+
   origin?: string;
 }
 
@@ -1633,6 +1804,9 @@ export namespace FindMatchmakerLobbyForPartyInput {
    */
   export const filterSensitiveLog = (obj: FindMatchmakerLobbyForPartyInput): any => ({
     ...obj,
+    ...(obj.captcha && { captcha:
+      CaptchaConfig.filterSensitiveLog(obj.captcha)
+    }),
   })
 }
 
@@ -1653,6 +1827,11 @@ export interface JoinMatchmakerLobbyForPartyInput {
    * A universally unique identifier.
    */
   lobbyId: string | undefined;
+
+  /**
+   * Methods to verify a captcha.
+   */
+  captcha?: CaptchaConfig;
 }
 
 export namespace JoinMatchmakerLobbyForPartyInput {
@@ -1661,6 +1840,9 @@ export namespace JoinMatchmakerLobbyForPartyInput {
    */
   export const filterSensitiveLog = (obj: JoinMatchmakerLobbyForPartyInput): any => ({
     ...obj,
+    ...(obj.captcha && { captcha:
+      CaptchaConfig.filterSensitiveLog(obj.captcha)
+    }),
   })
 }
 
@@ -1676,26 +1858,26 @@ export namespace JoinMatchmakerLobbyForPartyOutput {
   })
 }
 
-export interface RequestMatchmakerPlayerInput {
+export interface MatchmakerSelfReadyInput {
 }
 
-export namespace RequestMatchmakerPlayerInput {
+export namespace MatchmakerSelfReadyInput {
   /**
    * @internal
    */
-  export const filterSensitiveLog = (obj: RequestMatchmakerPlayerInput): any => ({
+  export const filterSensitiveLog = (obj: MatchmakerSelfReadyInput): any => ({
     ...obj,
   })
 }
 
-export interface RequestMatchmakerPlayerOutput {
+export interface MatchmakerSelfReadyOutput {
 }
 
-export namespace RequestMatchmakerPlayerOutput {
+export namespace MatchmakerSelfReadyOutput {
   /**
    * @internal
    */
-  export const filterSensitiveLog = (obj: RequestMatchmakerPlayerOutput): any => ({
+  export const filterSensitiveLog = (obj: MatchmakerSelfReadyOutput): any => ({
     ...obj,
   })
 }

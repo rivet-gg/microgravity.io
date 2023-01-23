@@ -8,17 +8,12 @@ const dotenv = require('dotenv');
 dotenv.config({ path: '.env' });
 dotenv.config({ path: config.isProd ? '.env.prod' : '.env.dev' });
 
-const utils = require('./utils');
 const GameServer = require('./GameServer');
 const stats = require('./stats');
 const url = require('url');
 const crypto = require('crypto');
 
-const express = require('express');
 const WebSocket = require('ws');
-var cors = require('cors');
-
-const nocache = require('nocache');
 
 console.log('Lobby token', process.env.RIVET_TOKEN);
 console.log('Matchmaker', process.env.RIVET_MATCHMAKER_API_URL);
@@ -129,7 +124,7 @@ wss.on('connection', async (ws, req) => {
 		ws.addListener('close', async () => {
 			try {
 				await matchmakerApi.playerDisconnected({ playerToken });
-				console.log("Player disconnected", playerToken);
+				console.log('Player disconnected', playerToken);
 			} catch (err) {
 				console.warn('Failed to disconnect player', err);
 			}
@@ -137,7 +132,7 @@ wss.on('connection', async (ws, req) => {
 
 		try {
 			await matchmakerApi.playerConnected({ playerToken });
-			console.log("Player connected", playerToken);
+			console.log('Player connected', playerToken);
 		} catch (err) {
 			console.warn('Failed to connect player', err);
 			ws.close();

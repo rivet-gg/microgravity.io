@@ -140,8 +140,8 @@ export class IdentityManager {
 	private notificationHandler?: IdentityManagerConfig["notificationHandler"];
 	private errorHandler?: IdentityManagerConfig["errorHandler"];
 
-	private gameLinkStream?: RepeatingRequest<GetGameLinkCommandOutput>;
 	private eventStream?: RepeatingRequest<WatchEventsCommandOutput>;
+	private existingGameLinkingContext?: GameLinkingContext;
 
 	constructor(opts: IdentityManagerConfig, gameId?: string) {
 		this.service = opts.service!;
@@ -213,6 +213,12 @@ export class IdentityManager {
 								event.kind!.partyUpdate.party!
 							);
 						}
+					} else if (event.kind!.identityUpdate) {
+						if (this.identityUpdateHandler !== undefined) {
+							this.identityUpdateHandler(
+								event.kind!.identityUpdate.identity!
+							);
+						}
 					}
 				}
 			});
@@ -240,21 +246,24 @@ export class IdentityManager {
 	}
 
 	async startGameLink(
-		completeCb: (res: GetGameLinkCommandOutput) => void
-	): Promise<PrepareGameLinkCommandOutput | undefined> {
+		completeCb: (res: GetGameLinkCommandOutput) => void,
+		errorCb?: IdentityManagerConfig["errorHandler"]
+	): Promise<GameLinkingContext | undefined> {
 		let prepareRes: PrepareGameLinkCommandOutput;
 
 		// Create game link
 		try {
 			prepareRes = await this.service.prepareGameLink({});
 		} catch (e) {
-			this.handleError(e);
+			(errorCb ?? this.handleError)(e);
 			return;
 		}
 
 		// Watch for updates and call cb
-		if (this.gameLinkStream) this.gameLinkStream.cancel();
-		this.gameLinkStream = new RepeatingRequest(
+		if (this.existingGameLinkingContext) {
+			this.existingGameLinkingContext.cancel();
+		}
+		let gameLinkStream = new RepeatingRequest(
 			async (abortSignal, watchIndex) => {
 				return await this.service.getGameLink(
 					{
@@ -265,13 +274,13 @@ export class IdentityManager {
 				);
 			}
 		);
-		this.gameLinkStream.onMessage((res) => {
+		gameLinkStream.onMessage((res) => {
 			if (
 				res.status == GameLinkStatus.COMPLETE ||
 				res.status == GameLinkStatus.CANCELLED
 			) {
 				// Cancel stream when complete or cancelled
-				this.gameLinkStream!.cancel();
+				gameLinkStream!.cancel();
 
 				if (res.status == GameLinkStatus.COMPLETE) {
 					this.switchIdentity(res.newIdentity!.identityToken!);
@@ -280,19 +289,38 @@ export class IdentityManager {
 				completeCb(res);
 			}
 		});
-		this.gameLinkStream.onError(this.handleError.bind(this));
+		gameLinkStream.onError(errorCb ?? this.handleError.bind(this));
 
-		return prepareRes;
+		return new GameLinkingContext(prepareRes, gameLinkStream);
 	}
 
 	destroy() {
 		if (this.eventStream) this.eventStream.cancel();
-		if (this.gameLinkStream) this.gameLinkStream.cancel();
+		if (this.existingGameLinkingContext) {
+			this.existingGameLinkingContext.cancel();
+		}
 	}
 
 	private handleError(err: any) {
 		if (this.errorHandler !== undefined) this.errorHandler(err);
 		else console.error(err);
+	}
+}
+
+export class GameLinkingContext {
+	response: PrepareGameLinkCommandOutput;
+	private gameLinkStream: RepeatingRequest<GetGameLinkCommandOutput>;
+
+	constructor(
+		prepareRes: PrepareGameLinkCommandOutput,
+		gameLinkStream: RepeatingRequest<GetGameLinkCommandOutput>
+	) {
+		this.response = prepareRes;
+		this.gameLinkStream = gameLinkStream;
+	}
+
+	cancel() {
+		this.gameLinkStream.cancel();
 	}
 }
 

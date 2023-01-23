@@ -36,6 +36,7 @@ import {
   BadRequestError,
   CaptchaConfig,
   CaptchaConfigHcaptcha,
+  CaptchaConfigTurnstile,
   Coord,
   Distance,
   ForbiddenError,
@@ -865,12 +866,22 @@ const deserializeAws_restJson1FindLobbyCommandError = async(
                 ): any => {
                   return CaptchaConfig.visit(input, {
                     hcaptcha: value => ({ "hcaptcha": serializeAws_restJson1CaptchaConfigHcaptcha(value, context) }),
+                    turnstile: value => ({ "turnstile": serializeAws_restJson1CaptchaConfigTurnstile(value, context) }),
                     _: (name, value) => ({ name: value } as any)
                   });
                 }
 
                 const serializeAws_restJson1CaptchaConfigHcaptcha = (
                   input: CaptchaConfigHcaptcha,
+                  context: __SerdeContext
+                ): any => {
+                  return {
+                    ...(input.clientResponse !== undefined && input.clientResponse !== null && { "client_response": input.clientResponse }),
+                  };
+                }
+
+                const serializeAws_restJson1CaptchaConfigTurnstile = (
+                  input: CaptchaConfigTurnstile,
                   context: __SerdeContext
                 ): any => {
                   return {

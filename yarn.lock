@@ -1388,15 +1388,15 @@
   resolved "https://registry.yarnpkg.com/@leichtgewicht/ip-codec/-/ip-codec-2.0.4.tgz#b2ac626d6cb9c8718ab459166d4bb405b8ffa78b"
   integrity sha512-Hcv+nVC0kZnQ3tD9GVu5xSMR4VVYOteQIr/hwFPVEvPdlXqgGEuRjiheChHgdM+JyqdgNcmzZOX/tnl0JOiI7A==
 
-"@rivet-gg/common@git+https://github.com/rivet-gg/rivet-sdk-js.git#5f2e50fa9b499805f068aecf36ce691d1472758a":
+"@rivet-gg/common@https://github.com/rivet-gg/rivet-sdk-js#4f439a15506de88c24c0e08ae3e5fe05cb0c60a0":
   version "0.1.0"
-  resolved "git+https://github.com/rivet-gg/rivet-sdk-js.git#5f2e50fa9b499805f068aecf36ce691d1472758a"
+  resolved "https://github.com/rivet-gg/rivet-sdk-js#4f439a15506de88c24c0e08ae3e5fe05cb0c60a0"
   dependencies:
     node-fetch "^2.6.7"
     tslib "^2.3.1"
 
 "@rivet-gg/identity@file:gen/api-identity":
-  version "0.0.6"
+  version "0.0.14"
   dependencies:
     "@aws-crypto/sha256-browser" "2.0.0"
     "@aws-crypto/sha256-js" "2.0.0"
@@ -1427,11 +1427,11 @@
     "@aws-sdk/util-user-agent-node" "3.80.0"
     "@aws-sdk/util-utf8-browser" "3.55.0"
     "@aws-sdk/util-utf8-node" "3.55.0"
-    "@rivet-gg/common" "git+https://github.com/rivet-gg/rivet-sdk-js.git#5f2e50fa9b499805f068aecf36ce691d1472758a"
+    "@rivet-gg/common" "https://github.com/rivet-gg/rivet-sdk-js#4f439a15506de88c24c0e08ae3e5fe05cb0c60a0"
     tslib "^2.3.1"
 
 "@rivet-gg/matchmaker@file:gen/api-matchmaker":
-  version "0.0.5"
+  version "0.0.8"
   dependencies:
     "@aws-crypto/sha256-browser" "2.0.0"
     "@aws-crypto/sha256-js" "2.0.0"
@@ -1462,11 +1462,11 @@
     "@aws-sdk/util-user-agent-node" "3.80.0"
     "@aws-sdk/util-utf8-browser" "3.55.0"
     "@aws-sdk/util-utf8-node" "3.55.0"
-    "@rivet-gg/common" "git+https://github.com/rivet-gg/rivet-sdk-js.git#5f2e50fa9b499805f068aecf36ce691d1472758a"
+    "@rivet-gg/common" "https://github.com/rivet-gg/rivet-sdk-js#4f439a15506de88c24c0e08ae3e5fe05cb0c60a0"
     tslib "^2.3.1"
 
 "@rivet-gg/party@file:gen/api-party":
-  version "0.0.5"
+  version "0.0.7"
   dependencies:
     "@aws-crypto/sha256-browser" "2.0.0"
     "@aws-crypto/sha256-js" "2.0.0"
@@ -1497,7 +1497,7 @@
     "@aws-sdk/util-user-agent-node" "3.80.0"
     "@aws-sdk/util-utf8-browser" "3.55.0"
     "@aws-sdk/util-utf8-node" "3.55.0"
-    "@rivet-gg/common" "git+https://github.com/rivet-gg/rivet-sdk-js.git#5f2e50fa9b499805f068aecf36ce691d1472758a"
+    "@rivet-gg/common" "https://github.com/rivet-gg/rivet-sdk-js#4f439a15506de88c24c0e08ae3e5fe05cb0c60a0"
     tslib "^2.3.1"
 
 "@types/body-parser@*":

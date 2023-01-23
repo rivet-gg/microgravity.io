@@ -66,6 +66,21 @@ import {
   ListFriendsCommandOutput,
 } from "./commands/ListFriendsCommand";
 import {
+  ListMutualFriendsCommand,
+  ListMutualFriendsCommandInput,
+  ListMutualFriendsCommandOutput,
+} from "./commands/ListMutualFriendsCommand";
+import {
+  ListRecentFollowersCommand,
+  ListRecentFollowersCommandInput,
+  ListRecentFollowersCommandOutput,
+} from "./commands/ListRecentFollowersCommand";
+import {
+  MarkDeletionCommand,
+  MarkDeletionCommandInput,
+  MarkDeletionCommandOutput,
+} from "./commands/MarkDeletionCommand";
+import {
   PrepareGameLinkCommand,
   PrepareGameLinkCommandInput,
   PrepareGameLinkCommandOutput,
@@ -75,6 +90,11 @@ import {
   PrepareIdentityAvatarUploadCommandInput,
   PrepareIdentityAvatarUploadCommandOutput,
 } from "./commands/PrepareIdentityAvatarUploadCommand";
+import {
+  RecentFollowerIgnoreCommand,
+  RecentFollowerIgnoreCommandInput,
+  RecentFollowerIgnoreCommandOutput,
+} from "./commands/RecentFollowerIgnoreCommand";
 import {
   RemoveIdentityGameActivityCommand,
   RemoveIdentityGameActivityCommandInput,
@@ -110,6 +130,11 @@ import {
   UnfollowIdentityCommandInput,
   UnfollowIdentityCommandOutput,
 } from "./commands/UnfollowIdentityCommand";
+import {
+  UnmarkDeletionCommand,
+  UnmarkDeletionCommandInput,
+  UnmarkDeletionCommandOutput,
+} from "./commands/UnmarkDeletionCommand";
 import {
   UpdateIdentityProfileCommand,
   UpdateIdentityProfileCommandInput,
@@ -559,6 +584,101 @@ export class IdentityService extends IdentityServiceClient {
     }
   }
 
+  public listMutualFriends(
+    args: ListMutualFriendsCommandInput,
+    options?: __HttpHandlerOptions,
+  ): Promise<ListMutualFriendsCommandOutput>;
+  public listMutualFriends(
+    args: ListMutualFriendsCommandInput,
+    cb: (err: any, data?: ListMutualFriendsCommandOutput) => void
+  ): void;
+  public listMutualFriends(
+    args: ListMutualFriendsCommandInput,
+    options: __HttpHandlerOptions,
+    cb: (err: any, data?: ListMutualFriendsCommandOutput) => void
+  ): void;
+  public listMutualFriends(
+    args: ListMutualFriendsCommandInput,
+    optionsOrCb?: __HttpHandlerOptions | ((err: any, data?: ListMutualFriendsCommandOutput) => void),
+    cb?: (err: any, data?: ListMutualFriendsCommandOutput) => void
+  ): Promise<ListMutualFriendsCommandOutput> | void {
+    const command = new ListMutualFriendsCommand(args);
+    if (typeof optionsOrCb === "function") {
+      this.send(command, optionsOrCb)
+    } else if (typeof cb === "function") {
+      if (typeof optionsOrCb !== "object")
+        throw new Error(`Expect http options but get ${typeof optionsOrCb}`)
+      this.send(command, optionsOrCb || {}, cb)
+    } else {
+      return this.send(command, optionsOrCb);
+    }
+  }
+
+  public listRecentFollowers(
+    args: ListRecentFollowersCommandInput,
+    options?: __HttpHandlerOptions,
+  ): Promise<ListRecentFollowersCommandOutput>;
+  public listRecentFollowers(
+    args: ListRecentFollowersCommandInput,
+    cb: (err: any, data?: ListRecentFollowersCommandOutput) => void
+  ): void;
+  public listRecentFollowers(
+    args: ListRecentFollowersCommandInput,
+    options: __HttpHandlerOptions,
+    cb: (err: any, data?: ListRecentFollowersCommandOutput) => void
+  ): void;
+  public listRecentFollowers(
+    args: ListRecentFollowersCommandInput,
+    optionsOrCb?: __HttpHandlerOptions | ((err: any, data?: ListRecentFollowersCommandOutput) => void),
+    cb?: (err: any, data?: ListRecentFollowersCommandOutput) => void
+  ): Promise<ListRecentFollowersCommandOutput> | void {
+    const command = new ListRecentFollowersCommand(args);
+    if (typeof optionsOrCb === "function") {
+      this.send(command, optionsOrCb)
+    } else if (typeof cb === "function") {
+      if (typeof optionsOrCb !== "object")
+        throw new Error(`Expect http options but get ${typeof optionsOrCb}`)
+      this.send(command, optionsOrCb || {}, cb)
+    } else {
+      return this.send(command, optionsOrCb);
+    }
+  }
+
+  /**
+   * Marks this identity for deletion.
+   *
+   * After 30 days the identity and all of it's content will be deleted, including chat messages and
+   */
+  public markDeletion(
+    args: MarkDeletionCommandInput,
+    options?: __HttpHandlerOptions,
+  ): Promise<MarkDeletionCommandOutput>;
+  public markDeletion(
+    args: MarkDeletionCommandInput,
+    cb: (err: any, data?: MarkDeletionCommandOutput) => void
+  ): void;
+  public markDeletion(
+    args: MarkDeletionCommandInput,
+    options: __HttpHandlerOptions,
+    cb: (err: any, data?: MarkDeletionCommandOutput) => void
+  ): void;
+  public markDeletion(
+    args: MarkDeletionCommandInput,
+    optionsOrCb?: __HttpHandlerOptions | ((err: any, data?: MarkDeletionCommandOutput) => void),
+    cb?: (err: any, data?: MarkDeletionCommandOutput) => void
+  ): Promise<MarkDeletionCommandOutput> | void {
+    const command = new MarkDeletionCommand(args);
+    if (typeof optionsOrCb === "function") {
+      this.send(command, optionsOrCb)
+    } else if (typeof cb === "function") {
+      if (typeof optionsOrCb !== "object")
+        throw new Error(`Expect http options but get ${typeof optionsOrCb}`)
+      this.send(command, optionsOrCb || {}, cb)
+    } else {
+      return this.send(command, optionsOrCb);
+    }
+  }
+
   /**
    * Begins the process for linking an identity with the Rivet Hub.
    *
@@ -633,6 +753,39 @@ export class IdentityService extends IdentityServiceClient {
     cb?: (err: any, data?: PrepareIdentityAvatarUploadCommandOutput) => void
   ): Promise<PrepareIdentityAvatarUploadCommandOutput> | void {
     const command = new PrepareIdentityAvatarUploadCommand(args);
+    if (typeof optionsOrCb === "function") {
+      this.send(command, optionsOrCb)
+    } else if (typeof cb === "function") {
+      if (typeof optionsOrCb !== "object")
+        throw new Error(`Expect http options but get ${typeof optionsOrCb}`)
+      this.send(command, optionsOrCb || {}, cb)
+    } else {
+      return this.send(command, optionsOrCb);
+    }
+  }
+
+  /**
+   * Ignores a recent follower, removing them from your recent followers list.
+   */
+  public recentFollowerIgnore(
+    args: RecentFollowerIgnoreCommandInput,
+    options?: __HttpHandlerOptions,
+  ): Promise<RecentFollowerIgnoreCommandOutput>;
+  public recentFollowerIgnore(
+    args: RecentFollowerIgnoreCommandInput,
+    cb: (err: any, data?: RecentFollowerIgnoreCommandOutput) => void
+  ): void;
+  public recentFollowerIgnore(
+    args: RecentFollowerIgnoreCommandInput,
+    options: __HttpHandlerOptions,
+    cb: (err: any, data?: RecentFollowerIgnoreCommandOutput) => void
+  ): void;
+  public recentFollowerIgnore(
+    args: RecentFollowerIgnoreCommandInput,
+    optionsOrCb?: __HttpHandlerOptions | ((err: any, data?: RecentFollowerIgnoreCommandOutput) => void),
+    cb?: (err: any, data?: RecentFollowerIgnoreCommandOutput) => void
+  ): Promise<RecentFollowerIgnoreCommandOutput> | void {
+    const command = new RecentFollowerIgnoreCommand(args);
     if (typeof optionsOrCb === "function") {
       this.send(command, optionsOrCb)
     } else if (typeof cb === "function") {
@@ -885,6 +1038,39 @@ export class IdentityService extends IdentityServiceClient {
     cb?: (err: any, data?: UnfollowIdentityCommandOutput) => void
   ): Promise<UnfollowIdentityCommandOutput> | void {
     const command = new UnfollowIdentityCommand(args);
+    if (typeof optionsOrCb === "function") {
+      this.send(command, optionsOrCb)
+    } else if (typeof cb === "function") {
+      if (typeof optionsOrCb !== "object")
+        throw new Error(`Expect http options but get ${typeof optionsOrCb}`)
+      this.send(command, optionsOrCb || {}, cb)
+    } else {
+      return this.send(command, optionsOrCb);
+    }
+  }
+
+  /**
+   * Unmarks this identity from deletion.
+   */
+  public unmarkDeletion(
+    args: UnmarkDeletionCommandInput,
+    options?: __HttpHandlerOptions,
+  ): Promise<UnmarkDeletionCommandOutput>;
+  public unmarkDeletion(
+    args: UnmarkDeletionCommandInput,
+    cb: (err: any, data?: UnmarkDeletionCommandOutput) => void
+  ): void;
+  public unmarkDeletion(
+    args: UnmarkDeletionCommandInput,
+    options: __HttpHandlerOptions,
+    cb: (err: any, data?: UnmarkDeletionCommandOutput) => void
+  ): void;
+  public unmarkDeletion(
+    args: UnmarkDeletionCommandInput,
+    optionsOrCb?: __HttpHandlerOptions | ((err: any, data?: UnmarkDeletionCommandOutput) => void),
+    cb?: (err: any, data?: UnmarkDeletionCommandOutput) => void
+  ): Promise<UnmarkDeletionCommandOutput> | void {
+    const command = new UnmarkDeletionCommand(args);
     if (typeof optionsOrCb === "function") {
       this.send(command, optionsOrCb)
     } else if (typeof cb === "function") {

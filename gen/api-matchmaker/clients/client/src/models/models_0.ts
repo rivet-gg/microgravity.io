@@ -23,10 +23,27 @@ export namespace CaptchaConfigHcaptcha {
 }
 
 /**
+ * Cloudflare Turnstile configuration.
+ */
+export interface CaptchaConfigTurnstile {
+  clientResponse: string | undefined;
+}
+
+export namespace CaptchaConfigTurnstile {
+  /**
+   * @internal
+   */
+  export const filterSensitiveLog = (obj: CaptchaConfigTurnstile): any => ({
+    ...obj,
+  })
+}
+
+/**
  * Methods to verify a captcha.
  */
 export type CaptchaConfig =
   | CaptchaConfig.HcaptchaMember
+  | CaptchaConfig.TurnstileMember
   | CaptchaConfig.$UnknownMember
 
 export namespace CaptchaConfig {
@@ -36,16 +53,28 @@ export namespace CaptchaConfig {
    */
   export interface HcaptchaMember {
     hcaptcha: CaptchaConfigHcaptcha;
+    turnstile?: never;
+    $unknown?: never;
+  }
+
+  /**
+   * Cloudflare Turnstile configuration.
+   */
+  export interface TurnstileMember {
+    hcaptcha?: never;
+    turnstile: CaptchaConfigTurnstile;
     $unknown?: never;
   }
 
   export interface $UnknownMember {
     hcaptcha?: never;
+    turnstile?: never;
     $unknown: [string, any];
   }
 
   export interface Visitor<T> {
     hcaptcha: (value: CaptchaConfigHcaptcha) => T;
+    turnstile: (value: CaptchaConfigTurnstile) => T;
     _: (name: string, value: any) => T;
   }
 
@@ -54,6 +83,7 @@ export namespace CaptchaConfig {
     visitor: Visitor<T>
   ): T => {
     if (value.hcaptcha !== undefined) return visitor.hcaptcha(value.hcaptcha);
+    if (value.turnstile !== undefined) return visitor.turnstile(value.turnstile);
     return visitor._(value.$unknown[0], value.$unknown[1]);
   }
 
@@ -63,6 +93,9 @@ export namespace CaptchaConfig {
   export const filterSensitiveLog = (obj: CaptchaConfig): any => {
     if (obj.hcaptcha !== undefined) return {hcaptcha:
       CaptchaConfigHcaptcha.filterSensitiveLog(obj.hcaptcha)
+    };
+    if (obj.turnstile !== undefined) return {turnstile:
+      CaptchaConfigTurnstile.filterSensitiveLog(obj.turnstile)
     };
     if (obj.$unknown !== undefined) return {[obj.$unknown[0]]: 'UNKNOWN'};
   }

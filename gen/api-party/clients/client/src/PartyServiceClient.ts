@@ -48,9 +48,9 @@ import {
   LeavePartyCommandOutput,
 } from "./commands/LeavePartyCommand";
 import {
-  RequestMatchmakerPlayerCommandInput,
-  RequestMatchmakerPlayerCommandOutput,
-} from "./commands/RequestMatchmakerPlayerCommand";
+  MatchmakerSelfReadyCommandInput,
+  MatchmakerSelfReadyCommandOutput,
+} from "./commands/MatchmakerSelfReadyCommand";
 import {
   RevokePartyInviteCommandInput,
   RevokePartyInviteCommandOutput,
@@ -67,6 +67,10 @@ import {
   SetPartyToIdleCommandInput,
   SetPartyToIdleCommandOutput,
 } from "./commands/SetPartyToIdleCommand";
+import {
+  SetSelfInactiveCommandInput,
+  SetSelfInactiveCommandOutput,
+} from "./commands/SetSelfInactiveCommand";
 import {
   TransferPartyOwnershipCommandInput,
   TransferPartyOwnershipCommandOutput,
@@ -134,11 +138,12 @@ export type ServiceInputTypes =
   | JoinPartyCommandInput
   | KickMemberCommandInput
   | LeavePartyCommandInput
-  | RequestMatchmakerPlayerCommandInput
+  | MatchmakerSelfReadyCommandInput
   | RevokePartyInviteCommandInput
   | SendJoinRequestCommandInput
   | SetPartyPublicityCommandInput
   | SetPartyToIdleCommandInput
+  | SetSelfInactiveCommandInput
   | TransferPartyOwnershipCommandInput;
 
 export type ServiceOutputTypes =
@@ -154,11 +159,12 @@ export type ServiceOutputTypes =
   | JoinPartyCommandOutput
   | KickMemberCommandOutput
   | LeavePartyCommandOutput
-  | RequestMatchmakerPlayerCommandOutput
+  | MatchmakerSelfReadyCommandOutput
   | RevokePartyInviteCommandOutput
   | SendJoinRequestCommandOutput
   | SetPartyPublicityCommandOutput
   | SetPartyToIdleCommandOutput
+  | SetSelfInactiveCommandOutput
   | TransferPartyOwnershipCommandOutput;
 
 export interface ClientDefaults

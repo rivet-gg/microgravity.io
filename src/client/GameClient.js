@@ -341,17 +341,18 @@ class GameClient extends Game {
 
 		// Join party if needed
 		if (this.autoJoinPartyAlias) {
-			this.autoJoinPartyAlias = null;
 			console.log('Joining party', this.autoJoinPartyAlias);
 			this.partyApi
 				.joinParty({
-					invite: { alias: this.autoJoinPartyAlias }
+					invite: { alias: this.autoJoinPartyAlias },
+					matchmakerAutoJoinLobby: true
 				})
 				.catch(err => {
 					if (err.code) {
 						alert(`Failed to join party: ${err.code}`);
 					}
 				});
+			this.autoJoinPartyAlias = null;
 		}
 
 		// Fetch party invites
@@ -548,6 +549,9 @@ class GameClient extends Game {
 				case config.serverMessages.UPGRADE_OPTIONS:
 					this.onUpgradeOptions(data);
 					break;
+				case config.serverMessages.SHIPS:
+					this.onShips(data);
+					break;
 				default:
 					throw new Error(`Unknown message type ${type}.`);
 			}
@@ -626,6 +630,7 @@ class GameClient extends Game {
 				// Ships
 				selectedShip: settings.getString('selectedShip', config.shipFills[0].value),
 				selectedFill: settings.getString('selectedFill', config.shipFills[0].value),
+				ships: [], // Ship data for each player
 
 				// Game state
 				score: 0,
@@ -971,6 +976,21 @@ class GameClient extends Game {
 							this.identity?.identityId
 						);
 					else return false;
+				},
+
+				partyShips() {
+					let partyShips = [];
+
+					for (let i = 0, l = this.identity.party.members.length; i < l; i++) {
+						let shipData = this.ships.find(
+							ship => ship.identityId == this.identity.party.members[i].identity.identityId
+						);
+						if (shipData) partyShips[i] = shipData;
+					}
+
+					console.log(this.ships, partyShips);
+
+					return partyShips;
 				}
 			},
 
@@ -2556,6 +2576,15 @@ class GameClient extends Game {
 
 		// Save data to Vue
 		this.vue.leaderboardItems = leaderboardItems;
+	}
+
+	onShips(ships) {
+		this.vue.ships = ships.map(([clientId, identityId, shipIndex, shipFill]) => ({
+			clientId,
+			identityId,
+			shipId: config.ships[shipIndex].id,
+			shipFill
+		}));
 	}
 
 	onMinimap(minimap) {
