@@ -4,10 +4,7 @@
 
 [Microgravity.io](https://microgravity.io) is a web game where the player is tasked with building a space civilization. The player must mine resources, build defenses, fabricate weapons, join alliances, and attack enemies to stay on the top of the leaderboard.
 
-Microgravity is built to run on top of [Rivet](https://rivet.gg).
-
 ## Requirements
-
 
 ## Setup
 
