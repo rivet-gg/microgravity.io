@@ -11,4 +11,5 @@ public/*.js.map
 
 ### Rivet ###
 .rivet/
-.env
+.env*
+
