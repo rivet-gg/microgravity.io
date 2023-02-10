@@ -6,7 +6,6 @@ config.init(true);
 
 const dotenv = require('dotenv');
 dotenv.config({ path: '.env' });
-dotenv.config({ path: config.isProd ? '.env.prod' : '.env.dev' });
 
 const utils = require('./utils');
 const GameServer = require('./GameServer');
