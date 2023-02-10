@@ -16,9 +16,7 @@
 	"author": "Nathan Flurry",
 	"license": "GPL-3.0-only",
 	"dependencies": {
-		"@rivet-gg/identity": "file:gen/api-identity",
-		"@rivet-gg/matchmaker": "file:gen/api-matchmaker",
-		"@rivet-gg/party": "file:gen/api-party",
+		"@rivet-fern/api": "^0.0.310",
 		"clipboard": "^2.0.1",
 		"cors": "^2.8.4",
 		"dotenv": "^16.0.1",
