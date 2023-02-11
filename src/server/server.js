@@ -36,14 +36,13 @@ let rivet = new RIVET.RivetClient({
 	token: process.env.RIVET_TOKEN,
 });
 
-rivet.kv.operations.get
-
-// rivet.matchmaker.lobbies.ready()
-// 	.then(() => console.log('Lobby ready'))
-// 	.catch(err => {
-// 		console.log('Failed to set lobby ready', JSON.stringify(err));
-// 		process.exit(1);
-// 	});
+console.log("Setting lobby ready");
+rivet.matchmaker.lobbies.ready()
+	.then(() => console.log('Lobby ready'))
+	.catch(err => {
+		console.log('Failed to set lobby ready', JSON.stringify(err));
+		process.exit(1);
+	});
 
 // Setup stats
 stats.start('local', process.env.REDIS_URI || null);
