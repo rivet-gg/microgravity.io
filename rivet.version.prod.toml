@@ -1,2 +1,2 @@
-matchmaker.idle_lobbies = { min = 1, max = 2 }
+matchmaker.idle_lobbies = { min = 1, max = 1 }
 

@@ -9,14 +9,14 @@
 		"nodemon": "DOTENV_CONFIG_PATH=.env.dev nodemon -r dotenv/config ./src/server/server.js",
 		"serve": "webpack serve --config webpack-dev.config.js",
 		"build": "webpack --config webpack-dev.config.js",
-		"build-watch": "webpack --watch --config webpack-dev.config.js",
-		"build-prod": "webpack --config webpack-prod.config.js",
+		"build:watch": "webpack --watch --config webpack-dev.config.js",
+		"build:prod": "webpack --config webpack-prod.config.js",
 		"format": "npx prettier --write \"src/**/*.{js,css}\""
 	},
 	"author": "Nathan Flurry",
 	"license": "GPL-3.0-only",
 	"dependencies": {
-		"@rivet-fern/api": "^0.0.310",
+		"@rivet-fern/api": "^0.0.336",
 		"clipboard": "^2.0.1",
 		"cors": "^2.8.4",
 		"dotenv": "^16.0.1",
@@ -40,6 +40,8 @@
 	"devDependencies": {
 		"@babel/core": "^7.0.1",
 		"@babel/preset-env": "^7.0.0",
+		"@rivet-gg/identity": "^0.0.14",
+		"@rivet-gg/party": "^0.0.7",
 		"babel-loader": "^8.0.2",
 		"babel-plugin-minify-mangle-names": "^0.4.3",
 		"babel-preset-minify": "^0.4.3",

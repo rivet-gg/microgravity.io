@@ -1,32 +1,30 @@
-[cdn]
-
 [matchmaker]
 	tier = "basic-1d2"
-	idle_lobbies = { min = 0, max = 0 }
 
-	[matchmaker.docker]
-		[matchmaker.docker.env]
-			PORT = '80'
-			IS_PROD = '1'
+[matchmaker.regions]
+	lnd-atl = {}
+	lnd-fra = {}
 
-		[matchmaker.docker.ports]
-			default = { proto = "https", target = 80 }
+# Runtime configuration for the lobby's Docker container.
+[matchmaker.docker]
+	dockerfile = "Dockerfile"
+	ports.default = { port = 5000 }
+	
+	[matchmaker.docker.env]
+		PORT = "5000"
 
-	[matchmaker.game_modes.classic]
-		max_players = 50
+[matchmaker.game_modes]
+	classic = { max_players = 50 }
+	aliens = { max_players = 30 }
 
-		[matchmaker.game_modes.classic.docker]
-
-	[matchmaker.game_modes.aliens]
-		max_players = 30
-
-		[matchmaker.game_modes.aliens.docker]
-
+[cdn]
+	build_command = "yarn run build:prod"
+	build_output = "public/"
 
 [kv]
 
 [identity]
-	custom_display_names = [
+	display_names = [
 		"Astronaut",
 		"Cosmonaut",
 		"Starman",
@@ -37,13 +35,13 @@
 	]
 
 	# Staging
-	# custom_avatars = [
+	# avatars = [
 	# 	"6e934530-5578-433f-ad99-f9c4ae37a58d",
 	# 	"141acc40-3f92-46f2-a703-84d895ae156e",
 	# 	"de6ead0e-6f05-4da3-87f2-f45d48b054ee",
 	# ]
 
-	custom_avatars = [
+	avatars = [
 		"547efd9e-37e2-4546-8b66-0cfef39c21e0",
 		"a9e26ca9-5b31-45af-8d1b-56cb0231ef6e",
 		"cb0c7f9f-6f6a-4092-9cd9-35f97af14040",
