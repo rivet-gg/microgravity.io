@@ -1,4 +1,4 @@
-const matchmaker = require('@rivet-gg/matchmaker');
+const RIVET = require("@rivet-fern/api");
 const identity = require('@rivet-gg/identity');
 const party = require('@rivet-gg/party');
 
@@ -275,11 +275,14 @@ class GameClient extends Game {
 	async start() {
 		console.log('Starting game');
 
+		// console.log('env',process.env.RIVET_TOKEN,process.env.RIVET_IDENTITY_API_URL,process.env.RIVET_TOKEN);
+
+
 		// Setup APIs
 		/** @type {identity.IdentityManager} */ this.identityManager =
 			await new identity.IdentityManagerBuilder()
 				.withEndpoint(process.env.RIVET_IDENTITY_API_URL)
-				.withToken(process.env.RIVET_CLIENT_TOKEN)
+				.withToken(process.env.RIVET_TOKEN)
 				.onIdentityUpdate(identity => {
 					console.log('Identity connected', identity);
 
@@ -318,17 +321,29 @@ class GameClient extends Game {
 			console.error('Activities stream error', err);
 		});
 
-		/** @type {matchmaker.MatchmakerService} */ this.matchmakerApi = new matchmaker.MatchmakerService({
-			endpoint: process.env.RIVET_MATCHMAKER_API_URL,
-			token: process.env.RIVET_CLIENT_TOKEN
+		/** @type {RIVET.RivetClient} */ this.rivet = new RIVET.RivetClient({
+			environment: {
+				Auth: "https://auth.api.nathan.gameinc.io/v1",
+				Chat: "https://chat.api.nathan.gameinc.io/v1",
+				Cloud: "https://cloud.api.nathan.gameinc.io/v1",
+				Group: "https://group.api.nathan.gameinc.io/v1",
+				Identity: "https://identity.api.nathan.gameinc.io/v1",
+				Job: "https://job.api.nathan.gameinc.io/v1",
+				Kv: "https://kv.api.nathan.gameinc.io/v1",
+				Matchmaker: "https://matchmaker.api.nathan.gameinc.io/v1",
+				Party: "https://party.api.nathan.gameinc.io/v1",
+				Portal: "https://portal.api.nathan.gameinc.io/v1",
+			},
+			token: process.env.RIVET_TOKEN
 		});
+
 		/** @type {party.PartyService} */ this.partyApi = new party.PartyService({
 			endpoint: process.env.RIVET_PARTY_API_URL,
-			token: this.identityManager.token ?? process.env.RIVET_CLIENT_TOKEN
+			token: this.identityManager.token ?? process.env.RIVET_TOKEN
 		});
 
 		// Fetch recommended regions
-		this.matchmakerApi.listRegions({}).then(res => {
+		this.rivet.matchmaker.regions.list({}).then(res => {
 			this.vue.regions = res.regions.map(x => ({ id: x.regionId, title: x.regionId }));
 		});
 
@@ -379,7 +394,7 @@ class GameClient extends Game {
 				if (lobbyId) {
 					console.log('Joining lobby', lobbyId);
 
-					let res = await this.matchmakerApi.joinLobby({
+					let res = await this.rivet.matchmaker.lobbies.join({
 						lobbyId,
 						captcha
 					});
@@ -389,7 +404,7 @@ class GameClient extends Game {
 				} else {
 					console.log('Finding lobby', { gameModes, regions });
 
-					let res = await this.matchmakerApi.findLobby({
+					let res = await this.rivet.matchmaker.lobbies.find({
 						gameModes,
 						regions,
 						captcha

@@ -6,7 +6,6 @@ config.init(true);
 
 const dotenv = require('dotenv');
 dotenv.config({ path: '.env' });
-dotenv.config({ path: config.isProd ? '.env.prod' : '.env.dev' });
 
 const utils = require('./utils');
 const GameServer = require('./GameServer');
@@ -20,17 +19,29 @@ var cors = require('cors');
 
 const nocache = require('nocache');
 
-console.log('Lobby token', process.env.RIVET_TOKEN);
-console.log('Matchmaker', process.env.RIVET_MATCHMAKER_API_URL);
+let RIVET = require('@rivet-fern/api');
+let rivet = new RIVET.RivetClient({
+	environment: {
+		Auth: "https://auth.api.nathan.gameinc.io/v1",
+		Chat: "https://chat.api.nathan.gameinc.io/v1",
+		Cloud: "https://cloud.api.nathan.gameinc.io/v1",
+		Group: "https://group.api.nathan.gameinc.io/v1",
+		Identity: "https://identity.api.nathan.gameinc.io/v1",
+		Job: "https://job.api.nathan.gameinc.io/v1",
+		Kv: "https://kv.api.nathan.gameinc.io/v1",
+		Matchmaker: "https://matchmaker.api.nathan.gameinc.io/v1",
+		Party: "https://party.api.nathan.gameinc.io/v1",
+		Portal: "https://portal.api.nathan.gameinc.io/v1",
+	},
+	token: process.env.RIVET_TOKEN,
+});
 
-let matchmaker = require('@rivet-gg/matchmaker');
-let matchmakerApi = new matchmaker.MatchmakerService({});
-
-matchmakerApi
-	.lobbyReady({})
+console.log("Setting lobby ready");
+rivet.matchmaker.lobbies.ready()
 	.then(() => console.log('Lobby ready'))
 	.catch(err => {
-		throw err;
+		console.log('Failed to set lobby ready', JSON.stringify(err));
+		process.exit(1);
 	});
 
 // Setup stats
@@ -94,7 +105,7 @@ function isValidOrigin(origin) {
 }
 
 // Create WebSocket server
-let wsPort = process.env.PORT ? parseInt(process.env.PORT) : 8008;
+let wsPort = process.env.PORT ? parseInt(process.env.PORT) : 5000;
 let wsServer = require('http').createServer();
 const wss = new WebSocket.Server({ host: '0.0.0.0', server: wsServer, path: '/' });
 wss.on('connection', async (ws, req) => {
@@ -128,7 +139,7 @@ wss.on('connection', async (ws, req) => {
 	if (playerToken) {
 		ws.addListener('close', async () => {
 			try {
-				await matchmakerApi.playerDisconnected({ playerToken });
+				await rivet.matchmaker.players.connected({ playerToken });
 				console.log("Player disconnected", playerToken);
 			} catch (err) {
 				console.warn('Failed to disconnect player', err);
@@ -136,7 +147,7 @@ wss.on('connection', async (ws, req) => {
 		});
 
 		try {
-			await matchmakerApi.playerConnected({ playerToken });
+			await rivet.matchmaker.players.disconnected({ playerToken });
 			console.log("Player connected", playerToken);
 		} catch (err) {
 			console.warn('Failed to connect player', err);

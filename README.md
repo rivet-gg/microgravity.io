@@ -31,15 +31,14 @@ This open-source copy of Microgravity is not built to be distributed, since the 
 
 #### Client
 
-- The client can be built normally with `npm run build`.
-- If you wish to have the client rebuild every time you make a change, run `npm run build-watch`.
-- If you are building to deploy to production, run `npm run build-prod`.
+- To run the development server, run `npm run serve`.
+- If you are building to deploy to production, run `npm run build:prod`.
 
 #### TLDR
 
 1. Run `npm run setup`.
 2. Open a shell and run `npm run nodemon`. Keep this open.
-3. Open another shell and run `npm run build-watch`. Keep this open.
+3. Open another shell and run `npm run serve`. Keep this open.
 4. Visit https://127.0.0.1:8080.
 
 ## Deploying
