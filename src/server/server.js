@@ -22,16 +22,9 @@ const nocache = require('nocache');
 let RIVET = require('@rivet-fern/api');
 let rivet = new RIVET.RivetClient({
 	environment: {
-		Auth: "https://auth.api.nathan.gameinc.io/v1",
-		Chat: "https://chat.api.nathan.gameinc.io/v1",
-		Cloud: "https://cloud.api.nathan.gameinc.io/v1",
-		Group: "https://group.api.nathan.gameinc.io/v1",
-		Identity: "https://identity.api.nathan.gameinc.io/v1",
-		Job: "https://job.api.nathan.gameinc.io/v1",
-		Kv: "https://kv.api.nathan.gameinc.io/v1",
-		Matchmaker: "https://matchmaker.api.nathan.gameinc.io/v1",
-		Party: "https://party.api.nathan.gameinc.io/v1",
-		Portal: "https://portal.api.nathan.gameinc.io/v1",
+		Matchmaker: process.env.RIVET_MATCHMAKER_API_URL,
+		Party: process.env.RIVET_PARTY_API_URL,
+		Identity: process.env.RIVET_IDENTITY_API_URL,
 	},
 	token: process.env.RIVET_TOKEN,
 });
