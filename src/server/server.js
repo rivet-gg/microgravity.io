@@ -132,7 +132,7 @@ wss.on('connection', async (ws, req) => {
 	if (playerToken) {
 		ws.addListener('close', async () => {
 			try {
-				await rivet.matchmaker.players.connected({ playerToken });
+				await rivet.matchmaker.players.disconnected({ playerToken });
 				console.log("Player disconnected", playerToken);
 			} catch (err) {
 				console.warn('Failed to disconnect player', err);
@@ -140,7 +140,7 @@ wss.on('connection', async (ws, req) => {
 		});
 
 		try {
-			await rivet.matchmaker.players.disconnected({ playerToken });
+			await rivet.matchmaker.players.connected({ playerToken });
 			console.log("Player connected", playerToken);
 		} catch (err) {
 			console.warn('Failed to connect player', err);
