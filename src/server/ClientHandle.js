@@ -1,5 +1,3 @@
-const identity = require('@rivet-gg/identity');
-
 const WebSocket = require('ws');
 const Player = require('../entities/Player');
 const config = require('../config/config');
@@ -94,9 +92,6 @@ class ClientHandle {
 		/* @type {Object[]} */ this.perks = [];
 
 		/** @type {number[]} */ this.ownedWeapons = [[0, -1]];
-
-		/** @type {identity.IdentityProfile} */ this.identity = null;
-		/** @type {string} */ this.identityToken = null;
 
 		/** @type {boolean} */ this.gaveAdBlockReward = false;
 		/** @type {boolean} */ this.gaveDiscordReward = false;
@@ -571,36 +566,13 @@ class ClientHandle {
 	async onInit(data) {
 		// Validate challenge
 		let correctChallengeResponse = (this.challengeSeed * this.id) % 256;
-		let [challengeResponse, identityToken] = data;
+		let [challengeResponse] = data;
 
 		if (challengeResponse !== correctChallengeResponse) {
 			console.warn(
 				`Client ${this.id} answered challenge incorrectly. Guessed ${challengeResponse}, correct answer was ${correctChallengeResponse}.`
 			);
 			this.ws.close();
-			return;
-		}
-
-		utils.assertString(identityToken);
-
-		// Save identity token
-		this.identityToken = identityToken;
-
-		try {
-			// TODO: This is wrong
-			let identityApi = new identity.IdentityService({
-				endpoint: process.env.RIVET_IDENTITY_API_URL || 'https://identity.api.rivet.gg/v1',
-				token: identityToken
-			});
-
-			let res = await identityApi.getIdentitySelfProfile({});
-
-			this.identity = res.identity;
-			console.log('Identity connected', this.identity.identityId);
-		} catch (err) {
-			console.error('Identity creation error', err);
-			this.ws.close();
-
 			return;
 		}
 
@@ -626,7 +598,7 @@ class ClientHandle {
 		if (shipIndex === -1) shipIndex = 0; // Invalid ship index
 
 		// // Save username
-		this.username = this.identity.displayName;
+		this.username = "TODO";
 
 		// Create new player
 		this.player = new Player(this.game);
@@ -661,7 +633,7 @@ class ClientHandle {
 		this.updatePerks();
 
 		// Tally the play
-		stats.tallyPlay(this.identity.displayName, selectedShip, selectedFill);
+		stats.tallyPlay(this.username, selectedShip, selectedFill);
 
 		// Give ad block reward
 		if (this.rewards.has('adblock') && !this.gaveAdBlockReward) {

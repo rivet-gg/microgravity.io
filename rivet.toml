@@ -8,10 +8,10 @@
 # Runtime configuration for the lobby's Docker container.
 [matchmaker.docker]
 	dockerfile = "Dockerfile"
-	ports.default = { port = 5000 }
+	ports.default = { port = 5001 }
 	
 	[matchmaker.docker.env]
-		PORT = "5000"
+		PORT = "5001"
 
 [matchmaker.game_modes]
 	classic = { max_players = 50 }
@@ -20,30 +20,4 @@
 [cdn]
 	build_command = "yarn run build:prod"
 	build_output = "public/"
-
-[kv]
-
-[identity]
-	display_names = [
-		"Astronaut",
-		"Cosmonaut",
-		"Starman",
-		"Spaceman",
-		"Rocketman",
-		"Pilot",
-		"Rocketeer",
-	]
-
-	# Staging
-	# avatars = [
-	# 	"6e934530-5578-433f-ad99-f9c4ae37a58d",
-	# 	"141acc40-3f92-46f2-a703-84d895ae156e",
-	# 	"de6ead0e-6f05-4da3-87f2-f45d48b054ee",
-	# ]
-
-	avatars = [
-		"547efd9e-37e2-4546-8b66-0cfef39c21e0",
-		"a9e26ca9-5b31-45af-8d1b-56cb0231ef6e",
-		"cb0c7f9f-6f6a-4092-9cd9-35f97af14040",
-	]
 

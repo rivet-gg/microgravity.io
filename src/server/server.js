@@ -19,13 +19,9 @@ var cors = require('cors');
 
 const nocache = require('nocache');
 
-let RIVET = require('@rivet-fern/api');
+let RIVET = require('@rivet-gg/api');
 let rivet = new RIVET.RivetClient({
-	environment: {
-		Matchmaker: process.env.RIVET_MATCHMAKER_API_URL,
-		Party: process.env.RIVET_PARTY_API_URL,
-		Identity: process.env.RIVET_IDENTITY_API_URL,
-	},
+	environment: process.env.RIVET_API_ENDPOINT,
 	token: process.env.RIVET_TOKEN,
 });
 
@@ -98,7 +94,7 @@ function isValidOrigin(origin) {
 }
 
 // Create WebSocket server
-let wsPort = process.env.PORT ? parseInt(process.env.PORT) : 5000;
+let wsPort = process.env.PORT ? parseInt(process.env.PORT) : 5001;
 let wsServer = require('http').createServer();
 const wss = new WebSocket.Server({ host: '0.0.0.0', server: wsServer, path: '/' });
 wss.on('connection', async (ws, req) => {

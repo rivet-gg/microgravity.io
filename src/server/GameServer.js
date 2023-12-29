@@ -1,5 +1,3 @@
-const identity = require('@rivet-gg/identity');
-
 const Game = require('../Game');
 const ClientHandle = require('./ClientHandle');
 const BotHandle = require('./BotHandle');
@@ -217,9 +215,8 @@ class GameServer extends Game {
 			.map(client => {
 				return [
 					client.id,
-					client.identity ? client.identity.id : null,
 					client.alliance ? client.alliance.id : null,
-					client.identity ? client.identity.displayName : client.username,
+					client.username,
 					client.score
 				];
 			});
