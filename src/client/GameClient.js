@@ -428,7 +428,8 @@ class GameClient extends Game {
 
                 // Ships
                 isShipLocked(ship) {
-                    return ship.reward != null && this.rewards.indexOf(ship.reward) === -1;
+                    return false;
+                    // return ship.reward != null && this.rewards.indexOf(ship.reward) === -1;
                 },
                 selectShip(ship) {
                     if (this.isShipLocked(ship)) return;

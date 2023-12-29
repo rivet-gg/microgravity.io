@@ -233,7 +233,6 @@ select {
     right: 0;
     top: 0;
     bottom: 0;
-    width: 100%; /* This is to make the textbox size correctly */
 
     margin: 0;
     padding-right: calc(60px + 16px);
