@@ -614,6 +614,10 @@ class GameClient extends Game {
 			},
 
 			watch: {
+                someReactiveData(newValue, oldValue) {
+                    console.log(`Data changed from ${oldValue} to ${newValue}`);
+                },
+
 				buildableStructures(val) {
 					// Remove the hovering structure if the structure no longer is buildable (e.g. goes in to a planet
 					// while hovering a space item)
