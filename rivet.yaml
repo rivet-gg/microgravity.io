@@ -1,0 +1,21 @@
+matchmaker:
+  tier: basic-1d1
+  regions:
+    lnd-atl: {}
+    lnd-fra: {}
+  docker:
+    ports:
+      default:
+        port: 5001
+    env:
+      PORT: 5001
+  game_modes:
+    classic:
+      max_players: 50
+    aliens:
+      max_players: 30
+
+cdn:
+  build_command: yarn run build:prod
+  build_output: public/
+
