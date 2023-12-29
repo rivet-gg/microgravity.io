@@ -5,7 +5,6 @@ const utils = require("../utils");
 const weapons = require("../config/weapons");
 const structures = require("../config/structures");
 const resources = require("../config/resources");
-const stats = require("./stats");
 const msgpack = require("msgpack-lite");
 const upgrades = require("../config/upgrades");
 const assets = require("../client/assets");
@@ -581,9 +580,6 @@ class ClientHandle {
         // Update the perks
         this.updatePerks();
 
-        // Tally the play
-        stats.tallyPlay(username, selectedShip, selectedFill);
-
         // Give ad block reward
         if (this.rewards.has("adblock") && !this.gaveAdBlockReward) {
             // Save given
@@ -593,9 +589,6 @@ class ClientHandle {
             for (let i = 0; i < this.resources.length; i++) {
                 this.resources[i] += config.adBlockReward;
             }
-
-            // Tally the reward
-            stats.tallyAdReward();
         }
 
         // Give discord reward
@@ -717,9 +710,6 @@ class ClientHandle {
         if (this.attemptPurchase(structureData.price)) {
             // Insert in to game
             this.game.insertEntity(structure);
-
-            // Tally
-            stats.tallyBuild(structureData.id);
         }
 
         // In case called by something else, it can tweak the structure
@@ -789,7 +779,6 @@ class ClientHandle {
                     } else {
                         this.game.broadcastMessage(this, "I'm a little bitch.");
                         this.sendNotification(config.notificationTypes.JUST_STOP, "empty", ["You're a little bitch, you know that?"]);
-                        stats.tallyAdminFails();
                     }
                     break;
                 case "w":
@@ -913,9 +902,6 @@ class ClientHandle {
 
         // Broadcast message
         this.game.broadcastMessage(this, text);
-
-        // Tally
-        stats.tallyMessage();
     }
 
     onPing() {
@@ -950,9 +936,6 @@ class ClientHandle {
 
         // Update alliances
         this.onAllianceChange();
-
-        // Tally
-        stats.tallyCreateAlliance(this.alliance.name);
     }
 
     onLeaveAlliance() {
@@ -993,9 +976,6 @@ class ClientHandle {
         let resolveClient = this.alliance.joinRequests[0];
         if (!resolveClient) return;  // No join requests
         this.alliance.resolveJoinRequest(resolveClient.id, approve);
-
-        // Tally
-        if (approve) stats.tallyJoinAlliance();
     }
 
     onStructureAction(msgData) {
@@ -1095,9 +1075,6 @@ class ClientHandle {
             this.updatePerks();
         }
 
-        // Tally
-        stats.tallyUpgrade(this.upgradedRank, index);
-
         // Increment upgraded rank
         this.upgradedRank++;
 
@@ -1151,12 +1128,8 @@ class ClientHandle {
 
             // Send the new points and resources
             victim.clientHandle.sendResources();
-
-            // Tally kill
-            stats.tallyPlayerKill();
         } else if (victim.botHandle) {
             points = config.pointRewards.BOT_KILL;
-            stats.tallyBotKill();
         }
         this.awardPoints(config.pointRewardTypes.PLAYER_KILL, points, victim.x, victim.y);
 
@@ -1171,9 +1144,6 @@ class ClientHandle {
         // Send to client
         if (x != null && y != null) this.sendPointsPopup(`+${Math.floor(count)}${appendText}`, x, y);
         this.sendResources();
-
-        // Tally
-        stats.tallyPoints(type, count);
     }
 
     giveResources(type, count, x = null, y = null, multiple = false) {

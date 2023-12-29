@@ -3,7 +3,6 @@ const config = require("../config/config");
 const utils = require("../utils");
 const resources = require("../config/resources");
 const assets = require("../client/assets");
-const stats = require("../server/stats");
 
 class Asteroid extends Entity {
     constructor(game, isLarge = false) {
@@ -91,9 +90,6 @@ class Asteroid extends Entity {
                     this.game.insertEntity(shard);
                 }
             }
-
-            // Tally
-            stats.tallyAsteroidDestroy();
         }
     }
 

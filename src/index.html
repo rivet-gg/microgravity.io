@@ -18,7 +18,7 @@
 
 <div id="ui">
 
-    <div id="mainMenu" class="modal" style="display: none">
+    <div id="mainMenu" class="modal">
         <!-- Center Panel -->
         <div id="menuContent">
             <!-- Game Logo -->
@@ -177,14 +177,14 @@
         <h1 v-t="'loading'">Loading...</h1>
     </div>
 
-    <div id="disconnectScreen" class="modal" style="display: none">
+    <div id="disconnectScreen" class="modal">
         <h1 v-t="'disconnected-title'"></h1>
         <h2 v-t="'disconnected-updating'"></h2>
         <h3 v-t="'disconnected-issue'"></h3>
         <div class="button" onclick="location.reload(true)" v-t="'reload-game'"></div>
     </div>
 
-    <div id="gameOverlay" style="display: none">
+    <div id="gameOverlay">
         <!-- Controls -->
         <div id="gameControlTip" class="controlTip" v-show="false"></div>
 

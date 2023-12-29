@@ -8,7 +8,6 @@ const utils = require("../utils");
 const config = require("../config/config");
 const Alliance = require("./Alliance");
 const planetNames = require("../config/planet-names.json");
-const stats = require("./stats");
 
 /**
  * @callback queryCallback
@@ -357,9 +356,6 @@ class GameServer extends Game {
                 this.insertEntity(bullets);
             }
         }
-
-        // Tally
-        stats.tallyFire(weapon.id);
 
         return bullets;
     }

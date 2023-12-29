@@ -2,6 +2,7 @@
 const config = require("../config/config");
 config.isClient = true;
 
+const { RivetClient } = require('@rivet-gg/api');
 const GameClient = require("./GameClient");
 
 // Create game
@@ -11,12 +12,12 @@ const game = new GameClient();
 function start() {
     if (config.isProd) {
         // Find lobby
-        let rivet = require("@rivet-gg/game");
-        const clientApi = new rivet.ClientApi({
-            basePath: process.env.RIVET_GAME_API_URL ?? 'https://api-game.rivet.gg/v1',
+        const rivet = new RivetClient({
+            environment: process.env.RIVET_API_ENDPOINT,
+            token: process.env.RIVET_TOKEN,
         });
 
-        let res = clientApi.findLobby({
+        let res = rivet.matchmaker.lobbies.find({
             gameModes: ["default"],
         })
             .then(res => {
