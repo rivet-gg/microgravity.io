@@ -17,7 +17,7 @@ console.log();
 
 // Install modules
 console.log("=== INSTALLING MODULES ===");
-cp.execSync("npm install", { cwd: projectDir, stdio: "inherit" });
+cp.execSync("yarn install", { cwd: projectDir, stdio: "inherit" });
 console.log();
 
 // Generate sounds
@@ -27,10 +27,10 @@ console.log();
 
 // Build JS
 console.log("=== BUILDING JS ===");
-cp.execSync("npm run build", { cwd: projectDir, stdio: "inherit" });
+cp.execSync("yarn run build", { cwd: projectDir, stdio: "inherit" });
 console.log();
 
 // Misc nodes
 console.log("=== FINISHED ===")
 console.log("Make sure there are no errors above.");
-console.log("If everything is ok, run 'npm start' and visit 'http://127.0.0.1:8080'");
+console.log("If everything is ok, run 'yarn start' and visit 'http://127.0.0.1:8080'");

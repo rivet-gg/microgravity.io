@@ -2,11 +2,11 @@
 
 pkgs.mkShell {
 	buildInputs = with pkgs; [
-		nodejs-12_x
+		nodejs-18_x
 		gcc
 		gnumake
 
-		pkgconfig
+		pkg-config
 		openssl
 		ffmpeg-full
 
