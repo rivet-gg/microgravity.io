@@ -319,52 +319,6 @@
 
 						<div style="margin-top: 10px">&copy; 2022 Rivet Gaming, LLC</div>
 					</div>
-					<div id="friends" v-show="activeMenu == config.activeMenu.FRIENDS">
-						<div v-for="item in friends" class="friendItem">
-							<a class="friendUsername" :href="item.external.profile" target="_blank"
-								>{{ item.displayName }}</a
-							>
-							<div class="friendActions">
-								<div class="button action matIcon" @click="friendParty(item)">
-									celebration
-								</div>
-								<a class="button action matIcon" :href="item.external.chat" target='"_blank'
-									>chat_bubble</a
-								>
-								<div
-									v-if="item.presence?.gameActivity?.game.gameId == game.identityManager.gameId"
-									class="button action matIcon"
-									@click="friendJoin(item)"
-								>
-									sports_esports
-								</div>
-							</div>
-						</div>
-						<div
-							v-if="!friends.length"
-							id="noFriendsOnline"
-							class="translate"
-							v-t="'no-friends'"
-						></div>
-					</div>
-					<div id="account" v-show="activeMenu == config.activeMenu.ACCOUNT" v-if="!!identity">
-						<a
-							id="viewAccountButton"
-							class="button translate"
-							target="_blank"
-							v-t="'view-account-title'"
-							:href="identity.external.profile"
-						></a>
-						<div class="translate">
-							<div v-t="'link-account'"></div>
-						</div>
-						<button
-							id="linkAccountButton"
-							class="button translate"
-							v-t="'link-account-title'"
-							@click="startGameLink()"
-						></button>
-					</div>
 				</div>
 
 				<!-- Extra Links -->
@@ -417,7 +371,6 @@
 							class="leaderboardItem"
 							:class="{
 								isMine: item.isMine,
-								isFriend: item.identity?.isMyFriend && item.identity?.isTheirFriend,
 							}"
 						>
 							<div class="leaderboardRank">{{ item.rank }}</div>
@@ -428,28 +381,8 @@
 							>
 								{{ item.allianceName }}
 							</div>
-							<a
-								class="leaderboardUsername"
-								target="_blank"
-								:href="item.identity?.external?.profile"
-								>{{ item.username }}</a
-							>
+                            {{ item.username }}
 							<div class="leaderboardScore">{{ Math.floor(item.score) }}</div>
-							<div
-								v-if="!item.isMine && !item.isMyIdentity && item.identity"
-								class="leaderboardFriendAction button"
-								@click="friendAction(item)"
-							>
-								<h3
-									v-if="!item.identity?.isMyFriend"
-									class="translate"
-									v-t="'add-friend'"
-								></h3>
-								<h3 v-else class="translate" v-t="'remove-friend'"></h3>
-								<div class="matIcon">
-									{{item.identity?.isMyFriend ? 'person_remove' : 'person_add'}}
-								</div>
-							</div>
 						</div>
 					</div>
 
@@ -577,75 +510,6 @@
 							></div>
 						</div>
 					</div>
-				</div>
-			</div>
-
-			<div id="notificationOverlay" style="display: none">
-				<div
-					v-for="{ id, notification, isFading } in notifications"
-					:class="{ notificationItem: true, isFading: isFading }"
-					:key="id"
-					@click="openNotification(id)"
-					@pointerenter="pointerEnterNotification(id)"
-					@pointerleave="pointerLeaveNotification(id)"
-					@pointercancel="pointerLeaveNotification(id)"
-				>
-					<div class="notificationHeader">
-						<div class="notificationTitle">
-							<img :src="notification.thumbnailUrl" />
-							<h2>{{notification.title}}</h2>
-						</div>
-						<div class="notificationClose button matIcon" @click="closeNotification(id, $event)">
-							close
-						</div>
-					</div>
-					<h3 class="notificationSubtitle">{{notification.description}}</h3>
-				</div>
-			</div>
-
-			<div id="partyOverlay">
-				<div v-if="party != null" id="partyMembers">
-					<div v-for="member in party.members" class="partyMember">
-						<a
-							class="partyMemberName"
-							target="_blank"
-							:href="`https://rivet.gg/identities/${member.id}`"
-							>{{member.identity.displayName}} [{{Object.keys(member.state)[0]}}]</a
-						>
-						<div
-							v-if="isPartyLeader && !member.isLeader"
-							class="translate button compact"
-							v-t="'kick-party-member'"
-							@click="kickPartyMember(member)"
-						></div>
-						<div
-							v-if="isPartyLeader && !member.isLeader"
-							class="translate button compact"
-							v-t="'transfer-party-member'"
-							@click="transferParty(member)"
-						></div>
-					</div>
-				</div>
-				<div id="partyActions">
-					<div
-						v-if="party == null"
-						class="translate button compact"
-						v-t="'create-party'"
-						@click="createParty()"
-					></div>
-					<div
-						v-if="party != null"
-						class="translate button compact"
-						v-t="'leave-party'"
-						@click="leaveParty()"
-					></div>
-					<div
-						v-if="isPartyLeader"
-						id="shareParty"
-						class="translate button compact"
-						v-t="partyLinkJustCopied ? 'share-party-copied' : 'share-party'"
-						@click="copyPartyLink()"
-					></div>
 				</div>
 			</div>
 

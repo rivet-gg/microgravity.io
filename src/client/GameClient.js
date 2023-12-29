@@ -1,6 +1,4 @@
-const RIVET = require("@rivet-fern/api");
-const identity = require('@rivet-gg/identity');
-const party = require('@rivet-gg/party');
+const RIVET = require("@rivet-gg/api");
 
 const Game = require('../Game');
 const InputHandler = require('./InputHandler');
@@ -129,7 +127,6 @@ class GameClient extends Game {
 		/* @type {boolean} */ this.renderingUI = false;
 
 		/** @type {boolean} */ this.initiated = false;
-		/** @type {?string} */ this.autoJoinPartyAlias = null;
 		/** @type {?string} */ this.autoJoinLobbyId = null;
 
 		/** @type {number} */ this.ping = 0;
@@ -190,11 +187,6 @@ class GameClient extends Game {
 		/** @type {?number} */ this.deathPosY = null;
 
 		/** @type {boolean} */ this.demolishConfirm = false;
-
-		/** @type {identity.IdentityProfile} */ this.identity = null;
-		/** @type {Map<string, identity.IdentityProfile>} */ this.identities = new Map();
-		/** @type {Set<string>} */ this.fetchedIdentities = new Set();
-		/** @type {identity.IdentityHandle[]} */ this.friends = [];
 
 		this.recognition = null;
 
@@ -275,85 +267,15 @@ class GameClient extends Game {
 	async start() {
 		console.log('Starting game');
 
-		// console.log('env',process.env.RIVET_TOKEN,process.env.RIVET_IDENTITY_API_URL,process.env.RIVET_TOKEN);
-
-
-		// Setup APIs
-		/** @type {identity.IdentityManager} */ this.identityManager =
-			await new identity.IdentityManagerBuilder()
-				.withEndpoint(process.env.RIVET_IDENTITY_API_URL)
-				.withToken(process.env.RIVET_TOKEN)
-				.onIdentityUpdate(identity => {
-					console.log('Identity connected', identity);
-
-					this.identity = identity;
-					this.vue.identity = this.identity;
-					this.fetchedIdentities.add(this.identity.id);
-					this.identities.set(this.identity.id, this.identity);
-				})
-				.onNotification((notification, eventKind) => {
-					if (eventKind.chatMessage) {
-						this.presentNotification(eventKind.chatMessage.thread, notification);
-					}
-				})
-				.onError(err => {
-					console.error('IdentityManager error', err);
-				})
-				.build();
-
-		// Remove game activity on unload
-		window.addEventListener('unload', () => {
-			if (this.identity?.presence?.gameActivity?.game.gameId == this.identityManager.gameId) {
-				this.identityManager.service.removeIdentityGameActivity({});
-			}
-		});
-
-		/** @type {RepeatingRequest<ListActivitiesCommandOutput>} */ this.activitiesStream =
-			new identity.common.RepeatingRequest(async (abortSignal, watchIndex) => {
-				return await this.identityManager.service.listActivities({ watchIndex }, { abortSignal });
-			});
-
-		this.activitiesStream.onMessage(res => {
-			this.friends = res.identities;
-		});
-
-		this.activitiesStream.onError(err => {
-			console.error('Activities stream error', err);
-		});
-
 		/** @type {RIVET.RivetClient} */ this.rivet = new RIVET.RivetClient({
-			environment: {
-				Matchmaker: process.env.RIVET_MATCHMAKER_API_URL,
-				Party: process.env.RIVET_PARTY_API_URL,
-				Identity: process.env.RIVET_IDENTITY_API_URL,
-			},
+			environment: process.env.RIVET_API_ENDPOINT,
 			token: process.env.RIVET_TOKEN
-		});
-
-		/** @type {party.PartyService} */ this.partyApi = new party.PartyService({
-			endpoint: process.env.RIVET_PARTY_API_URL,
-			token: this.identityManager.token ?? process.env.RIVET_TOKEN
 		});
 
 		// Fetch recommended regions
 		this.rivet.matchmaker.regions.list({}).then(res => {
 			this.vue.regions = res.regions.map(x => ({ id: x.regionId, title: x.regionId }));
 		});
-
-		// Join party if needed
-		if (this.autoJoinPartyAlias) {
-			this.autoJoinPartyAlias = null;
-			console.log('Joining party', this.autoJoinPartyAlias);
-			this.partyApi
-				.joinParty({
-					invite: { alias: this.autoJoinPartyAlias }
-				})
-				.catch(err => {
-					if (err.code) {
-						alert(`Failed to join party: ${err.code}`);
-					}
-				});
-		}
 
 		// Join lobby
 		this.findLobby(this.autoJoinLobbyId);
@@ -366,22 +288,6 @@ class GameClient extends Game {
 		let gameModes = [settings.getString('gameMode', 'classic')];
 		let regions = settings.has('region') ? [settings.getString('region')] : null;
 
-		if (this.party) {
-			if (lobbyId) {
-				console.log('Joining party lobby', lobbyId);
-
-				await this.partyApi.joinMatchmakerLobbyForParty({
-					lobbyId
-				});
-			} else {
-				console.log('Finding party lobby', { gameModes, regions });
-
-				await this.partyApi.findMatchmakerLobbyForParty({
-					gameModes,
-					regions
-				});
-			}
-		} else {
 			let lobby = null;
 			try {
 				if (lobbyId) {
@@ -429,20 +335,7 @@ class GameClient extends Game {
 			if (!lobby) throw 'Missing lobby';
 			console.log('Found lobby', lobby);
 
-			// Set game activity
-			this.identityManager.service.setIdentityGameActivity({
-				gameActivity: {
-					message: 'Playing Microgravity.io',
-					mutualMetadata: {
-						lobbyId: lobby.lobbyId,
-						gameMode: settings.getString('gameMode'),
-						region: settings.getString('region')
-					}
-				}
-			});
-
 			this.connectSocket(lobby);
-		}
 	}
 
 	connectSocket(lobby) {
@@ -595,9 +488,6 @@ class GameClient extends Game {
 				utils: utils,
 				config: config,
 				i18n: this.i18n,
-				identityApi: this.identityApi,
-				identity: this.identity,
-				identities: this.identities,
 				friends: this.friends,
 
 				// Languages
@@ -605,7 +495,6 @@ class GameClient extends Game {
 
 				// Main menu
 				lobbyLinkJustCopied: false,
-				partyLinkJustCopied: false,
 				showConsent: localStorage.consentedToPrivacyPolicy !== 'true',
 				kickTimer: 0,
 				usingTouch: false,
@@ -651,12 +540,6 @@ class GameClient extends Game {
 				// Building
 				buildGroups: structures.groups,
 				showingBuildGroup: null,
-
-				// Notifications
-				notifications: [],
-
-				// Party
-				party: null
 			},
 
 			methods: {
@@ -678,52 +561,6 @@ class GameClient extends Game {
 				},
 				changeActiveMenu(value) {
 					this.activeMenu = value;
-				},
-				async startGameLink() {
-					if (game.identityManager) {
-						try {
-							let res = await game.identityManager.startGameLink(async res => {
-								// TODO: Close "Linking..." overlay
-							});
-
-							window.open(res.identityLinkUrl, '_blank');
-
-							// TODO: Show some "Linking..." overlay (with a cancel button)
-						} catch (err) {
-							console.error(err);
-						}
-					}
-				},
-				async friendAction(leaderboardItem) {
-					try {
-						if (this.identities.has(leaderboardItem.identity.id)) {
-							let identity = this.identities.get(leaderboardItem.identity.id);
-
-							if (!identity.isMyFriend) {
-								await game.identityManager.service.followIdentity({
-									identityId: leaderboardItem.identity.id
-								});
-							} else {
-								await game.identityManager.service.unfollowIdentity({
-									identityId: leaderboardItem.identity.id
-								});
-							}
-
-							// Update identity
-							let res = await game.identityManager.service.getIdentityProfile({
-								identityId: leaderboardItem.identity.id
-							});
-							this.identities.set(res.identity.id, res.identity);
-						}
-					} catch (err) {
-						console.error(err);
-					}
-				},
-				async friendParty(friend) {
-					// TODO:
-				},
-				async friendJoin(friend) {
-					game.findLobby(friend.presence.gameActivity.mutualMetadata['lobbyId']);
 				},
 
 				// Build
@@ -811,112 +648,6 @@ class GameClient extends Game {
 					return this.rewards.indexOf(reward) !== -1;
 				},
 
-				// Notifications
-				pointerEnterNotification(id) {
-					console.log(id);
-
-					// Get the notification
-					let notification = this.notifications.find(n => n.id == id);
-					if (!notification) return;
-
-					notification.isFading = false;
-
-					// Stop removal timer on hover
-					window.clearTimeout(notification.timeoutId);
-				},
-				pointerLeaveNotification(id) {
-					// Get the notification
-					let notification = this.notifications.find(n => n.id == id);
-					if (!notification) return;
-
-					// Start removal timer on pointerout
-					notification.timeoutId = window.setTimeout(
-						() => this.dismissNotification(id),
-						NOTIFICATION_LIFESPAN
-					);
-				},
-				openNotification(id) {
-					// Get the notification
-					let notification = this.notifications.find(n => n.id == id);
-					if (!notification) return;
-
-					console.log('balls', id, notification);
-
-					window.open(notification.notification.url, '_blank');
-
-					this.dismissNotification(id);
-				},
-				closeNotification(id, e) {
-					if (e) e.stopPropagation();
-
-					this.removeNotification(id);
-				},
-				dismissNotification(id) {
-					// Get the notification
-					let notification = this.notifications.find(n => n.id == id);
-					if (!notification) {
-						console.warn(`Attempted to dismiss notification with id ${id} that does not exist`);
-						return;
-					}
-
-					if (notification.isFading) {
-						console.warn(
-							`Attempted to dismiss notification with id ${id} that is already being dismissed`
-						);
-						return;
-					} else {
-						// Set notification as "fading" for CSS animation
-						notification.isFading = true;
-
-						// Remove it
-						window.clearTimeout(notification.timeoutId);
-						notification.timeoutId = window.setTimeout(() => {
-							this.removeNotification(id);
-						}, NOTIFICATION_FADE_LENGTH);
-					}
-				},
-				// Different from dismissNotification, which has a fade animation
-				removeNotification(id) {
-					// Get the notification index
-					let index = this.notifications.findIndex(n => n.id == id);
-					if (index == -1) {
-						console.warn(`Attempted to remove notification with id ${id} that does not exist`);
-						return;
-					}
-
-					let notification = this.notifications[index];
-
-					// Stop removal timer on hover
-					window.clearTimeout(notification.timeoutId);
-
-					this.notifications.splice(index, 1);
-				},
-				transferParty(member) {
-					game.partyApi.transferPartyOwnership({
-						identityId: member.identity.id
-					});
-				},
-				kickPartyMember(member) {
-					game.partyApi.kickMember({
-						identityId: member.identity.id
-					});
-				},
-				createParty() {
-					game.partyApi.createParty({
-						partySize: 8,
-						invites: [{ alias: utils.generateRandomCode() }]
-					});
-				},
-				leaveParty() {
-					game.partyApi.leaveParty({});
-				},
-				copyPartyLink() {
-					// Animate copied
-					this.partyLinkJustCopied = true;
-					setTimeout(() => {
-						this.partyLinkJustCopied = false;
-					}, 1000);
-				},
 
 				selectGameMode(id) {
 					settings.setString('gameMode', id);
@@ -964,13 +695,6 @@ class GameClient extends Game {
 				hoveringPerkData() {
 					return this.hoveringPerk != null ? upgrades.perks[this.hoveringPerk] : null;
 				},
-
-				// Party
-				isPartyLeader() {
-					if (this.party)
-						return this.party.members.find(x => x.isLeader)?.identity.id == this.identity?.id;
-					else return false;
-				}
 			},
 
 			watch: {
@@ -1009,14 +733,6 @@ class GameClient extends Game {
 		// Share link button
 		new ClipboardJS('#shareLobby', {
 			text: () => `${location.origin}/?l=${lobby.lobbyId}`
-		});
-		new ClipboardJS('#shareParty', {
-			text: () => {
-				if (this.party) {
-					let alias = this.party.invites.find(x => !!x.alias.alias);
-					return `${location.origin}/?p=${alias.alias.alias}`;
-				}
-			}
 		});
 
 		// Update ad reward panel HTML
@@ -1060,8 +776,6 @@ class GameClient extends Game {
 				settings[settingId] = ev.target.checked;
 			});
 		}
-
-		document.getElementById('notificationOverlay').style.display = 'flex';
 
 		/* Alliances */
 		document
@@ -1191,19 +905,6 @@ class GameClient extends Game {
 				this.vue.speechRecording = false;
 				this.recognition.stop();
 			};
-		}
-	}
-
-	async fetchIdentity(identityId) {
-		this.fetchedIdentities.add(identityId);
-
-		try {
-			let res = await this.identityManager.service.getIdentityProfile({
-				identityId: identityId
-			});
-			this.identities.set(res.identity.id, res.identity);
-		} catch (err) {
-			console.error(err);
 		}
 	}
 
@@ -1399,7 +1100,7 @@ class GameClient extends Game {
 	}
 
 	sendInit(challengeResponse) {
-		this.send(config.clientMessages.INIT, [challengeResponse, this.identityManager.token]);
+		this.send(config.clientMessages.INIT, [challengeResponse]);
 	}
 
 	sendJoin() {
@@ -2518,12 +2219,7 @@ class GameClient extends Game {
 			rank++; // Make rank 1-based index
 
 			// Parse leaderboard
-			let [clientId, identityId, allianceId, username, score] = item;
-
-			// Fetch new player data
-			if (identityId && this.identity && !this.fetchedIdentities.has(identityId)) {
-				newPlayers.push(identityId);
-			}
+			let [clientId, allianceId, username, score] = item;
 
 			// Get the alliance data
 			let allianceData =
@@ -2537,13 +2233,8 @@ class GameClient extends Game {
 				allianceName: allianceData ? allianceData[2] : null,
 				allianceColor: allianceData ? utils.getAllianceColor(allianceData[0]) : null,
 				isMine: clientId === this.clientId,
-				isMyIdentity: this.identity ? identityId == this.identity.id : false,
-				identity: this.identities.get(identityId)
 			});
 		}
-
-		// Fetch all new identities
-		newPlayers.forEach(identityId => this.fetchIdentity(identityId));
 
 		// Save data to Vue
 		this.vue.leaderboardItems = leaderboardItems;
@@ -3373,32 +3064,6 @@ class GameClient extends Game {
 			y < this.viewportY + this.viewHeight / 2 + padding &&
 			y > this.viewportY - this.viewHeight / 2 - padding
 		);
-	}
-
-	/*** NOTIFICATIONS ***/
-	presentNotification(thread, notification) {
-		let chatMessage = thread.tailMessage;
-
-		// Don't sent "Chat Created" notifications
-		if (chatMessage.body.chatCreate) return;
-
-		// Don't show notification from self
-		if (chatMessage.body.text && chatMessage.body.text.sender.id == this.identity.id) {
-			return;
-		}
-
-		let timeoutId = window.setTimeout(
-			() => this.vue.dismissNotification(chatMessage.id),
-			NOTIFICATION_LIFESPAN
-		);
-
-		// Insert notification
-		this.vue.notifications.unshift({
-			id: chatMessage.id,
-			notification,
-			timeoutId: timeoutId,
-			isFading: false
-		});
 	}
 }
 
