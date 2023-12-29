@@ -10,15 +10,30 @@ const structures = require('./config/structures');
 
 class Game {
 	constructor() {
-		// Crate quad tree
+		this._init();
+	}
+
+	_init() {
+		// Create quad tree
 		let mapRadius = config.mapSize / 2;
-		this.tree = new QuadNode({ minx: -mapRadius, miny: -mapRadius, maxx: mapRadius, maxy: mapRadius });
+		this.tree = new QuadNode({
+			minx: -mapRadius,
+			miny: -mapRadius,
+			maxx: mapRadius,
+			maxy: mapRadius
+		});
 
 		/** @type {Object.<number, Entity>} */ this.entities = {};
 		/** @type {Object.<number, Entity>} */ this.prunedEntities = {};
 		/** @type {{x:number, y: number, radius: number, multiplier: number}[]} */ this.timeWarps = [];
 
 		/* @type {number} */ this.updateIndex = 0;
+	}
+
+	reset() {
+		console.log('Resetting game');
+
+		this._init();
 	}
 
 	entityForId(id) {

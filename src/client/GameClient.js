@@ -1,3 +1,4 @@
+const { RivetClient } = require('@rivet-gg/api');
 const Game = require('../Game');
 const InputHandler = require('./InputHandler');
 const ExplosionManager = require('./effects/ExplosionManager');
@@ -96,8 +97,8 @@ class GameClient extends Game {
 	get isLSD() {
 		return this.normalizedUsername === 'lsd';
 	}
-	get isFuckNathan() {
-		return this.normalizedUsername === '#fucknathan' || this.normalizedUsername === '#fuckingnathan';
+	get isOopsie() {
+		return this.normalizedUsername === '#oopsie';
 	}
 
 	constructor() {
@@ -127,6 +128,8 @@ class GameClient extends Game {
 		/** @type {boolean} */ this.pingStart = null;
 
 		/** @type {number} */ this.kickTimer = 0; // Only increments if on home screen
+
+		/** @type {string} */ this.gameMode = null;
 
 		/** @type {Set<string>} */ this.rewards = new Set((localStorage.getItem('r') || '').split(','));
 
@@ -201,13 +204,89 @@ class GameClient extends Game {
 		this.render();
 	}
 
-	connectSocket(address, port, useTls, gameIndex, token = null) {
-		let wsProtocol = useTls ? 'wss:' : 'ws:';
-		let url = `${wsProtocol}//${address}:${port}/?gameIndex=${gameIndex}`;
-		if (token != null) {
-			url += `&token=${token}`;
-		}
-		console.log('Connecting', { url, address, port, useTls, gameIndex, token });
+    reset() {
+        super.reset();
+
+        if (this.ws) {
+            this.ws.onopen = this.ws.onclose = this.ws.onmessage = null;
+            this.ws.close();
+        }
+        this.ws = null;
+
+        this.initiated = false;
+        this.ping = 0;
+        this.pingStart = null;
+        this.kickTimer = this.vue.kickTimer = 0;
+        this.gameMode = this.vue.gameMode = null;
+        this.region = this.vue.region = null;
+        this.lastRenderTime = null;
+        this.killVignetteProgress = 0.0;
+        this.killVignetteProgressLength = 1.0;
+        this.score = this.vue.score = 0;
+        this.resources = this.vue.resources = [0, 0, 0];
+        this.structureCounts = this.vue.structureCounts = {}; // Slot indexes mapped to counts
+        this.clientId = null;
+        this.playerId = null;
+        this.spectateId = null;
+        this.leaderboardData = [];
+        this.playerRank = -1;
+        this.playerLeaderboardItem = null;
+        this.ownedWeapons = [];
+        this.ownedStructures = [];
+        this.allianceList = [];
+        this.allianceData = null;
+        this.showingAlliances = false;
+        this.showingHelp = false;
+        this.showingChatBox = false;
+        this.chatMessages = {}; // {<client id>: [<message>, <receive time>}
+        this.chatShowTime = 8.0;
+        this.showControlsTimer = 10;
+        this.heartBeatTimer = 0;
+        this.deathPosX = null;
+        this.deathPosY = null;
+        this.demolishConfirm = false;
+        this.vue.selectedWeaponIndex = -1;
+        this.vue.ownedWeaponIndex = 0;
+        this.vue.weaponList = [];
+        this.vue.structureList = [];
+        this.vue.upgradeOptions = null;
+        this.vue.hoveringPerk = null;
+        this.vue.leaderboardItems = [];
+        this.vue.isLanded = false;
+        this.vue.onPlanet = false;
+        this.vue.showingBuildGroup = null;
+    }
+
+    start() {
+        const rivet = new RivetClient({
+            environment: process.env.RIVET_API_ENDPOINT,
+            token: process.env.RIVET_TOKEN
+        });
+        let res = rivet.matchmaker.lobbies
+            .find({
+                gameModes: ['default']
+            })
+            .then(res => {
+                console.log('Found lobby', res);
+                this.connectSocket(res.lobby, res.player);
+            })
+            .catch(err => {
+                console.error('Failed to find lobby: ', err);
+                alert('Failed to find lobby: ' + JSON.stringify(err));
+                return;
+            });
+    }
+
+    connectSocket(lobby, player) {
+        this.reset();
+
+        this.lobby = lobby;
+        this.region = this.vue.region = lobby.region.regionId;
+
+        let port = lobby.ports['default'];
+        let wsProtocol = port.isTls ? 'wss:' : 'ws:';
+        let url = `${wsProtocol}//${port.hostname}:${port.port}/?token=${player.token}`;
+        console.log('Connecting', { lobby, url });
 
 		this.ws = new WebSocket(url);
 		this.ws.binaryType = 'arraybuffer';
@@ -1960,7 +2039,10 @@ class GameClient extends Game {
 		this.updateGameState();
 	}
 
-	onInit() {
+    onInit(data) {
+        let [gameMode] = data;
+        this.gameMode = this.vue.gameMode = gameMode;
+
 		// Save initiated
 		this.initiated = true;
 

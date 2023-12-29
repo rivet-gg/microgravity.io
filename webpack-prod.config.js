@@ -1,7 +1,3 @@
-require('dotenv').config({ path: '.env.prod' });
-
-const baseConfig = require('./webpack-base.config.js');
-
 // process.env['NODE_ENV'] = 'production';
 // process.env['BABEL_ENV'] = 'production';
 
