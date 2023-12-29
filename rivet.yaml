@@ -6,6 +6,7 @@ matchmaker:
     lnd-atl: {}
     lnd-fra: {}
   docker:
+    dockerfile: Dockerfile
     ports:
       default:
         port: 5001
