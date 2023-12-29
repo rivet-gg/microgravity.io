@@ -17,12 +17,13 @@ const nocache = require('nocache');
 
 let RIVET = require('@rivet-gg/api');
 let rivet = new RIVET.RivetClient({
-    environment: process.env.RIVET_API_ENDPOINT,
-	token: process.env.RIVET_TOKEN,
+	environment: process.env.RIVET_API_ENDPOINT,
+	token: process.env.RIVET_TOKEN
 });
 
-console.log("Setting lobby ready");
-rivet.matchmaker.lobbies.ready()
+console.log('Setting lobby ready');
+rivet.matchmaker.lobbies
+	.ready()
 	.then(() => console.log('Lobby ready'))
 	.catch(err => {
 		console.log('Failed to set lobby ready', JSON.stringify(err));
@@ -125,7 +126,7 @@ wss.on('connection', async (ws, req) => {
 		ws.addListener('close', async () => {
 			try {
 				await rivet.matchmaker.players.disconnected({ playerToken });
-				console.log("Player disconnected", playerToken);
+				console.log('Player disconnected', playerToken);
 			} catch (err) {
 				console.warn('Failed to disconnect player', err);
 			}
@@ -133,7 +134,7 @@ wss.on('connection', async (ws, req) => {
 
 		try {
 			await rivet.matchmaker.players.connected({ playerToken });
-			console.log("Player connected", playerToken);
+			console.log('Player connected', playerToken);
 		} catch (err) {
 			console.warn('Failed to connect player', err);
 			ws.close();

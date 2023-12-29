@@ -43,15 +43,15 @@ class GameServer extends Game {
 		}
 
 		// Start update loop
-        setInterval(() => {
-            // Execute the update in a safe block
-            try {
-                this.update(GameServer.dt);
-            } catch (error) {
-                console.error('Update error:', this.updateIndex);
-                console.error(error);
-            }
-        }, GameServer.dt * 1000);
+		setInterval(() => {
+			// Execute the update in a safe block
+			try {
+				this.update(GameServer.dt);
+			} catch (error) {
+				console.error('Update error:', this.updateIndex);
+				console.error(error);
+			}
+		}, GameServer.dt * 1000);
 	}
 
 	initWorld() {
