@@ -18,7 +18,7 @@
 
 <div id="ui">
 
-    <div id="mainMenu" class="modal">
+    <div id="mainMenu" class="modal" style="display: none">
         <!-- Center Panel -->
         <div id="menuContent">
             <!-- Game Logo -->
@@ -170,19 +170,19 @@
     </div>
 
 
-    <div id="loadingScreen" class="modal">
+    <div id="loadingScreen" class="modal" style="display: none">
         <!-- We keep the text here, since this shows when the script hasn't loaded yet -->
         <h1 v-t="'loading'">Loading...</h1>
     </div>
 
-    <div id="disconnectScreen" class="modal">
+    <div id="disconnectScreen" class="modal" style="display: none">
         <h1 v-t="'disconnected-title'"></h1>
         <h2 v-t="'disconnected-updating'"></h2>
         <h3 v-t="'disconnected-issue'"></h3>
         <div class="button" onclick="location.reload(true)" v-t="'reload-game'"></div>
     </div>
 
-    <div id="gameOverlay">
+    <div id="gameOverlay" style="display: none">
         <!-- Controls -->
         <div id="gameControlTip" class="controlTip" v-show="false"></div>
 
