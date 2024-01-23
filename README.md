@@ -1,5 +1,7 @@
 # Microgravity 🚀
 
+# ❗️ This project has been moved to [Rivet's example repo](https://github.com/rivet-gg/examples).
+
 [Microgravity.io](https://microgravity.io) is a web game where the player is tasked with building a space civilization. The player must mine resources, build defenses, fabricate weapons, join alliances, and attack enemies to stay on the top of the leaderboard.
 
 While the development of Microgravity has been minimal recently, there has been interest from the community to crowdsource the development of new features.
